@@ -7,61 +7,53 @@ export default function Landing() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4 py-8 sm:p-6">
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="text-center"
       >
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">
-          Registe-se para um Plano Personalizado
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
+          Obrigado pelo seu Interesse! 🌟
         </h1>
-        <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-          Responda ao nosso questionário de anamnese alimentar e de treino para
-          receber um plano adaptado às suas necessidades e objetivos.
+        <p className="text-gray-700 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+          Agradecemos por entrar em contacto conosco via WhatsApp! Estamos empolgados por ter você a bordo 
+          e mal podemos esperar para ajudá-lo a alcançar os seus objetivos. 
+        </p>
+        <p className="text-gray-700 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed mt-4">
+          Para dar início ao seu plano personalizado, basta preencher o nosso questionário exclusivo. 
+          Com ele, vamos criar um programa adaptado às suas necessidades e objetivos, seja em termos de nutrição ou treino.
         </p>
       </motion.div>
 
-      <Card className="mt-10 w-full max-w-lg shadow-lg">
-        <CardContent className="p-6 text-center">
-          <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-            Como funciona?
+      <Card className="mt-10 w-full max-w-lg shadow-xl border border-gray-200">
+        <CardContent className="p-5 sm:p-6 text-center">
+          <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-3">
+            Como Funciona?
           </h2>
-          <ul className="text-gray-600 text-left space-y-3">
-            <li>
-              ✅ <strong>Preencha o questionário</strong> sobre os seus hábitos
-              alimentares e nível de atividade física.
-            </li>
-            <li>
-              ✅ <strong>Análise especializada</strong> feita pela nossa equipa
-              de nutricionistas e especialistas em treino.
-            </li>
-            <li>
-              ✅ <strong>Receba um plano personalizado</strong>, ajustado às
-              suas necessidades e objetivos.
-            </li>
+          <ul className="text-gray-700 text-sm sm:text-base text-left space-y-3 sm:space-y-4">
+            <li>✅ <strong>Responda ao questionário:</strong> Conte-nos sobre os seus hábitos e metas.</li>
+            <li>🔬 <strong>Análise Profunda:</strong> Especialistas criam um plano sob medida.</li>
+            <li>🎯 <strong>Plano Personalizado:</strong> Nutrição e treino ajustados para si.</li>
+            <li>🚀 <strong>Acompanhamento Contínuo:</strong> Evolua com suporte especializado.</li>
           </ul>
 
-          <h2 className="text-2xl font-semibold text-gray-700 mt-6 mb-4">
-            O que inclui o plano?
+          <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mt-6 mb-3">
+            O Que Vai Receber?
           </h2>
-          <ul className="text-gray-600 text-left space-y-3">
-            <li>🍽️ Plano alimentar equilibrado e ajustado aos seus gostos.</li>
-            <li>🏋️ Programa de treino personalizado, adaptado ao seu nível.</li>
-            <li>
-              📊 Acompanhamento contínuo e possibilidade de ajustes ao longo do
-              tempo.
-            </li>
-            <li>
-              💡 Dicas e sugestões para manter a motivação e a disciplina.
-            </li>
+          <ul className="text-gray-700 text-sm sm:text-base text-left space-y-3 sm:space-y-4">
+            <li>🍽️ <strong>Plano Alimentar:</strong> Ajustado aos seus gostos e objetivos.</li>
+            <li>🏋️ <strong>Treino Personalizado:</strong> Exercícios adequados ao seu nível.</li>
+            <li>📊 <strong>Monitoramento Inteligente:</strong> Ajustes conforme sua evolução.</li>
+            <li>💡 <strong>Suporte e Motivação:</strong> Estratégias para manter o foco.</li>
           </ul>
+
           <Button
-            className="mt-6 px-6 py-3 text-lg cursor-pointer"
+            className="mt-6 w-full sm:w-auto px-6 py-3 text-base sm:text-lg font-bold bg-blue-600 hover:bg-blue-700 text-white transition-all duration-300"
             onClick={() => navigate("/anamnese")}
           >
-            Iniciar Anamnese
+            Começar Agora 🚀
           </Button>
         </CardContent>
       </Card>
