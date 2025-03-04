@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { AnamneseFormData } from "../types/anamnesetypes";
+import { AiOutlineClose } from "react-icons/ai";
 
 const Anamnese: React.FC = () => {
   const [formData, setFormData] = useState<AnamneseFormData>({
@@ -40,7 +41,7 @@ const Anamnese: React.FC = () => {
     dificuldadesPlanoAlimentar: "",
     aguaConsumida: "",
     usaSuplemento: "não",
-    suplemento: "",
+    qualSuplemento: "",
     acompanhamentoDistancia: "não",
     motivoAcompanhamento: "",
     pesoJejum: "",
@@ -52,21 +53,55 @@ const Anamnese: React.FC = () => {
   const fotoLateralRef = useRef<HTMLDivElement>(null);
   const fotoCostasRef = useRef<HTMLDivElement>(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const [selectedFiles, setSelectedFiles] = useState<{
+    [key: string]: File[];
+  }>({
+    fotoFrontal: [],
+    fotoLateral: [],
+    fotoCostas: [],
+  });
+  
 
-    if (file) {
-      setFormData({
-        ...formData,
-        [event.target.name]: file,
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, files } = event.target;
+    if (files && files.length > 0) {
+      setSelectedFiles((prev) => ({
+        ...prev,
+        [name]: [...prev[name], ...Array.from(files)],
+      }));
+    }
+  };
+
+  const handleUpload = async () => {
+    const formData = new FormData();
+
+    Object.entries(selectedFiles).forEach(([key, files]) => {
+      files.forEach((file) => formData.append(key, file));
+    });
+    console.log(selectedFiles);
+    /*
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
       });
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        console.log(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+      if (!response.ok) {
+        throw new Error("Erro ao enviar as fotos.");
+      }
+
+      alert("Fotos enviadas com sucesso!");
+    } catch (error) {
+      console.error(error);
+      alert("Falha no upload.");
+    }*/
+  };
+
+  const handleDelete = (category: string, index: number) => {
+    setSelectedFiles((prev) => ({
+      ...prev,
+      [category]: prev[category].filter((_, i) => i !== index),
+    }));
   };
 
   const handleInputChange = (
@@ -86,10 +121,60 @@ const Anamnese: React.FC = () => {
       [name]: value,
     }));
   };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    handleUpload();
     console.log("Form submitted with:", formData);
   };
+
+  const renderUploadBox = (name: string, label: string, refObj: any) => (
+    <div className="mb-6">
+      <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-2">
+        {label}
+      </label>
+      <div
+        ref={refObj}
+        onClick={() => refObj.current?.querySelector("input")?.click()}
+        className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 p-6 rounded-md cursor-pointer hover:border-indigo-500 transition"
+      >
+        <input
+          type="file"
+          name={name}
+          multiple
+          onChange={handleFileChange}
+          id={name}
+          className="hidden"
+          accept="image/*"
+        />
+        {selectedFiles[name].length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {selectedFiles[name].map((file, index) => (
+              <div key={index} className="relative group">
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt={label}
+                  className="w-20 h-20 object-cover rounded-md"
+                />
+                 <button
+                  className="absolute top-1 right-1 bg-red-500 text-white text-xs p-1 rounded-full opacity-75 group-hover:opacity-100 transition cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(name, index);
+                  }}
+                >
+                  <AiOutlineClose className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <span className="text-center text-gray-600">Clique para selecionar fotos</span>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
       <h2 className="text-2xl font-bold mb-6 text-center">
@@ -380,7 +465,7 @@ const Anamnese: React.FC = () => {
               </label>
               <input
                 type="text"
-                name="tipomedicamentos"
+                name="tiposmedicamentos"
                 value={formData.tiposmedicamentos}
                 onChange={handleInputChange}
                 className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
@@ -521,7 +606,7 @@ const Anamnese: React.FC = () => {
               htmlFor="refeicoesPorDia"
               className="block text-sm font-medium text-gray-700"
             >
-              Quantas refeições por dia?
+              Quantas refeições realiza por dia?
             </label>
             <select
               name="refeicoesPorDia"
@@ -728,13 +813,13 @@ const Anamnese: React.FC = () => {
 
           <div>
             <label
-              htmlFor="aguaPorDia"
+              htmlFor="aguaConsumida"
               className="block text-sm font-medium text-gray-700"
             >
               Quanta água beber por dia? (0.5 a 1L, 1L a 2L, 2L a 3L, +3L)
             </label>
             <select
-              name="aguaPorDia"
+              name="aguaConsumida"
               value={formData.aguaConsumida}
               onChange={handleSelectChange}
               className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
@@ -776,7 +861,7 @@ const Anamnese: React.FC = () => {
               <input
                 type="text"
                 name="qualSuplemento"
-                value={formData.suplemento}
+                value={formData.qualSuplemento}
                 onChange={handleInputChange}
                 className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               />
@@ -829,98 +914,18 @@ const Anamnese: React.FC = () => {
             </label>
             <input
               type="number"
-              name="pesoEmJejum"
+              name="pesoJejum"
               value={formData.pesoJejum}
               onChange={handleInputChange}
               className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
-
-          {/* Foto frontal */}
-          <div className="mb-6">
-            <label
-              htmlFor="fotoFrontal"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Foto frontal
-            </label>
-            <div
-              ref={fotoFrontalRef}
-              onClick={() =>
-                fotoFrontalRef.current?.querySelector("input")?.click()
-              }
-              className="flex items-center justify-center w-full border-2 border-dashed border-gray-300 p-6 rounded-md cursor-pointer hover:border-indigo-500 transition"
-            >
-              <input
-                type="file"
-                name="fotoFrontal"
-                onChange={handleFileChange}
-                id="fotoFrontal"
-                className="hidden"
-              />
-              <span className="text-center text-gray-600">
-                Clique para selecionar uma foto
-              </span>
-            </div>
-          </div>
-
-          {/* Foto lateral */}
-          <div className="mb-6">
-            <label
-              htmlFor="fotoLateral"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Foto lateral
-            </label>
-            <div
-              ref={fotoLateralRef}
-              onClick={() =>
-                fotoLateralRef.current?.querySelector("input")?.click()
-              }
-              className="flex items-center justify-center w-full border-2 border-dashed border-gray-300 p-6 rounded-md cursor-pointer hover:border-indigo-500 transition"
-            >
-              <input
-                type="file"
-                name="fotoLateral"
-                onChange={handleFileChange}
-                id="fotoLateral"
-                className="hidden"
-              />
-              <span className="text-center text-gray-600">
-                Clique para selecionar uma foto
-              </span>
-            </div>
-          </div>
-
-          {/* Foto de costas */}
-          <div className="mb-6">
-            <label
-              htmlFor="fotoCostas"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Foto de costas
-            </label>
-            <div
-              ref={fotoCostasRef}
-              onClick={() =>
-                fotoCostasRef.current?.querySelector("input")?.click()
-              }
-              className="flex items-center justify-center w-full border-2 border-dashed border-gray-300 p-6 rounded-md cursor-pointer hover:border-indigo-500 transition"
-            >
-              <input
-                type="file"
-                name="fotoCostas"
-                onChange={handleFileChange}
-                id="fotoCostas"
-                className="hidden"
-              />
-              <span className="text-center text-gray-600">
-                Clique para selecionar uma foto
-              </span>
-            </div>
+          <div>
+            {renderUploadBox("fotoFrontal", "Foto Frontal", fotoFrontalRef)}
+            {renderUploadBox("fotoLateral", "Foto Lateral", fotoLateralRef)}
+            {renderUploadBox("fotoCostas", "Foto de Costas", fotoCostasRef)}
           </div>
         </div>
-
         <div className="mt-6 flex justify-center">
           <button
             type="submit"

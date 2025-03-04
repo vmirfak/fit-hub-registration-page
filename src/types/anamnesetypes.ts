@@ -36,7 +36,7 @@ export type AnamneseFormData = {
     dificuldadesPlanoAlimentar: string;
     aguaConsumida: string;
     usaSuplemento: string;
-    suplemento: string;
+    qualSuplemento: string;
     acompanhamentoDistancia: string;
     motivoAcompanhamento: string;
     pesoJejum: string;
