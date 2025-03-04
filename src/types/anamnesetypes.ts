@@ -40,7 +40,7 @@ export type AnamneseFormData = {
     acompanhamentoDistancia: string;
     motivoAcompanhamento: string;
     pesoJejum: string;
-    fotoFrontal: string;
-    fotoLateral: string;
-    fotoCostas: string;
+    fotoFrontal: File[];
+    fotoLateral: File[];
+    fotoCostas: File[];
   };

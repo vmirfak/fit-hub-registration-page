@@ -45,9 +45,9 @@ const Anamnese: React.FC = () => {
     acompanhamentoDistancia: "não",
     motivoAcompanhamento: "",
     pesoJejum: "",
-    fotoFrontal: "",
-    fotoLateral: "",
-    fotoCostas: "",
+    fotoFrontal: [],
+    fotoLateral: [],
+    fotoCostas: [],
   });
   const fotoFrontalRef = useRef<HTMLDivElement>(null);
   const fotoLateralRef = useRef<HTMLDivElement>(null);
@@ -60,42 +60,32 @@ const Anamnese: React.FC = () => {
     fotoLateral: [],
     fotoCostas: [],
   });
-  
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, files } = event.target;
     if (files && files.length > 0) {
       setSelectedFiles((prev) => ({
         ...prev,
-        [name]: [...prev[name], ...Array.from(files)],
+        [name]: [...(prev[name] || []), ...Array.from(files)], 
       }));
     }
-  };
+  };;
 
   const handleUpload = async () => {
     const formData = new FormData();
-
+  
     Object.entries(selectedFiles).forEach(([key, files]) => {
-      files.forEach((file) => formData.append(key, file));
+      files.forEach((file) => formData.append(`${key}[]`, file)); 
     });
-    console.log(selectedFiles);
-    /*
-    try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Erro ao enviar as fotos.");
-      }
-
-      alert("Fotos enviadas com sucesso!");
-    } catch (error) {
-      console.error(error);
-      alert("Falha no upload.");
-    }*/
+  
+    for (const pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+  
+    console.log("Complete selected files:", selectedFiles);
   };
+  
+  
 
   const handleDelete = (category: string, index: number) => {
     setSelectedFiles((prev) => ({
@@ -130,7 +120,10 @@ const Anamnese: React.FC = () => {
 
   const renderUploadBox = (name: string, label: string, refObj: any) => (
     <div className="mb-6">
-      <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-2">
+      <label
+        htmlFor={name}
+        className="block text-sm font-medium text-gray-700 mb-2"
+      >
         {label}
       </label>
       <div
@@ -156,7 +149,7 @@ const Anamnese: React.FC = () => {
                   alt={label}
                   className="w-20 h-20 object-cover rounded-md"
                 />
-                 <button
+                <button
                   className="absolute top-1 right-1 bg-red-500 text-white text-xs p-1 rounded-full opacity-75 group-hover:opacity-100 transition cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -169,7 +162,9 @@ const Anamnese: React.FC = () => {
             ))}
           </div>
         ) : (
-          <span className="text-center text-gray-600">Clique para selecionar fotos</span>
+          <span className="text-center text-gray-600">
+            Clique para selecionar fotos
+          </span>
         )}
       </div>
     </div>
