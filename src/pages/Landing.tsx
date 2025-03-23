@@ -43,10 +43,10 @@ export default function Landing() {
             O que irá receber?
           </h2>
           <ul className="text-gray-700 text-sm sm:text-base text-left space-y-3 sm:space-y-4">
-            <li>🍽️ <strong>Plano alimentar:</strong> Adaptado aos seus gostos e objetivos.</li>
-            <li>🏋️ <strong>Treino personalizado:</strong> Exercícios adequados ao seu nível.</li>
-            <li>📊 <strong>Monitorização inteligente:</strong> Ajustes consoante a sua evolução.</li>
-            <li>💡 <strong>Apoio e motivação:</strong> Estratégias para manter o foco e a disciplina.</li>
+            <li>🍽️ <strong>Plano alimentar:</strong> Adaptado aos seus gostos e objetivos</li>
+            <li>🏋️ <strong>Treino personalizado:</strong> Exercícios adequados ao seu nível</li>
+            <li>📊 <strong>Monitorização inteligente:</strong> Ajustes consoante a sua evolução</li>
+            <li>💡 <strong>Apoio e motivação:</strong> Estratégias para manter o foco e a disciplina</li>
           </ul>
 
           <Button
