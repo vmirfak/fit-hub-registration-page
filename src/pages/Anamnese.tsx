@@ -1,14 +1,202 @@
-import React, { useState, useRef } from "react";
-import { AnamneseFormData } from "../types/anamnesetypes";
-import { AiOutlineClose } from "react-icons/ai";
+import { useState, ChangeEvent, FormEvent, useEffect } from "react";
+import {
+  ChevronRight,
+  ChevronLeft,
+  User,
+  Mail,
+  Home,
+  Briefcase,
+  Phone,
+  Target,
+  Activity,
+  Heart,
+  Clipboard,
+  Utensils,
+  Camera,
+  CheckCircle,
+  UserCheck,
+  FileText,
+  MessageSquare,
+  Clock,
+  Shield
+} from "lucide-react";
 
-const Anamnese: React.FC = () => {
-  const [formData, setFormData] = useState<AnamneseFormData>({
+type FormDataType = {
+  nome: string;
+  email: string;
+  localidade: string;
+  profissao: string;
+  countryCode: string;
+  telemovel: string;
+  objetivoExercicio: string;
+  praticaExercicio: string;
+  vezesPorSemana: number;
+  temDoresColuna: string;
+  zonaColuna: string;
+  temLesao: string;
+  localLesao: string;
+  cirurgiaRecente: string;
+  localcirurgia: string;
+  usaMedicamento: string;
+  problemaCardiaco: string;
+  dorNoPeito: string;
+  perdeuConsiencia: string;
+  problemaOssos: string;
+  tiposmedicamentos: string;
+  medicamentoPressao: string;
+  impedimentoExercicio: string;
+  observacoes: string;
+  refeicoesPorDia: number;
+  alimentosPrimeiraRefeicao: string;
+  alimentosSegundaRefeicao: string;
+  alimentosTerceiraRefeicao: string;
+  alimentosQuartaRefeicao: string;
+  alimentosQuintaRefeicao: string;
+  alimentosSextaRefeicao: string;
+  alimentosSetimaRefeicao: string;
+  alimentosOitavaRefeicao: string;
+  alimentosGosta: string;
+  restricaoAlimentar: string;
+  dificuldadesPlanoAlimentar: string;
+  aguaConsumida: string;
+  usaSuplemento: string;
+  qualSuplemento: string;
+  acompanhamentoDistancia: string;
+  motivoAcompanhamento: string;
+  pesoJejum: string;
+  fotoFrontal: File[];
+  fotoLateral: File[];
+  fotoCostas: File[];
+};
+
+type RadioButtonProps = {
+  name: string;
+  value: string;
+  label: string;
+  checked: boolean;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+};
+
+const FormLandingPage = ({ onStartForm }: { onStartForm: () => void }) => {
+
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl mx-auto">
+        {/* Hero Section */}
+        <div className="text-center mb-12">
+          <div className="bg-white rounded-full p-4 w-20 h-20 mx-auto mb-6 shadow-md">
+            <Activity className="w-12 h-12 text-blue-600 mx-auto" />
+          </div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">
+            Anamnese de Fitness & Nutrição
+          </h1>
+          <p className="text-xl text-gray-600">
+            Um questionário completo para personalizarmos o teu programa
+          </p>
+        </div>
+
+        {/* Key Benefits */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <div className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
+            <Shield className="w-12 h-12 text-green-600 mx-auto mb-4" />
+            <h3 className="font-semibold text-gray-900 mb-2">100% Confidencial</h3>
+            <p className="text-gray-600 text-sm">Todas as informações são mantidas em segurança</p>
+          </div>
+          <div className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
+            <Clock className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+            <h3 className="font-semibold text-gray-900 mb-2">10-15 Minutos</h3>
+            <p className="text-gray-600 text-sm">Tempo estimado para conclusão</p>
+          </div>
+          <div className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
+            <UserCheck className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+            <h3 className="font-semibold text-gray-900 mb-2">Personalizado</h3>
+            <p className="text-gray-600 text-sm">Plano criado especificamente para ti</p>
+          </div>
+        </div>
+
+        {/* Instructions Card */}
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden p-6 mb-8">
+          <h2 className="text-2xl font-semibold mb-6 text-blue-600 flex items-center">
+            <MessageSquare className="mr-3" />
+            Antes de Começar
+          </h2>
+
+          <div className="space-y-6">
+            <div className="border-l-4 border-blue-500 pl-6">
+              <h3 className="font-semibold text-gray-900 mb-2">O que iremos recolher:</h3>
+              <p className="text-gray-700">
+                Informações importantes sobre a tua saúde, estado de fitness atual e objetivos nutricionais
+                para criarmos o plano perfeito para ti.
+              </p>
+            </div>
+
+            <div className="border-l-4 border-green-500 pl-6">
+              <h3 className="font-semibold text-gray-900 mb-2">Prepara os seguintes dados:</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                <div className="flex items-center">
+                  <FileText className="w-5 h-5 text-gray-600 mr-2 flex-shrink-0" />
+                  <span className="text-gray-700">Dados pessoais básicos</span>
+                </div>
+                <div className="flex items-center">
+                  <Activity className="w-5 h-5 text-gray-600 mr-2 flex-shrink-0" />
+                  <span className="text-gray-700">Medidas corporais atuais</span>
+                </div>
+                <div className="flex items-center">
+                  <UserCheck className="w-5 h-5 text-gray-600 mr-2 flex-shrink-0" />
+                  <span className="text-gray-700">Histórico médico relevante</span>
+                </div>
+                <div className="flex items-center">
+                  <Utensils className="w-5 h-5 text-gray-600 mr-2 flex-shrink-0" />
+                  <span className="text-gray-700">Hábitos alimentares</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-l-4 border-purple-500 pl-6">
+              <h3 className="font-semibold text-gray-900 mb-2">Segurança e Privacidade:</h3>
+              <p className="text-gray-700">
+                Todas as informações são tratadas com máxima confidencialidade e utilizadas
+                exclusivamente para criar o teu programa personalizado.
+              </p>
+            </div>
+          </div>
+
+          {/* CTA Section */}
+          <div className="mt-8 pt-6 border-t border-gray-200 flex items-center justify-center flex-col">
+            <div className="text-center">
+              <button
+                onClick={onStartForm}
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-4 px-8 rounded-lg transition duration-200 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-lg cursor-pointer"
+              >
+                Começar Questionário
+                <ChevronRight className="ml-3" size={24} />
+              </button>
+              <p className="text-gray-500 text-sm mt-3">
+                Clica no botão para começar - podes fazer pausa e retomar a qualquer momento
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default function Anamnese() {
+  const [hasStarted, setHasStarted] = useState(false);
+  const [formData, setFormData] = useState<FormDataType>({
     nome: "",
     email: "",
     localidade: "",
     profissao: "",
-    telemovel: "",
+    countryCode: '+351',
+    telemovel: '',
     objetivoExercicio: "",
     praticaExercicio: "não",
     vezesPorSemana: 0,
@@ -49,889 +237,1024 @@ const Anamnese: React.FC = () => {
     fotoLateral: [],
     fotoCostas: [],
   });
-  const fotoFrontalRef = useRef<HTMLDivElement>(null);
-  const fotoLateralRef = useRef<HTMLDivElement>(null);
-  const fotoCostasRef = useRef<HTMLDivElement>(null);
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [isAnimating, setIsAnimating] = useState<boolean>(false);
 
-  const [selectedFiles, setSelectedFiles] = useState<{
-    [key: string]: File[];
-  }>({
-    fotoFrontal: [],
-    fotoLateral: [],
-    fotoCostas: [],
-  });
+  const steps = [
+    { name: "Dados Pessoais", icon: <User size={20} /> },
+    { name: "Exercício", icon: <Activity size={20} /> },
+    { name: "Saúde", icon: <Heart size={20} /> },
+    { name: "Nutrição", icon: <Utensils size={20} /> },
+    { name: "Fotos", icon: <Camera size={20} /> },
+    { name: "Revisão", icon: <Clipboard size={20} /> }
+  ];
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, files } = event.target;
-    if (files && files.length > 0) {
-      setSelectedFiles((prev) => ({
-        ...prev,
-        [name]: [...(prev[name] || []), ...Array.from(files)], 
-      }));
+  const countryOptions = [
+    { name: 'Portugal', code: 'PT', dialCode: '+351', flag: '🇵🇹' },
+    { name: 'España', code: 'ES', dialCode: '+34', flag: '🇪🇸' },
+    { name: 'United Kingdom', code: 'GB', dialCode: '+44', flag: '🇬🇧' },
+    { name: 'United States', code: 'US', dialCode: '+1', flag: '🇺🇸' },
+    { name: 'France', code: 'FR', dialCode: '+33', flag: '🇫🇷' },
+    { name: 'Deutschland', code: 'DE', dialCode: '+49', flag: '🇩🇪' },
+    { name: 'Italia', code: 'IT', dialCode: '+39', flag: '🇮🇹' },
+    { name: 'Brasil', code: 'BR', dialCode: '+55', flag: '🇧🇷' },
+    { name: 'Canada', code: 'CA', dialCode: '+1', flag: '🇨🇦' },
+    { name: 'Australia', code: 'AU', dialCode: '+61', flag: '🇦🇺' },
+    { name: 'Nederland', code: 'NL', dialCode: '+31', flag: '🇳🇱' },
+    { name: 'Suisse', code: 'CH', dialCode: '+41', flag: '🇨🇭' },
+    { name: 'Belgique', code: 'BE', dialCode: '+32', flag: '🇧🇪' },
+    { name: 'Luxembourg', code: 'LU', dialCode: '+352', flag: '🇱🇺' },
+    { name: 'Angola', code: 'AO', dialCode: '+244', flag: '🇦🇴' },
+    { name: 'Moçambique', code: 'MZ', dialCode: '+258', flag: '🇲🇿' },
+  ];
+
+  const formatPhoneNumber = (phoneNumber: string): string => {
+    if (!phoneNumber) return '';
+    if (formData.countryCode === '+351') {
+      const match = phoneNumber.match(/^(\d{3})(\d{3})(\d{3})$/);
+      if (match) return `${match[1]} ${match[2]} ${match[3]}`;
     }
-  };;
-
-  const handleUpload = async () => {
-    const formData = new FormData();
-  
-    Object.entries(selectedFiles).forEach(([key, files]) => {
-      files.forEach((file) => formData.append(`${key}[]`, file)); 
-    });
-  
-    for (const pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
-    }
-  
-    console.log("Complete selected files:", selectedFiles);
+    return phoneNumber;
   };
-  
-  
 
-  const handleDelete = (category: string, index: number) => {
-    setSelectedFiles((prev) => ({
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+    const checked = (e.target as HTMLInputElement).type === "checkbox" ? (e.target as HTMLInputElement).checked : undefined;
+    setFormData(prev => ({
       ...prev,
-      [category]: prev[category].filter((_, i) => i !== index),
+      [name]: type === "checkbox" ? checked : value
     }));
   };
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+  const nextStep = () => {
+    if (currentStep < steps.length - 1) {
+      console.log("Current Data:", formData);
+      setIsAnimating(true);
+      setTimeout(() => {
+        setCurrentStep(prev => prev + 1);
+        window.scrollTo(0, 0);
+        setIsAnimating(false);
+
+      }, 400);
+
+
+    }
   };
 
-  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+  const prevStep = () => {
+    if (currentStep > 0) {
+      setIsAnimating(true);
+      setTimeout(() => {
+        setCurrentStep(prev => prev - 1);
+        window.scrollTo(0, 0);
+        setIsAnimating(false);
+      }, 400);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    handleUpload();
-    console.log("Form submitted with:", formData);
+    alert("Formulário enviado com sucesso!");
+    console.log(formData);
   };
 
-  const renderUploadBox = (name: string, label: string, refObj: any) => (
-    <div className="mb-6">
-      <label
-        htmlFor={name}
-        className="block text-sm font-medium text-gray-700 mb-2"
-      >
-        {label}
+  const RadioButton = ({ name, value, label, checked, onChange }: RadioButtonProps) => {
+    return (
+      <label className="flex items-center space-x-2 cursor-pointer">
+        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${checked ? "border-blue-600" : "border-gray-400"}`}>
+          {checked && <div className="w-3 h-3 bg-blue-600 rounded-full"></div>}
+        </div>
+        <input type="radio" name={name} value={value} checked={checked} onChange={onChange} className="hidden" />
+        <span className="text-sm">{label}</span>
       </label>
-      <div
-        ref={refObj}
-        onClick={() => refObj.current?.querySelector("input")?.click()}
-        className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 p-6 rounded-md cursor-pointer hover:border-indigo-500 transition"
-      >
-        <input
-          type="file"
-          name={name}
-          multiple
-          onChange={handleFileChange}
-          id={name}
-          className="hidden"
-          accept="image/*"
-        />
-        {selectedFiles[name].length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {selectedFiles[name].map((file, index) => (
-              <div key={index} className="relative group">
-                <img
-                  src={URL.createObjectURL(file)}
-                  alt={label}
-                  className="w-20 h-20 object-cover rounded-md"
-                />
-                <button
-                  className="absolute top-1 right-1 bg-red-500 text-white text-xs p-1 rounded-full opacity-75 group-hover:opacity-100 transition cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(name, index);
-                  }}
-                >
-                  <AiOutlineClose className="w-4 h-4" />
-                </button>
+    );
+  };
+
+  const renderMealInputs = () => {
+    const inputs = [];
+    const labels = ["Primeira", "Segunda", "Terceira", "Quarta", "Quinta", "Sexta", "Setima", "Oitava"];
+    for (let i = 1; i <= formData.refeicoesPorDia && i <= labels.length; i++) {
+      const mealKey = `alimentos${labels[i - 1]}Refeicao` as keyof FormDataType;
+      inputs.push(
+        <div key={mealKey} className="mb-4">
+          <label className="block mb-1 font-medium text-gray-700">Refeição {i}</label>
+          <textarea
+            name={mealKey}
+            value={formData[mealKey] as string}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            rows={2}
+          />
+        </div>
+      );
+    }
+    return inputs;
+  };
+
+  if (!hasStarted) {
+    return <FormLandingPage onStartForm={() => setHasStarted(true)} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Anamnese de Fitness & Nutrição</h1>
+          <p className="text-gray-600">Completa o teu formulário.</p>
+        </div>
+
+        {/* Progress bar */}
+        <div className="mb-8">
+          <div className="flex justify-between mb-2">
+            {steps.map((step, index) => (
+              <div
+                key={index}
+                className={`flex flex-col items-center ${index <= currentStep ? "text-blue-600" : "text-gray-400"}`}
+              >
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-1 transition-all duration-500 ${index <= currentStep ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-500"}`}>
+                  {step.icon}
+                </div>
+                <span className="text-xs hidden sm:block">{step.name}</span>
               </div>
             ))}
           </div>
-        ) : (
-          <span className="text-center text-gray-600">
-            Clique para selecionar fotos
-          </span>
-        )}
+          <div className="h-2 bg-gray-200 rounded-full">
+            <div
+              className="h-full bg-blue-600 rounded-full transition-all duration-500"
+              style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+
+        {/* Form */}
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <form onSubmit={handleSubmit}>
+            <div
+              className={`transition-all duration-500 transform ${isAnimating ? "opacity-0 translate-x-full" : "opacity-100 translate-x-0"}`}
+            >
+              {/* Step 1: Personal Data */}
+              {currentStep === 0 && (
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-6 flex items-center">
+                    <User className="mr-2 text-blue-600" />
+                    Dados Pessoais
+                  </h2>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block mb-1 font-medium text-gray-700">
+                        Nome Completo
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          name="nome"
+                          value={formData.nome}
+                          onChange={handleChange}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                          required
+                        />
+                        <User className="absolute left-3 top-3.5 text-gray-400" size={18} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block mb-1 font-medium text-gray-700">
+                        Email
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                          required
+                        />
+                        <Mail className="absolute left-3 top-3.5 text-gray-400" size={18} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block mb-1 font-medium text-gray-700">
+                        Localidade
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          name="localidade"
+                          value={formData.localidade}
+                          onChange={handleChange}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                          required
+                        />
+                        <Home className="absolute left-3 top-3.5 text-gray-400" size={18} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block mb-1 font-medium text-gray-700">
+                        Profissão
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          name="profissao"
+                          value={formData.profissao}
+                          onChange={handleChange}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                        />
+                        <Briefcase className="absolute left-3 top-3.5 text-gray-400" size={18} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block mb-1 font-medium text-gray-700">Telemóvel</label>
+                      <div className="relative flex">
+                        {/* Country Code Select */}
+                        <select
+                          name="countryCode"
+                          value={formData.countryCode}
+                          onChange={handleChange}
+                          className="p-3 border border-gray-300 rounded-l-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer appearance-none"
+                          required
+                        >
+                          {countryOptions.map((country) => (
+                            <option key={country.code} value={country.dialCode}>
+                              {country.flag} {country.name} {country.dialCode}
+                            </option>
+                          ))}
+                        </select>
+
+                        {/* Phone Input */}
+                        <div className="relative flex-1">
+                          <input
+                            type="tel"
+                            name="telemovel"
+                            value={formatPhoneNumber(formData.telemovel)}
+                            onChange={(e) => {
+                              const onlyNumbers = e.target.value.replace(/\D/g, "");
+                              setFormData(prev => ({ ...prev, telemovel: onlyNumbers }));
+                            }}
+                            className="w-full p-3 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                            required
+                            placeholder="912 345 678"
+                          />
+                          <Phone className="absolute right-3 top-3.5 text-gray-400" size={18} />
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block mb-1 font-medium text-gray-700">
+                        Peso em Jejum (kg)
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          name="pesoJejum"
+                          value={formData.pesoJejum}
+                          onChange={handleChange}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: Exercise */}
+              {currentStep === 1 && (
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-6 flex items-center">
+                    <Activity className="mr-2 text-blue-600" />
+                    Exercício Físico
+                  </h2>
+
+                  <div className="mb-6">
+                    <label className="block mb-2 font-medium text-gray-700">
+                      Qual é o teu objetivo com o exercício?
+                    </label>
+                    <div className="relative">
+                      <textarea
+                        name="objetivoExercicio"
+                        value={formData.objetivoExercicio}
+                        onChange={handleChange}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                        rows={3}
+                      />
+                      <Target className="absolute left-3 top-3.5 text-gray-400" size={18} />
+                    </div>
+                  </div>
+
+                  <div className="mb-6">
+                    <label className="block mb-2 font-medium text-gray-700">
+                      Praticas exercício físico atualmente?
+                    </label>
+                    <div className="flex space-x-6 mt-2">
+                      <RadioButton
+                        name="praticaExercicio"
+                        value="sim"
+                        label="Sim"
+                        checked={formData.praticaExercicio === "sim"}
+                        onChange={() => setFormData({ ...formData, praticaExercicio: "sim" })}
+                      />
+                      <RadioButton
+                        name="praticaExercicio"
+                        value="não"
+                        label="Não"
+                        checked={formData.praticaExercicio === "não"}
+                        onChange={() => setFormData({ ...formData, praticaExercicio: "não" })}
+                      />
+                    </div>
+                  </div>
+
+                  {formData.praticaExercicio === "sim" && (
+                    <div className="mb-6">
+                      <label className="block mb-2 font-medium text-gray-700">
+                        Quantas vezes por semana?
+                      </label>
+                      <input
+                        type="number"
+                        name="vezesPorSemana"
+                        min="0"
+                        max="7"
+                        value={formData.vezesPorSemana}
+                        onChange={handleChange}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                  )}
+
+                  <div className="mb-6">
+                    <label className="block mb-2 font-medium text-gray-700">
+                      Tens algum impedimento para praticar exercício?
+                    </label>
+                    <div className="flex space-x-6 mt-2">
+                      <RadioButton
+                        name="impedimentoExercicio"
+                        value="sim"
+                        label="Sim"
+                        checked={formData.impedimentoExercicio === "sim"}
+                        onChange={() => setFormData({ ...formData, impedimentoExercicio: "sim" })}
+                      />
+                      <RadioButton
+                        name="impedimentoExercicio"
+                        value="não"
+                        label="Não"
+                        checked={formData.impedimentoExercicio === "não"}
+                        onChange={() => setFormData({ ...formData, impedimentoExercicio: "não" })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mb-6">
+                    <label className="block mb-2 font-medium text-gray-700">
+                      Observações adicionais sobre a tua rotina de exercícios
+                    </label>
+                    <textarea
+                      name="observacoes"
+                      value={formData.observacoes}
+                      onChange={handleChange}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      rows={3}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Health */}
+              {currentStep === 2 && (
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-6 flex items-center">
+                    <Heart className="mr-2 text-blue-600" />
+                    Saúde
+                  </h2>
+
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block mb-2 font-medium text-gray-700">
+                        Tens dores na coluna?
+                      </label>
+                      <div className="flex space-x-6 mt-2">
+                        <RadioButton
+                          name="temDoresColuna"
+                          value="sim"
+                          label="Sim"
+                          checked={formData.temDoresColuna === "sim"}
+                          onChange={() => setFormData({ ...formData, temDoresColuna: "sim" })}
+                        />
+                        <RadioButton
+                          name="temDoresColuna"
+                          value="não"
+                          label="Não"
+                          checked={formData.temDoresColuna === "não"}
+                          onChange={() => setFormData({ ...formData, temDoresColuna: "não" })}
+                        />
+                      </div>
+                    </div>
+
+                    {formData.temDoresColuna === "sim" && (
+                      <div>
+                        <label className="block mb-1 font-medium text-gray-700">
+                          Em que zona da coluna?
+                        </label>
+                        <input
+                          type="text"
+                          name="zonaColuna"
+                          value={formData.zonaColuna}
+                          onChange={handleChange}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block mb-2 font-medium text-gray-700">
+                        Tens alguma lesão?
+                      </label>
+                      <div className="flex space-x-6 mt-2">
+                        <RadioButton
+                          name="temLesao"
+                          value="sim"
+                          label="Sim"
+                          checked={formData.temLesao === "sim"}
+                          onChange={() => setFormData({ ...formData, temLesao: "sim" })}
+                        />
+                        <RadioButton
+                          name="temLesao"
+                          value="não"
+                          label="Não"
+                          checked={formData.temLesao === "não"}
+                          onChange={() => setFormData({ ...formData, temLesao: "não" })}
+                        />
+                      </div>
+                    </div>
+
+                    {formData.temLesao === "sim" && (
+                      <div>
+                        <label className="block mb-1 font-medium text-gray-700">
+                          Onde é a lesão?
+                        </label>
+                        <input
+                          type="text"
+                          name="localLesao"
+                          value={formData.localLesao}
+                          onChange={handleChange}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block mb-2 font-medium text-gray-700">
+                        Fizeste alguma cirurgia recentemente?
+                      </label>
+                      <div className="flex space-x-6 mt-2">
+                        <RadioButton
+                          name="cirurgiaRecente"
+                          value="sim"
+                          label="Sim"
+                          checked={formData.cirurgiaRecente === "sim"}
+                          onChange={() => setFormData({ ...formData, cirurgiaRecente: "sim" })}
+                        />
+                        <RadioButton
+                          name="cirurgiaRecente"
+                          value="não"
+                          label="Não"
+                          checked={formData.cirurgiaRecente === "não"}
+                          onChange={() => setFormData({ ...formData, cirurgiaRecente: "não" })}
+                        />
+                      </div>
+                    </div>
+
+                    {formData.cirurgiaRecente === "sim" && (
+                      <div>
+                        <label className="block mb-1 font-medium text-gray-700">
+                          Que cirurgia fizeste?
+                        </label>
+                        <input
+                          type="text"
+                          name="localcirurgia"
+                          value={formData.localcirurgia}
+                          onChange={handleChange}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block mb-2 font-medium text-gray-700">
+                        Usas algum medicamento?
+                      </label>
+                      <div className="flex space-x-6 mt-2">
+                        <RadioButton
+                          name="usaMedicamento"
+                          value="sim"
+                          label="Sim"
+                          checked={formData.usaMedicamento === "sim"}
+                          onChange={() => setFormData({ ...formData, usaMedicamento: "sim" })}
+                        />
+                        <RadioButton
+                          name="usaMedicamento"
+                          value="não"
+                          label="Não"
+                          checked={formData.usaMedicamento === "não"}
+                          onChange={() => setFormData({ ...formData, usaMedicamento: "não" })}
+                        />
+                      </div>
+                    </div>
+
+                    {formData.usaMedicamento === "sim" && (
+                      <div>
+                        <label className="block mb-1 font-medium text-gray-700">
+                          Quais medicamentos?
+                        </label>
+                        <textarea
+                          name="tiposmedicamentos"
+                          value={formData.tiposmedicamentos}
+                          onChange={handleChange}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          rows={2}
+                        />
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block mb-2 font-medium text-gray-700">
+                          Tens problemas cardíacos?
+                        </label>
+                        <div className="flex space-x-6 mt-2">
+                          <RadioButton
+                            name="problemaCardiaco"
+                            value="sim"
+                            label="Sim"
+                            checked={formData.problemaCardiaco === "sim"}
+                            onChange={() => setFormData({ ...formData, problemaCardiaco: "sim" })}
+                          />
+                          <RadioButton
+                            name="problemaCardiaco"
+                            value="não"
+                            label="Não"
+                            checked={formData.problemaCardiaco === "não"}
+                            onChange={() => setFormData({ ...formData, problemaCardiaco: "não" })}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block mb-2 font-medium text-gray-700">
+                          Sentes dor no peito?
+                        </label>
+                        <div className="flex space-x-6 mt-2">
+                          <RadioButton
+                            name="dorNoPeito"
+                            value="sim"
+                            label="Sim"
+                            checked={formData.dorNoPeito === "sim"}
+                            onChange={() => setFormData({ ...formData, dorNoPeito: "sim" })}
+                          />
+                          <RadioButton
+                            name="dorNoPeito"
+                            value="não"
+                            label="Não"
+                            checked={formData.dorNoPeito === "não"}
+                            onChange={() => setFormData({ ...formData, dorNoPeito: "não" })}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block mb-2 font-medium text-gray-700">
+                          Já perdeste a consciência?
+                        </label>
+                        <div className="flex space-x-6 mt-2">
+                          <RadioButton
+                            name="perdeuConsiencia"
+                            value="sim"
+                            label="Sim"
+                            checked={formData.perdeuConsiencia === "sim"}
+                            onChange={() => setFormData({ ...formData, perdeuConsiencia: "sim" })}
+                          />
+                          <RadioButton
+                            name="perdeuConsiencia"
+                            value="não"
+                            label="Não"
+                            checked={formData.perdeuConsiencia === "não"}
+                            onChange={() => setFormData({ ...formData, perdeuConsiencia: "não" })}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block mb-2 font-medium text-gray-700">
+                          Tens problemas ósseos?
+                        </label>
+                        <div className="flex space-x-6 mt-2">
+                          <RadioButton
+                            name="problemaOssos"
+                            value="sim"
+                            label="Sim"
+                            checked={formData.problemaOssos === "sim"}
+                            onChange={() => setFormData({ ...formData, problemaOssos: "sim" })}
+                          />
+                          <RadioButton
+                            name="problemaOssos"
+                            value="não"
+                            label="Não"
+                            checked={formData.problemaOssos === "não"}
+                            onChange={() => setFormData({ ...formData, problemaOssos: "não" })}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 4: Nutrition */}
+              {currentStep === 3 && (
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-6 flex items-center">
+                    <Utensils className="mr-2 text-blue-600" />
+                    Nutrição
+                  </h2>
+
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block mb-2 font-medium text-gray-700">
+                        Quantas refeições faz por dia?
+                      </label>
+                      <input
+                        type="number"
+                        name="refeicoesPorDia"
+                        min="0"
+                        max="8"
+                        value={formData.refeicoesPorDia}
+                        onChange={handleChange}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {formData.refeicoesPorDia > 0 && (
+                      <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                        <h3 className="font-medium text-gray-800 mb-4">Descreve as tuas refeições</h3>
+                        {renderMealInputs()}
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block mb-2 font-medium text-gray-700">
+                        Que alimentos mais gostas?
+                      </label>
+                      <textarea
+                        name="alimentosGosta"
+                        value={formData.alimentosGosta}
+                        onChange={handleChange}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        rows={2}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block mb-2 font-medium text-gray-700">
+                        Tens alguma restrição alimentar?
+                      </label>
+                      <textarea
+                        name="restricaoAlimentar"
+                        value={formData.restricaoAlimentar}
+                        onChange={handleChange}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        rows={2}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block mb-2 font-medium text-gray-700">
+                        Descreve as dificuldades para para seguir um plano alimentar
+                      </label>
+                      <textarea
+                        name="dificuldadesPlanoAlimentar"
+                        value={formData.dificuldadesPlanoAlimentar}
+                        onChange={handleChange}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        rows={2}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block mb-2 font-medium text-gray-700">
+                        Quantidade de água consumida por dia (litros)
+                      </label>
+                      <input
+                        type="text"
+                        name="aguaConsumida"
+                        value={formData.aguaConsumida}
+                        onChange={handleChange}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block mb-2 font-medium text-gray-700">
+                        Usas algum suplemento?
+                      </label>
+                      <div className="flex space-x-6 mt-2">
+                        <RadioButton
+                          name="usaSuplemento"
+                          value="sim"
+                          label="Sim"
+                          checked={formData.usaSuplemento === "sim"}
+                          onChange={() => setFormData({ ...formData, usaSuplemento: "sim" })}
+                        />
+                        <RadioButton
+                          name="usaSuplemento"
+                          value="não"
+                          label="Não"
+                          checked={formData.usaSuplemento === "não"}
+                          onChange={() => setFormData({ ...formData, usaSuplemento: "não" })}
+                        />
+                      </div>
+                    </div>
+
+                    {formData.usaSuplemento === "sim" && (
+                      <div>
+                        <label className="block mb-1 font-medium text-gray-700">
+                          Que suplemento(s)?
+                        </label>
+                        <input
+                          type="text"
+                          name="qualSuplemento"
+                          value={formData.qualSuplemento}
+                          onChange={handleChange}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block mb-2 font-medium text-gray-700">
+                        Estás interessado em acompanhamento à distância?
+                      </label>
+                      <div className="flex space-x-6 mt-2">
+                        <RadioButton
+                          name="acompanhamentoDistancia"
+                          value="sim"
+                          label="Sim"
+                          checked={formData.acompanhamentoDistancia === "sim"}
+                          onChange={() => setFormData({ ...formData, acompanhamentoDistancia: "sim" })}
+                        />
+                        <RadioButton
+                          name="acompanhamentoDistancia"
+                          value="não"
+                          label="Não"
+                          checked={formData.acompanhamentoDistancia === "não"}
+                          onChange={() => setFormData({ ...formData, acompanhamentoDistancia: "não" })}
+                        />
+                      </div>
+                    </div>
+
+                    {formData.acompanhamentoDistancia === "sim" && (
+                      <div>
+                        <label className="block mb-1 font-medium text-gray-700">
+                          Qual o motivo para o acompanhamento à distância?
+                        </label>
+                        <textarea
+                          name="motivoAcompanhamento"
+                          value={formData.motivoAcompanhamento}
+                          onChange={handleChange}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          rows={2}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 5: Photos */}
+              {currentStep === 4 && (
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-6 flex items-center">
+                    <Camera className="mr-2 text-blue-600" />
+                    Fotos Corporais
+                  </h2>
+
+                  <div className="space-y-8">
+                    <div className="text-center">
+                      <p className="text-gray-600 mb-4">
+                        Para uma melhor avaliação, por favor envia fotos de diferentes ângulos
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center h-48">
+                        <Camera className="text-gray-400 mb-2" size={24} />
+                        <p className="text-gray-500 text-sm">Foto Frontal</p>
+                      </div>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center h-48">
+                        <Camera className="text-gray-400 mb-2" size={24} />
+                        <p className="text-gray-500 text-sm">Foto Lateral</p>
+                      </div>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center h-48">
+                        <Camera className="text-gray-400 mb-2" size={24} />
+                        <p className="text-gray-500 text-sm">Foto de Costas</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 6: Review */}
+              {currentStep === 5 && (
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-6 flex items-center">
+                    <Clipboard className="mr-2 text-blue-600" />
+                    Revisão Final
+                  </h2>
+
+                  <div className="bg-blue-50 rounded-lg p-4 mb-6">
+                    <div className="flex items-center">
+                      <CheckCircle className="text-blue-600 mr-2" size={20} />
+                      <p className="text-blue-800 font-medium">Verifica todas as informações antes de enviar</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="font-medium text-gray-800 border-b pb-2 mb-3">Dados Pessoais</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-500">Nome</p>
+                          <p className="font-medium">{formData.nome || "Dados não introduzidos"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Email</p>
+                          <p className="font-medium">{formData.email || "Dados não introduzidos"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Localidade</p>
+                          <p className="font-medium">{formData.localidade || "Dados não introduzidos"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Profissão</p>
+                          <p className="font-medium">{formData.profissao || "Dados não introduzidos"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Telemóvel</p>
+                          <p className="font-medium">{formData.telemovel || "Dados não introduzidos"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Peso em Jejum</p>
+                          <p className="font-medium">{formData.pesoJejum || "Dados não introduzidos"}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-medium text-gray-800 border-b pb-2 mb-3">Exercício Físico</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-500">Objetivo</p>
+                          <p className="font-medium">{formData.objetivoExercicio || "Dados não introduzidos"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Pratica exercício?</p>
+                          <p className="font-medium">{formData.praticaExercicio === "sim" ? "Sim" : "Não"}</p>
+                        </div>
+                        {formData.praticaExercicio === "sim" && (
+                          <div>
+                            <p className="text-sm text-gray-500">Vezes por semana</p>
+                            <p className="font-medium">{formData.vezesPorSemana}</p>
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-sm text-gray-500">Impedimento para exercício</p>
+                          <p className="font-medium">{formData.impedimentoExercicio === "sim" ? "Sim" : "Não"}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-medium text-gray-800 border-b pb-2 mb-3">Saúde</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-500">Dores na coluna</p>
+                          <p className="font-medium">{formData.temDoresColuna === "sim" ? "Sim" : "Não"}</p>
+                        </div>
+                        {formData.temDoresColuna === "sim" && (
+                          <div>
+                            <p className="text-sm text-gray-500">Zona da coluna</p>
+                            <p className="font-medium">{formData.zonaColuna}</p>
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-sm text-gray-500">Lesão</p>
+                          <p className="font-medium">{formData.temLesao === "sim" ? "Sim" : "Não"}</p>
+                        </div>
+                        {formData.temLesao === "sim" && (
+                          <div>
+                            <p className="text-sm text-gray-500">Local da lesão</p>
+                            <p className="font-medium">{formData.localLesao}</p>
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-sm text-gray-500">Cirurgia recente</p>
+                          <p className="font-medium">{formData.cirurgiaRecente === "sim" ? "Sim" : "Não"}</p>
+                        </div>
+                        {formData.cirurgiaRecente === "sim" && (
+                          <div>
+                            <p className="text-sm text-gray-500">Local da cirurgia</p>
+                            <p className="font-medium">{formData.localcirurgia}</p>
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-sm text-gray-500">Usa medicamento</p>
+                          <p className="font-medium">{formData.usaMedicamento === "sim" ? "Sim" : "Não"}</p>
+                        </div>
+                        {formData.usaMedicamento === "sim" && (
+                          <div>
+                            <p className="text-sm text-gray-500">Medicamentos</p>
+                            <p className="font-medium">{formData.tiposmedicamentos}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-medium text-gray-800 border-b pb-2 mb-3">Nutrição</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-500">Refeições por dia</p>
+                          <p className="font-medium">{formData.refeicoesPorDia}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Água consumida (litros)</p>
+                          <p className="font-medium">{formData.aguaConsumida || "Dados não introduzidos"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Alimentos preferidos</p>
+                          <p className="font-medium">{formData.alimentosGosta || "Dados não introduzidos"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Restrições alimentares</p>
+                          <p className="font-medium">{formData.restricaoAlimentar || "Nenhuma"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Usa suplemento</p>
+                          <p className="font-medium">{formData.usaSuplemento === "sim" ? "Sim" : "Não"}</p>
+                        </div>
+                        {formData.usaSuplemento === "sim" && (
+                          <div>
+                            <p className="text-sm text-gray-500">Suplementos</p>
+                            <p className="font-medium">{formData.qualSuplemento}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Navigation buttons */}
+            <div className="bg-gray-50 px-6 py-4 flex justify-between border-t">
+              {currentStep > 0 ? (
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
+                >
+                  <ChevronLeft className="mr-1" size={16} />
+                  Anterior
+                </button>
+              ) : (
+                <div></div>
+              )}
+
+              {currentStep < steps.length - 1 ? (
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  className="flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
+                >
+                  Próximo
+                  <ChevronRight className="ml-1" size={16} />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 cursor-pointer"
+                >
+                  Enviar Formulário
+                  <CheckCircle className="ml-1" size={16} />
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
-
-  return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-bold mb-6 text-center">
-        Anamnese Desportiva e Alimentar
-      </h2>
-
-      <form onSubmit={handleSubmit}>
-        {/* ANAMNESE DESPORTIVA */}
-        <div className="space-y-4">
-          <div>
-            <label
-              htmlFor="nome"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Nome
-            </label>
-            <input
-              type="text"
-              name="nome"
-              value={formData.nome}
-              onChange={handleInputChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="localidade"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Localidade
-            </label>
-            <input
-              type="text"
-              name="localidade"
-              value={formData.localidade}
-              onChange={handleInputChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="profissao"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Profissão
-            </label>
-            <input
-              type="text"
-              name="profissao"
-              value={formData.profissao}
-              onChange={handleInputChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="telemovel"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Telemóvel
-            </label>
-            <input
-              type="text"
-              name="telemovel"
-              value={formData.telemovel}
-              onChange={handleInputChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="objetivoExercicio"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Objetivo do exercício físico
-            </label>
-            <select
-              name="objetivoExercicio"
-              value={formData.objetivoExercicio}
-              onChange={handleSelectChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="Aumento de massa muscular">
-                Aumento de massa muscular
-              </option>
-              <option value="Melhora da capacidade aeróbia">
-                Melhora da capacidade aeróbia
-              </option>
-              <option value="Saúde / Qualidade de vida">
-                Saúde / Qualidade de vida
-              </option>
-              <option value="Fortalecimento Muscular">
-                Fortalecimento Muscular
-              </option>
-              <option value="Condicionamento Físico em geral">
-                Condicionamento Físico em geral
-              </option>
-              <option value="Perda de peso">Perda de peso</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="praticaExercicio"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Pratica exercício físico regularmente
-            </label>
-            <select
-              name="praticaExercicio"
-              value={formData.praticaExercicio}
-              onChange={handleSelectChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="sim">Sim</option>
-              <option value="não">Não</option>
-            </select>
-          </div>
-
-          {/* Conditionally render the "vezesPorSemana" input based on the value of "praticaExercicio" */}
-          {formData.praticaExercicio === "sim" && (
-            <div>
-              <label
-                htmlFor="vezesPorSemana"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Quantas vezes por semana
-              </label>
-              <input
-                type="number"
-                name="vezesPorSemana"
-                value={formData.vezesPorSemana}
-                onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-          )}
-
-          <div>
-            <label
-              htmlFor="temDoresColuna"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Tem dores na coluna?
-            </label>
-            <select
-              name="temDoresColuna"
-              value={formData.temDoresColuna}
-              onChange={handleSelectChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="sim">Sim</option>
-              <option value="não">Não</option>
-            </select>
-          </div>
-          {formData.temDoresColuna === "sim" && (
-            <div>
-              <label
-                htmlFor="zonaColuna"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Em que zona?
-              </label>
-              <select
-                name="zonaColuna"
-                value="{formData.zonaColuna}"
-                onChange={handleSelectChange}
-                className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-              >
-                <option value="Lombar">Lombar</option>
-                <option value="Dorsal">Dorsal</option>
-                <option value="Cervical">Cervical</option>
-              </select>
-            </div>
-          )}
-          <div>
-            <label
-              htmlFor="temLesao"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Tem alguma lesão?
-            </label>
-            <select
-              name="temLesao"
-              value={formData.temLesao}
-              onChange={handleSelectChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="sim">Sim</option>
-              <option value="não">Não</option>
-            </select>
-          </div>
-          {formData.temLesao === "sim" && (
-            <div>
-              <label
-                htmlFor="localLesao"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Onde está a lesão?
-              </label>
-              <input
-                type="text"
-                name="localLesao"
-                value={formData.localLesao}
-                onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-          )}
-          <div>
-            <label
-              htmlFor="cirurgiaRecente"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Teve alguma cirurgia recente?
-            </label>
-            <select
-              name="cirurgiaRecente"
-              value={formData.cirurgiaRecente}
-              onChange={handleSelectChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="sim">Sim</option>
-              <option value="não">Não</option>
-            </select>
-          </div>
-          {formData.cirurgiaRecente === "sim" && (
-            <div>
-              <label
-                htmlFor="localLesao"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Onde foi a intervenção circúrgica?
-              </label>
-              <input
-                type="text"
-                name="localcirurgia"
-                value={formData.localcirurgia}
-                onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-          )}
-          <div>
-            <label
-              htmlFor="usaMedicamento"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Usa algum medicamento regularmente?
-            </label>
-            <select
-              name="usaMedicamento"
-              value={formData.usaMedicamento}
-              onChange={handleSelectChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="sim">Sim</option>
-              <option value="não">Não</option>
-            </select>
-          </div>
-          {formData.usaMedicamento === "sim" && (
-            <div>
-              <label
-                htmlFor="medicamento"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Que medicamento(s)?
-              </label>
-              <input
-                type="text"
-                name="tiposmedicamentos"
-                value={formData.tiposmedicamentos}
-                onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-          )}
-          <div>
-            <label
-              htmlFor="problemaCardiaco"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Algum médico já disse que você possui um problema cardíaco e
-              recomendou exercícios físicos apenas sob supervisão médica?
-            </label>
-            <select
-              name="problemaCardiaco"
-              value={formData.problemaCardiaco}
-              onChange={handleSelectChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="sim">Sim</option>
-              <option value="não">Não</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="dorNoPeito"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Sente dor no peito?
-            </label>
-            <select
-              name="dorNoPeito"
-              value={formData.dorNoPeito}
-              onChange={handleSelectChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="sim">Sim</option>
-              <option value="não">Não</option>
-            </select>
-          </div>
-          <div>
-            <label
-              htmlFor="perdeuConsiencia"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Você já perdeu a consciência em alguma ocasião ou sofreu alguma
-              queda em virtude de tonturas?
-            </label>
-            <select
-              name="perdeuConsiencia"
-              value={formData.perdeuConsiencia}
-              onChange={handleSelectChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="sim">Sim</option>
-              <option value="não">Não</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="problemaOssos"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Você tem algum problmea ósseo ou articular que pode agravar-se com
-              a prática de exercício físico?
-            </label>
-            <select
-              name="problemaOssos"
-              value={formData.problemaOssos}
-              onChange={handleSelectChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="sim">Sim</option>
-              <option value="não">Não</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="medicamentoPressao"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Algum médico já lhe prescreveu medicamento para a pressão arterial
-              ou para o coração?
-            </label>
-            <select
-              name="medicamentoPressao"
-              value={formData.medicamentoPressao}
-              onChange={handleSelectChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="sim">Sim</option>
-              <option value="não">Não</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="impedimentoExercicio"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Você tem conhecimento, por informação médica ou pela própria
-              experiência de algum motivo que pode IMPEDIR de participar de
-              exercícios físicos sem supervisão médica?
-            </label>
-            <select
-              name="impedimentoExercicio"
-              value={formData.impedimentoExercicio}
-              onChange={handleSelectChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="sim">Sim</option>
-              <option value="não">Não</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="observacoes"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Observações adicionais
-            </label>
-            <textarea
-              name="observacoes"
-              value={formData.observacoes}
-              onChange={handleInputChange}
-              rows={4}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="refeicoesPorDia"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Quantas refeições realiza por dia?
-            </label>
-            <select
-              name="refeicoesPorDia"
-              value={formData.refeicoesPorDia}
-              onChange={handleSelectChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-            >
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
-              ))}
-            </select>
-          </div>
-          {formData.refeicoesPorDia >= 1 && (
-            <div>
-              <label
-                htmlFor="alimentosPrimeiraRefeicao"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Quais os alimentos que ingere na sua primeira refeição do dia?
-              </label>
-              <textarea
-                name="alimentosPrimeiraRefeicao"
-                value={formData.alimentosPrimeiraRefeicao}
-                onChange={handleInputChange}
-                rows={2}
-                className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-          )}
-
-          {formData.refeicoesPorDia >= 2 && (
-            <div>
-              <label
-                htmlFor="alimentosSegundaRefeicao"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Quais os alimentos que ingere na sua segunda refeição do dia?
-              </label>
-              <textarea
-                name="alimentosSegundaRefeicao"
-                value={formData.alimentosSegundaRefeicao}
-                onChange={handleInputChange}
-                rows={2}
-                className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-          )}
-
-          {formData.refeicoesPorDia >= 3 && (
-            <div>
-              <label
-                htmlFor="alimentosTerceiraRefeicao"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Quais os alimentos que ingere na sua terceira refeição do dia?
-              </label>
-              <textarea
-                name="alimentosTerceiraRefeicao"
-                value={formData.alimentosTerceiraRefeicao}
-                onChange={handleInputChange}
-                rows={2}
-                className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-          )}
-
-          {formData.refeicoesPorDia >= 4 && (
-            <div>
-              <label
-                htmlFor="alimentosQuartaRefeicao"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Quais os alimentos que ingere na sua quarta refeição do dia?
-              </label>
-              <textarea
-                name="alimentosQuartaRefeicao"
-                value={formData.alimentosQuartaRefeicao}
-                onChange={handleInputChange}
-                rows={2}
-                className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-          )}
-
-          {formData.refeicoesPorDia >= 5 && (
-            <div>
-              <label
-                htmlFor="alimentosQuintaRefeicao"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Quais os alimentos que ingere na sua quinta refeição do dia?
-              </label>
-              <textarea
-                name="alimentosQuintaRefeicao"
-                value={formData.alimentosQuintaRefeicao}
-                onChange={handleInputChange}
-                rows={2}
-                className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-          )}
-
-          {formData.refeicoesPorDia >= 6 && (
-            <div>
-              <label
-                htmlFor="alimentosSextaRefeicao"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Quais os alimentos que ingere na sua sexta refeição do dia?
-              </label>
-              <textarea
-                name="alimentosSextaRefeicao"
-                value={formData.alimentosSextaRefeicao}
-                onChange={handleInputChange}
-                rows={2}
-                className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-          )}
-          {formData.refeicoesPorDia >= 7 && (
-            <div>
-              <label
-                htmlFor="alimentosSetimaRefeicao"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Quais os alimentos que ingere na sua sétima refeição do dia?
-              </label>
-              <textarea
-                name="alimentosSetimaRefeicao"
-                value={formData.alimentosSetimaRefeicao}
-                onChange={handleInputChange}
-                rows={2}
-                className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-          )}
-          {formData.refeicoesPorDia >= 8 && (
-            <div>
-              <label
-                htmlFor="alimentosOitavaRefeicao"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Quais os alimentos que ingere na sua oitava refeição do dia?
-              </label>
-              <textarea
-                name="alimentosOitavaRefeicao"
-                value={formData.alimentosOitavaRefeicao}
-                onChange={handleInputChange}
-                rows={2}
-                className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-          )}
-          <div>
-            <label
-              htmlFor="alimentosGosta"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Que tipo de alimentos gostavas de ter nas tuas refeições?
-            </label>
-            <textarea
-              name="alimentosGosta"
-              value={formData.alimentosGosta}
-              onChange={handleInputChange}
-              rows={2}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="restricaoAlimentar"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Tens alguma restrição alimentar?
-            </label>
-            <textarea
-              name="restricaoAlimentar"
-              value={formData.restricaoAlimentar}
-              onChange={handleInputChange}
-              rows={2}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="dificuldadesPlanoAlimentar"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Quais são as principais dificuldades que encontras para seguir um
-              plano alimentar?
-            </label>
-            <textarea
-              name="dificuldadesPlanoAlimentar"
-              value={formData.dificuldadesPlanoAlimentar}
-              onChange={handleInputChange}
-              rows={2}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="aguaConsumida"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Quanta água beber por dia? (0.5 a 1L, 1L a 2L, 2L a 3L, +3L)
-            </label>
-            <select
-              name="aguaConsumida"
-              value={formData.aguaConsumida}
-              onChange={handleSelectChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="0.5 a 1L">0.5 a 1L</option>
-              <option value="1L a 2L">1L a 2L</option>
-              <option value="2L a 3L">2L a 3L</option>
-              <option value="+3L">+3L</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="usaSuplemento"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Usas algum tipo de suplemento?
-            </label>
-            <select
-              name="usaSuplemento"
-              value={formData.usaSuplemento}
-              onChange={handleSelectChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="sim">Sim</option>
-              <option value="não">Não</option>
-            </select>
-          </div>
-
-          {/* Conditionally render the "qual suplemento" field if the user selects "sim" */}
-          {formData.usaSuplemento === "sim" && (
-            <div>
-              <label
-                htmlFor="qualSuplemento"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Que tipo de suplemento usas?
-              </label>
-              <input
-                type="text"
-                name="qualSuplemento"
-                value={formData.qualSuplemento}
-                onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-          )}
-
-          <div>
-            <label
-              htmlFor="acompanhamentoDistancia"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Já estiveste algum acompanhamento à distância? (sim/não)
-            </label>
-            <select
-              name="acompanhamentoDistancia"
-              value={formData.acompanhamentoDistancia}
-              onChange={handleSelectChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="sim">Sim</option>
-              <option value="não">Não</option>
-            </select>
-          </div>
-
-          {/* Conditionally render the "o que correu mal" field if the user selects "sim" */}
-          {formData.acompanhamentoDistancia === "sim" && (
-            <div>
-              <label
-                htmlFor="oQueCorreuMal"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Se sim, o que na tua opinião correu mal?
-              </label>
-              <textarea
-                name="oQueCorreuMal"
-                value={formData.motivoAcompanhamento}
-                onChange={handleInputChange}
-                rows={2}
-                className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-          )}
-
-          <div>
-            <label
-              htmlFor="pesoJejum"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Peso em jejum
-            </label>
-            <input
-              type="number"
-              name="pesoJejum"
-              value={formData.pesoJejum}
-              onChange={handleInputChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-          <div>
-            {renderUploadBox("fotoFrontal", "Foto Frontal", fotoFrontalRef)}
-            {renderUploadBox("fotoLateral", "Foto Lateral", fotoLateralRef)}
-            {renderUploadBox("fotoCostas", "Foto de Costas", fotoCostasRef)}
-          </div>
-        </div>
-        <div className="mt-6 flex justify-center">
-          <button
-            type="submit"
-            className="w-full sm:w-auto py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            Enviar
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-};
-
-export default Anamnese;
+}
