@@ -20,7 +20,7 @@ import {
   Clock,
   Shield
 } from "lucide-react";
-
+import { motion } from "framer-motion";
 type FormDataType = {
   nome: string;
   email: string;
@@ -79,112 +79,227 @@ type RadioButtonProps = {
 
 const FormLandingPage = ({ onStartForm }: { onStartForm: () => void }) => {
 
-
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
 
+  const fadeIn = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.6 } }
+  };
+
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  const iconAnimation = {
+    hidden: { scale: 0.8, opacity: 0 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        duration: 0.8
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8">
+    <motion.div
+      className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8"
+      initial="hidden"
+      animate="visible"
+      variants={fadeIn}
+    >
       <div className="max-w-2xl mx-auto">
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <div className="bg-white rounded-full p-4 w-20 h-20 mx-auto mb-6 shadow-md">
+        <motion.div
+          className="text-center mb-12"
+          variants={fadeInUp}
+        >
+          <motion.div
+            className="bg-white rounded-full p-4 w-20 h-20 mx-auto mb-6 shadow-md"
+            variants={iconAnimation}
+          >
             <Activity className="w-12 h-12 text-blue-600 mx-auto" />
-          </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">
+          </motion.div>
+          <motion.h1
+            className="text-4xl font-bold text-gray-900 mb-3"
+            variants={fadeInUp}
+          >
             Anamnese de Fitness & Nutrição
-          </h1>
-          <p className="text-xl text-gray-600">
+          </motion.h1>
+          <motion.p
+            className="text-xl text-gray-600"
+            variants={fadeInUp}
+          >
             Um questionário completo para personalizarmos o teu programa
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
         {/* Key Benefits */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
-            <Shield className="w-12 h-12 text-green-600 mx-auto mb-4" />
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10"
+          variants={staggerContainer}
+        >
+          <motion.div
+            className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow"
+            variants={fadeInUp}
+            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          >
+            <motion.div variants={iconAnimation}>
+              <Shield className="w-12 h-12 text-green-600 mx-auto mb-4" />
+            </motion.div>
             <h3 className="font-semibold text-gray-900 mb-2">100% Confidencial</h3>
             <p className="text-gray-600 text-sm">Todas as informações são mantidas em segurança</p>
-          </div>
-          <div className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
-            <Clock className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+          </motion.div>
+          <motion.div
+            className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow"
+            variants={fadeInUp}
+            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          >
+            <motion.div variants={iconAnimation}>
+              <Clock className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+            </motion.div>
             <h3 className="font-semibold text-gray-900 mb-2">10-15 Minutos</h3>
             <p className="text-gray-600 text-sm">Tempo estimado para conclusão</p>
-          </div>
-          <div className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
-            <UserCheck className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+          </motion.div>
+          <motion.div
+            className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow"
+            variants={fadeInUp}
+            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          >
+            <motion.div variants={iconAnimation}>
+              <UserCheck className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+            </motion.div>
             <h3 className="font-semibold text-gray-900 mb-2">Personalizado</h3>
             <p className="text-gray-600 text-sm">Plano criado especificamente para ti</p>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Instructions Card */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden p-6 mb-8">
-          <h2 className="text-2xl font-semibold mb-6 text-blue-600 flex items-center">
+        <motion.div
+          className="bg-white rounded-2xl shadow-lg overflow-hidden p-6 mb-8"
+          variants={fadeInUp}
+        >
+          <motion.h2
+            className="text-2xl font-semibold mb-6 text-blue-600 flex items-center"
+            variants={fadeInUp}
+          >
             <MessageSquare className="mr-3" />
             Antes de Começar
-          </h2>
+          </motion.h2>
 
-          <div className="space-y-6">
-            <div className="border-l-4 border-blue-500 pl-6">
+          <motion.div
+            className="space-y-6"
+            variants={staggerContainer}
+          >
+            <motion.div
+              className="border-l-4 border-blue-500 pl-6"
+              variants={fadeInUp}
+            >
               <h3 className="font-semibold text-gray-900 mb-2">O que iremos recolher:</h3>
               <p className="text-gray-700">
                 Informações importantes sobre a tua saúde, estado de fitness atual e objetivos nutricionais
                 para criarmos o plano perfeito para ti.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="border-l-4 border-green-500 pl-6">
+            <motion.div
+              className="border-l-4 border-green-500 pl-6"
+              variants={fadeInUp}
+            >
               <h3 className="font-semibold text-gray-900 mb-2">Prepara os seguintes dados:</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-                <div className="flex items-center">
+              <motion.div
+                className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3"
+                variants={staggerContainer}
+              >
+                <motion.div
+                  className="flex items-center"
+                  variants={fadeInUp}
+                >
                   <FileText className="w-5 h-5 text-gray-600 mr-2 flex-shrink-0" />
                   <span className="text-gray-700">Dados pessoais básicos</span>
-                </div>
-                <div className="flex items-center">
+                </motion.div>
+                <motion.div
+                  className="flex items-center"
+                  variants={fadeInUp}
+                >
                   <Activity className="w-5 h-5 text-gray-600 mr-2 flex-shrink-0" />
                   <span className="text-gray-700">Medidas corporais atuais</span>
-                </div>
-                <div className="flex items-center">
+                </motion.div>
+                <motion.div
+                  className="flex items-center"
+                  variants={fadeInUp}
+                >
                   <UserCheck className="w-5 h-5 text-gray-600 mr-2 flex-shrink-0" />
                   <span className="text-gray-700">Histórico médico relevante</span>
-                </div>
-                <div className="flex items-center">
+                </motion.div>
+                <motion.div
+                  className="flex items-center"
+                  variants={fadeInUp}
+                >
                   <Utensils className="w-5 h-5 text-gray-600 mr-2 flex-shrink-0" />
                   <span className="text-gray-700">Hábitos alimentares</span>
-                </div>
-              </div>
-            </div>
+                </motion.div>
+              </motion.div>
+            </motion.div>
 
-            <div className="border-l-4 border-purple-500 pl-6">
+            <motion.div
+              className="border-l-4 border-purple-500 pl-6"
+              variants={fadeInUp}
+            >
               <h3 className="font-semibold text-gray-900 mb-2">Segurança e Privacidade:</h3>
               <p className="text-gray-700">
                 Todas as informações são tratadas com máxima confidencialidade e utilizadas
                 exclusivamente para criar o teu programa personalizado.
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* CTA Section */}
-          <div className="mt-8 pt-6 border-t border-gray-200 flex items-center justify-center flex-col">
+          <motion.div
+            className="mt-8 pt-6 border-t border-gray-200 flex items-center justify-center flex-col"
+            variants={fadeInUp}
+          >
             <div className="text-center">
-              <button
+              <motion.button
                 onClick={onStartForm}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-4 px-8 rounded-lg transition duration-200 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-lg cursor-pointer"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-4 px-8 rounded-lg transition duration-200 flex items-center justify-center shadow-lg hover:shadow-xl text-lg cursor-pointer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 Começar Questionário
-                <ChevronRight className="ml-3" size={24} />
-              </button>
-              <p className="text-gray-500 text-sm mt-3">
+                <motion.div
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                >
+                  <ChevronRight className="ml-3" size={24} />
+                </motion.div>
+              </motion.button>
+              <motion.p
+                className="text-gray-500 text-sm mt-3"
+                variants={fadeInUp}
+              >
                 Clica no botão para começar - podes fazer pausa e retomar a qualquer momento
-              </p>
+              </motion.p>
             </div>
-          </div>
-
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
