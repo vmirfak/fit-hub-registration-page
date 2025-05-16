@@ -21,6 +21,9 @@ import {
   Shield
 } from "lucide-react";
 import { motion } from "framer-motion";
+import * as yup from 'yup';
+import { FormYupValidationSchema } from "@/utils/Validation/FormYupValidationSchema";
+
 type FormDataType = {
   nome: string;
   email: string;
@@ -303,6 +306,34 @@ const FormLandingPage = ({ onStartForm }: { onStartForm: () => void }) => {
   );
 };
 
+const steps = [
+  { name: "Dados Pessoais", icon: <User size={20} /> },
+  { name: "Exercício", icon: <Activity size={20} /> },
+  { name: "Saúde", icon: <Heart size={20} /> },
+  { name: "Nutrição", icon: <Utensils size={20} /> },
+  { name: "Fotos", icon: <Camera size={20} /> },
+  { name: "Revisão", icon: <Clipboard size={20} /> }
+];
+
+const countryOptions = [
+  { name: 'Portugal', code: 'PT', dialCode: '+351', flag: '🇵🇹' },
+  { name: 'España', code: 'ES', dialCode: '+34', flag: '🇪🇸' },
+  { name: 'United Kingdom', code: 'GB', dialCode: '+44', flag: '🇬🇧' },
+  { name: 'United States', code: 'US', dialCode: '+1', flag: '🇺🇸' },
+  { name: 'France', code: 'FR', dialCode: '+33', flag: '🇫🇷' },
+  { name: 'Deutschland', code: 'DE', dialCode: '+49', flag: '🇩🇪' },
+  { name: 'Italia', code: 'IT', dialCode: '+39', flag: '🇮🇹' },
+  { name: 'Brasil', code: 'BR', dialCode: '+55', flag: '🇧🇷' },
+  { name: 'Canada', code: 'CA', dialCode: '+1', flag: '🇨🇦' },
+  { name: 'Australia', code: 'AU', dialCode: '+61', flag: '🇦🇺' },
+  { name: 'Nederland', code: 'NL', dialCode: '+31', flag: '🇳🇱' },
+  { name: 'Suisse', code: 'CH', dialCode: '+41', flag: '🇨🇭' },
+  { name: 'Belgique', code: 'BE', dialCode: '+32', flag: '🇧🇪' },
+  { name: 'Luxembourg', code: 'LU', dialCode: '+352', flag: '🇱🇺' },
+  { name: 'Angola', code: 'AO', dialCode: '+244', flag: '🇦🇴' },
+  { name: 'Moçambique', code: 'MZ', dialCode: '+258', flag: '🇲🇿' },
+];
+
 export default function Anamnese() {
   const [hasStarted, setHasStarted] = useState(false);
   const [formData, setFormData] = useState<FormDataType>({
@@ -354,34 +385,13 @@ export default function Anamnese() {
   });
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
-
-  const steps = [
-    { name: "Dados Pessoais", icon: <User size={20} /> },
-    { name: "Exercício", icon: <Activity size={20} /> },
-    { name: "Saúde", icon: <Heart size={20} /> },
-    { name: "Nutrição", icon: <Utensils size={20} /> },
-    { name: "Fotos", icon: <Camera size={20} /> },
-    { name: "Revisão", icon: <Clipboard size={20} /> }
-  ];
-
-  const countryOptions = [
-    { name: 'Portugal', code: 'PT', dialCode: '+351', flag: '🇵🇹' },
-    { name: 'España', code: 'ES', dialCode: '+34', flag: '🇪🇸' },
-    { name: 'United Kingdom', code: 'GB', dialCode: '+44', flag: '🇬🇧' },
-    { name: 'United States', code: 'US', dialCode: '+1', flag: '🇺🇸' },
-    { name: 'France', code: 'FR', dialCode: '+33', flag: '🇫🇷' },
-    { name: 'Deutschland', code: 'DE', dialCode: '+49', flag: '🇩🇪' },
-    { name: 'Italia', code: 'IT', dialCode: '+39', flag: '🇮🇹' },
-    { name: 'Brasil', code: 'BR', dialCode: '+55', flag: '🇧🇷' },
-    { name: 'Canada', code: 'CA', dialCode: '+1', flag: '🇨🇦' },
-    { name: 'Australia', code: 'AU', dialCode: '+61', flag: '🇦🇺' },
-    { name: 'Nederland', code: 'NL', dialCode: '+31', flag: '🇳🇱' },
-    { name: 'Suisse', code: 'CH', dialCode: '+41', flag: '🇨🇭' },
-    { name: 'Belgique', code: 'BE', dialCode: '+32', flag: '🇧🇪' },
-    { name: 'Luxembourg', code: 'LU', dialCode: '+352', flag: '🇱🇺' },
-    { name: 'Angola', code: 'AO', dialCode: '+244', flag: '🇦🇴' },
-    { name: 'Moçambique', code: 'MZ', dialCode: '+258', flag: '🇲🇿' },
-  ];
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const stepFields: Record<number, (keyof yup.InferType<typeof FormYupValidationSchema>)[]> = {
+    0: ['nome', 'email', 'localidade', 'countryCode', 'telemovel', 'profissao', 'pesoJejum'],
+    1: ['objetivoExercicio', 'praticaExercicio', 'vezesPorSemana'],
+    2: ['temDoresColuna', 'zonaColuna', 'temLesao', 'localLesao', 'cirurgiaRecente', 'localcirurgia', 'usaMedicamento', 'tiposmedicamentos'],
+    3: ['refeicoesPorDia', 'alimentosGosta', 'restricaoAlimentar', 'dificuldadesPlanoAlimentar', 'aguaConsumida', 'usaSuplemento', 'qualSuplemento', 'acompanhamentoDistancia', 'motivoAcompanhamento'],
+  };
 
   const formatPhoneNumber = (phoneNumber: string): string => {
     if (!phoneNumber) return '';
@@ -401,20 +411,37 @@ export default function Anamnese() {
     }));
   };
 
-  const nextStep = () => {
-    if (currentStep < steps.length - 1) {
-      console.log("Current Data:", formData);
-      setIsAnimating(true);
-      setTimeout(() => {
-        setCurrentStep(prev => prev + 1);
-        window.scrollTo(0, 0);
-        setIsAnimating(false);
+  const nextStep = async () => {
+    try {
+      const fieldsToValidate = stepFields[currentStep] ?? [];
+      const stepSchema = FormYupValidationSchema.pick(
+        fieldsToValidate as (keyof yup.InferType<typeof FormYupValidationSchema>)[]
+      );
 
-      }, 400);
+      await stepSchema.validate(formData, { abortEarly: false });
+      setErrors({});
 
-
+      if (currentStep < steps.length - 1) {
+        setIsAnimating(true);
+        setTimeout(() => {
+          setCurrentStep(prev => prev + 1);
+          window.scrollTo(0, 0);
+          setIsAnimating(false);
+        }, 400);
+      }
+    } catch (err) {
+      if (err instanceof yup.ValidationError) {
+        const newErrors: Record<string, string> = {};
+        err.inner.forEach(error => {
+          if (error.path) {
+            newErrors[error.path] = error.message;
+          }
+        });
+        setErrors(newErrors);
+      }
     }
   };
+
 
   const prevStep = () => {
     if (currentStep > 0) {
@@ -527,11 +554,12 @@ export default function Anamnese() {
                           name="nome"
                           value={formData.nome}
                           onChange={handleChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                          className={`w-full p-3 border ${errors.nome ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                           required
                         />
                         <User className="absolute left-3 top-3.5 text-gray-400" size={18} />
                       </div>
+                      {errors.nome && <p className="mt-1 text-sm text-red-600">{errors.nome}</p>}
                     </div>
 
                     <div>
@@ -544,11 +572,12 @@ export default function Anamnese() {
                           name="email"
                           value={formData.email}
                           onChange={handleChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                          className={`w-full p-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                           required
                         />
                         <Mail className="absolute left-3 top-3.5 text-gray-400" size={18} />
                       </div>
+                      {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
                     </div>
 
                     <div>
@@ -561,11 +590,12 @@ export default function Anamnese() {
                           name="localidade"
                           value={formData.localidade}
                           onChange={handleChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                          className={`w-full p-3 border ${errors.localidade ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                           required
                         />
                         <Home className="absolute left-3 top-3.5 text-gray-400" size={18} />
                       </div>
+                      {errors.localidade && <p className="mt-1 text-sm text-red-600">{errors.localidade}</p>}
                     </div>
 
                     <div>
@@ -578,10 +608,11 @@ export default function Anamnese() {
                           name="profissao"
                           value={formData.profissao}
                           onChange={handleChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                          className={`w-full p-3 border ${errors.profissao ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                         />
                         <Briefcase className="absolute left-3 top-3.5 text-gray-400" size={18} />
                       </div>
+                      {errors.profissao && <p className="mt-1 text-sm text-red-600">{errors.profissao}</p>}
                     </div>
 
                     <div>
@@ -597,7 +628,7 @@ export default function Anamnese() {
                         >
                           {countryOptions.map((country) => (
                             <option key={country.code} value={country.dialCode}>
-                              {country.flag} {country.name} {country.dialCode}
+                              {country.name} {country.dialCode}
                             </option>
                           ))}
                         </select>
@@ -612,13 +643,14 @@ export default function Anamnese() {
                               const onlyNumbers = e.target.value.replace(/\D/g, "");
                               setFormData(prev => ({ ...prev, telemovel: onlyNumbers }));
                             }}
-                            className="w-full p-3 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                            className={`w-full p-3 border ${errors.telemovel ? 'border-red-500' : 'border-gray-300'} rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                             required
                             placeholder="912 345 678"
                           />
                           <Phone className="absolute right-3 top-3.5 text-gray-400" size={18} />
                         </div>
                       </div>
+                      {errors.telemovel && <p className="mt-1 text-sm text-red-600">{errors.telemovel}</p>}
                     </div>
                     <div>
                       <label className="block mb-1 font-medium text-gray-700">
@@ -630,9 +662,10 @@ export default function Anamnese() {
                           name="pesoJejum"
                           value={formData.pesoJejum}
                           onChange={handleChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className={`w-full p-3 border ${errors.pesoJejum ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                         />
                       </div>
+                      {errors.pesoJejum && <p className="mt-1 text-sm text-red-600">{errors.pesoJejum}</p>}
                     </div>
                   </div>
                 </div>
@@ -655,11 +688,12 @@ export default function Anamnese() {
                         name="objetivoExercicio"
                         value={formData.objetivoExercicio}
                         onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                        className={`w-full p-3 border ${errors.objetivoExercicio ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                         rows={3}
                       />
                       <Target className="absolute left-3 top-3.5 text-gray-400" size={18} />
                     </div>
+                    {errors.objetivoExercicio && <p className="mt-1 text-sm text-red-600">{errors.objetivoExercicio}</p>}
                   </div>
 
                   <div className="mb-6">
@@ -698,6 +732,7 @@ export default function Anamnese() {
                         onChange={handleChange}
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
+                      {errors.vezesPorSemana && <p className="mt-1 text-sm text-red-600">{errors.vezesPorSemana}</p>}
                     </div>
                   )}
 
@@ -779,8 +814,9 @@ export default function Anamnese() {
                           name="zonaColuna"
                           value={formData.zonaColuna}
                           onChange={handleChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className={`w-full p-3 border ${errors.zonaColuna ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                         />
+                        {errors.zonaColuna && <p className="mt-1 text-sm text-red-600">{errors.zonaColuna}</p>}
                       </div>
                     )}
 
@@ -816,8 +852,9 @@ export default function Anamnese() {
                           name="localLesao"
                           value={formData.localLesao}
                           onChange={handleChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className={`w-full p-3 border ${errors.localLesao ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                         />
+                        {errors.localLesao && <p className="mt-1 text-sm text-red-600">{errors.localLesao}</p>}
                       </div>
                     )}
 
@@ -853,8 +890,9 @@ export default function Anamnese() {
                           name="localcirurgia"
                           value={formData.localcirurgia}
                           onChange={handleChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className={`w-full p-3 border ${errors.localcirurgia ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                         />
+                        {errors.localcirurgia && <p className="mt-1 text-sm text-red-600">{errors.localcirurgia}</p>}
                       </div>
                     )}
 
@@ -889,9 +927,10 @@ export default function Anamnese() {
                           name="tiposmedicamentos"
                           value={formData.tiposmedicamentos}
                           onChange={handleChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className={`w-full p-3 border ${errors.tiposmedicamentos ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                           rows={2}
                         />
+                        {errors.tiposmedicamentos && <p className="mt-1 text-sm text-red-600">{errors.tiposmedicamentos}</p>}
                       </div>
                     )}
 
@@ -1008,14 +1047,16 @@ export default function Anamnese() {
                         max="8"
                         value={formData.refeicoesPorDia}
                         onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className={`w-full p-3 border ${errors.refeicoesPorDia ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                       />
+                      {errors.refeicoesPorDia && <p className="mt-1 text-sm text-red-600">{errors.refeicoesPorDia}</p>}
                     </div>
 
                     {formData.refeicoesPorDia > 0 && (
                       <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                        <h3 className="font-medium text-gray-800 mb-4">Descreve as tuas refeições</h3>
+                        <h3 className={`font-medium border ${errors.restricaoAlimentar ? 'border-red-500' : 'border-gray-300'} text-gray-800 mb-4 `}>Descreve as tuas refeições</h3>
                         {renderMealInputs()}
+                        {errors.restricaoAlimentar && <p className="mt-1 text-sm text-red-600">{errors.restricaoAlimentar}</p>}
                       </div>
                     )}
 
@@ -1027,9 +1068,10 @@ export default function Anamnese() {
                         name="alimentosGosta"
                         value={formData.alimentosGosta}
                         onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className={`w-full p-3 border ${errors.alimentosGosta ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                         rows={2}
                       />
+                      {errors.alimentosGosta && <p className="mt-1 text-sm text-red-600">{errors.alimentosGosta}</p>}
                     </div>
 
                     <div>
@@ -1040,9 +1082,10 @@ export default function Anamnese() {
                         name="restricaoAlimentar"
                         value={formData.restricaoAlimentar}
                         onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className={`w-full p-3 border ${errors.restricaoAlimentar ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                         rows={2}
                       />
+                      {errors.restricaoAlimentar && <p className="mt-1 text-sm text-red-600">{errors.restricaoAlimentar}</p>}
                     </div>
 
                     <div>
@@ -1053,9 +1096,10 @@ export default function Anamnese() {
                         name="dificuldadesPlanoAlimentar"
                         value={formData.dificuldadesPlanoAlimentar}
                         onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className={`w-full p-3 border ${errors.dificuldadesPlanoAlimentar ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                         rows={2}
                       />
+                      {errors.dificuldadesPlanoAlimentar && <p className="mt-1 text-sm text-red-600">{errors.dificuldadesPlanoAlimentar}</p>}
                     </div>
 
                     <div>
@@ -1067,8 +1111,9 @@ export default function Anamnese() {
                         name="aguaConsumida"
                         value={formData.aguaConsumida}
                         onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className={`w-full p-3 border ${errors.aguaConsumida ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                       />
+                      {errors.aguaConsumida && <p className="mt-1 text-sm text-red-600">{errors.aguaConsumida}</p>}
                     </div>
 
                     <div>
@@ -1103,8 +1148,9 @@ export default function Anamnese() {
                           name="qualSuplemento"
                           value={formData.qualSuplemento}
                           onChange={handleChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className={`w-full p-3 border ${errors.qualSuplemento ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                         />
+                        {errors.qualSuplemento && <p className="mt-1 text-sm text-red-600">{errors.qualSuplemento}</p>}
                       </div>
                     )}
 
@@ -1142,7 +1188,9 @@ export default function Anamnese() {
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           rows={2}
                         />
+                        {errors.motivoAcompanhamento && <p className="mt-1 text-sm text-red-600">{errors.motivoAcompanhamento}</p>}
                       </div>
+
                     )}
                   </div>
                 </div>
