@@ -23,62 +23,8 @@ import {
 import { motion } from "framer-motion";
 import * as yup from 'yup';
 import { FormYupValidationSchema } from "@/utils/Validation/FormYupValidationSchema";
-
-type FormDataType = {
-  nome: string;
-  email: string;
-  localidade: string;
-  profissao: string;
-  countryCode: string;
-  telemovel: string;
-  objetivoExercicio: string;
-  praticaExercicio: string;
-  vezesPorSemana: number;
-  temDoresColuna: string;
-  zonaColuna: string;
-  temLesao: string;
-  localLesao: string;
-  cirurgiaRecente: string;
-  localcirurgia: string;
-  usaMedicamento: string;
-  problemaCardiaco: string;
-  dorNoPeito: string;
-  perdeuConsiencia: string;
-  problemaOssos: string;
-  tiposmedicamentos: string;
-  medicamentoPressao: string;
-  impedimentoExercicio: string;
-  observacoes: string;
-  refeicoesPorDia: number;
-  alimentosPrimeiraRefeicao: string;
-  alimentosSegundaRefeicao: string;
-  alimentosTerceiraRefeicao: string;
-  alimentosQuartaRefeicao: string;
-  alimentosQuintaRefeicao: string;
-  alimentosSextaRefeicao: string;
-  alimentosSetimaRefeicao: string;
-  alimentosOitavaRefeicao: string;
-  alimentosGosta: string;
-  restricaoAlimentar: string;
-  dificuldadesPlanoAlimentar: string;
-  aguaConsumida: string;
-  usaSuplemento: string;
-  qualSuplemento: string;
-  acompanhamentoDistancia: string;
-  motivoAcompanhamento: string;
-  pesoJejum: string;
-  fotoFrontal: File[];
-  fotoLateral: File[];
-  fotoCostas: File[];
-};
-
-type RadioButtonProps = {
-  name: string;
-  value: string;
-  label: string;
-  checked: boolean;
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-};
+import { AnamneseFormData, RadioButtonProps } from "@/types/anamnesetypes";
+import { countryOptions } from "@/utils/countryOptions";
 
 const FormLandingPage = ({ onStartForm }: { onStartForm: () => void }) => {
 
@@ -315,28 +261,9 @@ const steps = [
   { name: "Revisão", icon: <Clipboard size={20} /> }
 ];
 
-const countryOptions = [
-  { name: 'Portugal', code: 'PT', dialCode: '+351', flag: '🇵🇹' },
-  { name: 'España', code: 'ES', dialCode: '+34', flag: '🇪🇸' },
-  { name: 'United Kingdom', code: 'GB', dialCode: '+44', flag: '🇬🇧' },
-  { name: 'United States', code: 'US', dialCode: '+1', flag: '🇺🇸' },
-  { name: 'France', code: 'FR', dialCode: '+33', flag: '🇫🇷' },
-  { name: 'Deutschland', code: 'DE', dialCode: '+49', flag: '🇩🇪' },
-  { name: 'Italia', code: 'IT', dialCode: '+39', flag: '🇮🇹' },
-  { name: 'Brasil', code: 'BR', dialCode: '+55', flag: '🇧🇷' },
-  { name: 'Canada', code: 'CA', dialCode: '+1', flag: '🇨🇦' },
-  { name: 'Australia', code: 'AU', dialCode: '+61', flag: '🇦🇺' },
-  { name: 'Nederland', code: 'NL', dialCode: '+31', flag: '🇳🇱' },
-  { name: 'Suisse', code: 'CH', dialCode: '+41', flag: '🇨🇭' },
-  { name: 'Belgique', code: 'BE', dialCode: '+32', flag: '🇧🇪' },
-  { name: 'Luxembourg', code: 'LU', dialCode: '+352', flag: '🇱🇺' },
-  { name: 'Angola', code: 'AO', dialCode: '+244', flag: '🇦🇴' },
-  { name: 'Moçambique', code: 'MZ', dialCode: '+258', flag: '🇲🇿' },
-];
-
 export default function Anamnese() {
   const [hasStarted, setHasStarted] = useState(false);
-  const [formData, setFormData] = useState<FormDataType>({
+  const [formData, setFormData] = useState<AnamneseFormData>({
     nome: "",
     email: "",
     localidade: "",
@@ -476,7 +403,7 @@ export default function Anamnese() {
     const inputs = [];
     const labels = ["Primeira", "Segunda", "Terceira", "Quarta", "Quinta", "Sexta", "Setima", "Oitava"];
     for (let i = 1; i <= formData.refeicoesPorDia && i <= labels.length; i++) {
-      const mealKey = `alimentos${labels[i - 1]}Refeicao` as keyof FormDataType;
+      const mealKey = `alimentos${labels[i - 1]}Refeicao` as keyof AnamneseFormData;
       inputs.push(
         <div key={mealKey} className="mb-4">
           <label className="block mb-1 font-medium text-gray-700">Refeição {i}</label>
