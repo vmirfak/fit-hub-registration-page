@@ -9,7 +9,7 @@ import Footer from "./Components/Footer";
 import FAQ from "./Components/FAQ";
 import PricingComponent from "./Components/Pricing";
 
-const WebPageLovable = () => {
+const WebPage = () => {
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -27,4 +27,4 @@ const WebPageLovable = () => {
   );
 };
 
-export default WebPageLovable;
+export default WebPage;
