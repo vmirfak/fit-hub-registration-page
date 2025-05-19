@@ -1,4 +1,4 @@
-import { useState, ChangeEvent, useEffect } from "react";
+import { useState, ChangeEvent, useEffect, useCallback } from "react";
 import {
   ChevronRight,
   ChevronLeft,
@@ -21,7 +21,9 @@ import {
   Shield,
   Ruler,
   Calendar,
-  Weight
+  Weight,
+  AlertCircle,
+  Apple,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import * as yup from 'yup';
@@ -29,6 +31,10 @@ import { FormYupValidationSchema } from "@/utils/Validation/FormYupValidationSch
 import { AnamneseFormData, RadioButtonProps } from "@/types/anamnesetypes";
 import { countryOptions } from "@/utils/countryOptions";
 import { useAnamnese } from "@/context/useAnamnese";
+import { ConditionalField } from "@/components/ui/ConditionalField";
+import { InputError } from "@/components/InputError";
+import { debounce } from 'lodash';
+import { ConditionalMealSection } from "@/components/ui/ConditionalMealSection";
 
 const FormLandingPage = ({ onStartForm }: { onStartForm: () => void }) => {
 
@@ -272,29 +278,40 @@ export default function Anamnese() {
     email: "",
     altura: 0,
     genero: "",
+    tipoImpedimento: "",
+    praticouModalidade: "",
     dataNascimento: "",
     localidade: "",
+    restricaoAlimentar: "",
+    restricoesAlimentares: [],
     profissao: "",
     countryCode: '+351',
     telemovel: '',
     objetivoExercicio: "",
-    praticaExercicio: "não",
+    praticaExercicio: "",
     vezesPorSemana: 0,
-    temDoresColuna: "não",
-    zonaColuna: "",
-    temLesao: "não",
-    localLesao: "",
-    cirurgiaRecente: "não",
-    localcirurgia: "",
-    usaMedicamento: "não",
-    problemaCardiaco: "não",
-    dorNoPeito: "não",
-    perdeuConsiencia: "não",
-    problemaOssos: "não",
-    tiposmedicamentos: "",
-    medicamentoPressao: "não",
-    impedimentoExercicio: "não",
+    impedimentoExercicio: "",
     observacoes: "",
+    modalidadeDesportiva: "",
+    experienciaDistancia: "",
+    experienciaProblemas: "",
+    tempoPorSessao: "",
+    preferenciaLocalTreino: "",
+    materialDisponivel: "",
+    nivelConfortoSozinho: "",
+    temDoresColuna: "",
+    zonaColuna: "",
+    temLesao: "",
+    localLesao: "",
+    cirurgiaRecente: "",
+    localcirurgia: "",
+    usaMedicamento: "",
+    problemaCardiaco: "",
+    dorNoPeito: "",
+    perdeuConsiencia: "",
+    problemaOssos: "",
+    tiposmedicamentos: "",
+    medicamentoPressao: "",
     refeicoesPorDia: 0,
     alimentosPrimeiraRefeicao: "",
     alimentosSegundaRefeicao: "",
@@ -305,12 +322,12 @@ export default function Anamnese() {
     alimentosSetimaRefeicao: "",
     alimentosOitavaRefeicao: "",
     alimentosGosta: "",
-    restricaoAlimentar: "",
+    alimentosNaoGosta: "",
     dificuldadesPlanoAlimentar: "",
     aguaConsumida: "",
-    usaSuplemento: "não",
+    usaSuplemento: "",
     qualSuplemento: "",
-    acompanhamentoDistancia: "não",
+    acompanhamentoDistancia: "",
     motivoAcompanhamento: "",
     pesoJejum: "",
     fotoFrontal: [],
@@ -322,11 +339,57 @@ export default function Anamnese() {
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const stepFields: Record<number, (keyof yup.InferType<typeof FormYupValidationSchema>)[]> = {
-    0: ['nome', 'email', 'localidade', 'countryCode', 'telemovel', 'profissao', 'pesoJejum', 'altura', 'dataNascimento'],
-    1: ['objetivoExercicio', 'praticaExercicio', 'vezesPorSemana'],
-    2: ['temDoresColuna', 'zonaColuna', 'temLesao', 'localLesao', 'cirurgiaRecente', 'localcirurgia', 'usaMedicamento', 'tiposmedicamentos'],
-    3: ['refeicoesPorDia', 'alimentosGosta', 'restricaoAlimentar', 'dificuldadesPlanoAlimentar', 'aguaConsumida', 'usaSuplemento', 'qualSuplemento', 'acompanhamentoDistancia', 'motivoAcompanhamento'],
+    0: ['nome', 'email', 'localidade', 'countryCode', 'telemovel', 'profissao', 'pesoJejum', 'altura', 'genero', 'dataNascimento'],
+    1: ['preferenciaLocalTreino', 'materialDisponivel', 'impedimentoExercicio', 'tipoImpedimento', 'objetivoExercicio', 'praticouModalidade', 'modalidadeDesportiva', 'praticaExercicio', 'vezesPorSemana', 'tempoPorSessao', 'experienciaDistancia', 'experienciaProblemas', 'nivelConfortoSozinho'],
+    2: ['temDoresColuna', 'zonaColuna', 'temLesao', 'localLesao', 'cirurgiaRecente', 'localcirurgia', 'usaMedicamento', 'tiposmedicamentos', 'problemaCardiaco', 'dorNoPeito', 'perdeuConsiencia', 'problemaOssos'],
+    3: ['refeicoesPorDia', 'alimentosGosta', 'restricaoAlimentar', 'restricoesAlimentares', 'dificuldadesPlanoAlimentar', 'aguaConsumida', 'usaSuplemento', 'qualSuplemento', 'acompanhamentoDistancia', 'motivoAcompanhamento'],
+    4: ['fotoFrontal', 'fotoLateral', 'fotoCostas']
   };
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
+
+  const validateCurrentStep = useCallback(async (data: AnamneseFormData) => {
+    const fieldsToValidate = stepFields[currentStep] ?? [];
+
+    // Filter to only validate touched fields in the current step
+    const fieldsToActuallyValidate = fieldsToValidate.filter(field =>
+      touchedFields[field as string]
+    );
+
+    if (fieldsToActuallyValidate.length === 0) return;
+
+    try {
+      const stepSchema = FormYupValidationSchema.pick(
+        fieldsToActuallyValidate as readonly (keyof yup.InferType<typeof FormYupValidationSchema>)[]
+      );
+      await stepSchema.validate(data, { abortEarly: false });
+
+      // Clear errors only for the fields we just validated
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        fieldsToActuallyValidate.forEach(field => {
+          delete newErrors[field as string];
+        });
+        return newErrors;
+      });
+    } catch (err) {
+      if (err instanceof yup.ValidationError) {
+        const newErrors: Record<string, string> = {};
+        err.inner.forEach(error => {
+          if (error.path && touchedFields[error.path]) {
+            newErrors[error.path] = error.message;
+          }
+        });
+        setErrors(prev => ({ ...prev, ...newErrors }));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep, touchedFields]);
+
+  useEffect(() => {
+    const debouncedValidate = debounce(validateCurrentStep, 500);
+    debouncedValidate(formData);
+    return () => debouncedValidate.cancel();
+  }, [formData, validateCurrentStep]);
 
   const formatPhoneNumber = (phoneNumber: string): string => {
     if (!phoneNumber) return '';
@@ -338,45 +401,114 @@ export default function Anamnese() {
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
-    const checked = (e.target as HTMLInputElement).type === "checkbox" ? (e.target as HTMLInputElement).checked : undefined;
+    const { name, value, type, checked } = e.target as HTMLInputElement;
+
+    let finalValue: string | number | boolean;
+    if (type === 'checkbox') {
+      finalValue = checked;
+    } else if (type === 'number') {
+      finalValue = value === '' ? '' : Number(value);
+    } else {
+      finalValue = value;
+    }
+
     setFormData(prev => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      [name]: finalValue
+    }));
+
+    // Mark the field as touched
+    setTouchedFields(prev => ({
+      ...prev,
+      [name]: true
     }));
   };
 
   const nextStep = async () => {
+    // Debug: Log current step and form data
+    console.group(`Next Step Attempt - Step ${currentStep}`);
+    console.log('Current form data:', formData);
+
     try {
+      // 1. Get fields to validate for current step
       const fieldsToValidate = stepFields[currentStep] ?? [];
+      console.log('Fields to validate:', fieldsToValidate);
+
+      // 2. Create validation schema for current step
       const stepSchema = FormYupValidationSchema.pick(
         fieldsToValidate as (keyof yup.InferType<typeof FormYupValidationSchema>)[]
       );
+      console.log('Validation schema created');
 
+      // 3. Validate current step
+      console.log('Starting validation...');
       await stepSchema.validate(formData, { abortEarly: false });
       setErrors({});
+      console.log('Validation successful');
 
+      setTouchedFields(prev => ({
+        ...prev,
+        ...fieldsToValidate.reduce((acc, field) => {
+          acc[field as string] = true;
+          return acc;
+        }, {} as Record<string, boolean>)
+      }));
+
+      // 4. Handle step transition or form submission
       if (currentStep < steps.length - 1) {
+        console.log('Moving to next step...');
         setIsAnimating(true);
-        setTimeout(() => {
-          setCurrentStep(prev => prev + 1);
-          window.scrollTo(0, 0);
-          setIsAnimating(false);
-        }, 400);
+
+        // Use requestAnimationFrame for better performance debugging
+        requestAnimationFrame(() => {
+          console.log('Animation frame - performing transition');
+          setTimeout(() => {
+            setCurrentStep(prev => {
+              console.log(`Updating step from ${prev} to ${prev + 1}`);
+              return prev + 1;
+            });
+            window.scrollTo(0, 0);
+            setIsAnimating(false);
+            console.log('Transition complete');
+          }, 400);
+        });
       } else {
         // On the last step, submit the form
+        console.log('Last step reached - submitting form...');
         await handleSubmit(new Event('submit') as unknown as React.FormEvent);
       }
     } catch (err) {
+      console.error('Error in nextStep:', err);
+
       if (err instanceof yup.ValidationError) {
+        console.group('Validation Errors');
+        console.log('Number of errors:', err.inner.length);
+
         const newErrors: Record<string, string> = {};
-        err.inner.forEach(error => {
+        err.inner.forEach((error, index) => {
+          console.log(`Error ${index + 1}:`, {
+            path: error.path,
+            message: error.message,
+            value: error.value
+          });
+
           if (error.path) {
             newErrors[error.path] = error.message;
           }
         });
+
+        console.groupEnd();
         setErrors(newErrors);
+      } else {
+        // Handle non-validation errors
+        console.error('Non-validation error:', err);
+        // Consider adding a user-friendly error message
+        setErrors({
+          _general: 'An unexpected error occurred. Please try again.'
+        });
       }
+    } finally {
+      console.groupEnd();
     }
   };
 
@@ -396,46 +528,57 @@ export default function Anamnese() {
       nome: "",
       email: "",
       altura: 0,
+      praticouModalidade: "",
       dataNascimento: "",
       genero: "",
+      experienciaDistancia: "",
       localidade: "",
       profissao: "",
       countryCode: '+351',
       telemovel: '',
+      tipoImpedimento: "",
       objetivoExercicio: "",
-      praticaExercicio: "não",
+      praticaExercicio: "",
       vezesPorSemana: 0,
-      temDoresColuna: "não",
+      temDoresColuna: "",
       zonaColuna: "",
-      temLesao: "não",
+      temLesao: "",
       localLesao: "",
-      cirurgiaRecente: "não",
+      cirurgiaRecente: "",
       localcirurgia: "",
-      usaMedicamento: "não",
-      problemaCardiaco: "não",
-      dorNoPeito: "não",
-      perdeuConsiencia: "não",
-      problemaOssos: "não",
+      usaMedicamento: "",
+      problemaCardiaco: "",
+      dorNoPeito: "",
+      perdeuConsiencia: "",
+      problemaOssos: "",
       tiposmedicamentos: "",
-      medicamentoPressao: "não",
-      impedimentoExercicio: "não",
+      medicamentoPressao: "",
+      impedimentoExercicio: "",
       observacoes: "",
       refeicoesPorDia: 0,
+      tempoPorSessao: "",
+      modalidadeDesportiva: "",
+      preferenciaLocalTreino: "",
+      materialDisponivel: "",
+      nivelConfortoSozinho: "",
+      experienciaProblemas: "",
       alimentosPrimeiraRefeicao: "",
       alimentosSegundaRefeicao: "",
       alimentosTerceiraRefeicao: "",
       alimentosQuartaRefeicao: "",
       alimentosQuintaRefeicao: "",
+      restricoesAlimentares: [],
       alimentosSextaRefeicao: "",
       alimentosSetimaRefeicao: "",
       alimentosOitavaRefeicao: "",
       alimentosGosta: "",
+      alimentosNaoGosta: "",
       restricaoAlimentar: "",
       dificuldadesPlanoAlimentar: "",
       aguaConsumida: "",
-      usaSuplemento: "não",
+      usaSuplemento: "",
       qualSuplemento: "",
-      acompanhamentoDistancia: "não",
+      acompanhamentoDistancia: "",
       motivoAcompanhamento: "",
       pesoJejum: "",
       fotoFrontal: [],
@@ -501,7 +644,7 @@ export default function Anamnese() {
       }
 
       console.groupEnd();
-      throw err; // Re-throw the error if you need to handle it elsewhere
+      throw err;
     }
   };
 
@@ -536,6 +679,26 @@ export default function Anamnese() {
       );
     }
     return inputs;
+  };
+
+  type ReviewFieldProps = {
+    label: string;
+    value: string | number | null | undefined;
+    specialDefault?: string;
+  };
+
+  const ReviewField = ({ label, value, specialDefault = "Dados não introduzidos" }: ReviewFieldProps) => {
+    const displayValue = value || specialDefault;
+    const isEmpty = !value;
+
+    return (
+      <div>
+        <p className="text-sm font-medium text-gray-600 mb-1">{label}</p>
+        <div className={`px-3 py-2 rounded ${isEmpty ? 'bg-gray-50 text-gray-500' : 'bg-blue-50 text-blue-700'}`}>
+          <p className="font-medium">{displayValue}</p>
+        </div>
+      </div>
+    );
   };
 
   if (isSuccess) {
@@ -602,7 +765,7 @@ export default function Anamnese() {
             >
               {/* Step 1: Personal Data */}
               {currentStep === 0 && (
-                <div className="p-6">
+                <div className="p-6 mb-10">
                   <h2 className="text-xl font-semibold mb-6 flex items-center">
                     <User className="mr-2 text-blue-600" />
                     Dados Pessoais
@@ -624,9 +787,8 @@ export default function Anamnese() {
                         />
                         <User className="absolute left-3 top-3.5 text-gray-400" size={18} />
                       </div>
-                      {errors.nome && <p className="mt-1 text-sm text-red-600">{errors.nome}</p>}
+                      <InputError message={errors.nome} />
                     </div>
-
                     <div>
                       <label className="block mb-1 font-medium text-gray-700">
                         Email
@@ -642,7 +804,7 @@ export default function Anamnese() {
                         />
                         <Mail className="absolute left-3 top-3.5 text-gray-400" size={18} />
                       </div>
-                      {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                      <InputError message={errors.email} />
                     </div>
 
                     <div>
@@ -660,7 +822,7 @@ export default function Anamnese() {
                         />
                         <Home className="absolute left-3 top-3.5 text-gray-400" size={18} />
                       </div>
-                      {errors.localidade && <p className="mt-1 text-sm text-red-600">{errors.localidade}</p>}
+                      <InputError message={errors.localidade} />
                     </div>
 
                     <div>
@@ -677,7 +839,7 @@ export default function Anamnese() {
                         />
                         <Briefcase className="absolute left-3 top-3.5 text-gray-400" size={18} />
                       </div>
-                      {errors.profissao && <p className="mt-1 text-sm text-red-600">{errors.profissao}</p>}
+                      <InputError message={errors.profissao} />
                     </div>
 
                     <div>
@@ -715,7 +877,7 @@ export default function Anamnese() {
                           <Phone className="absolute right-3 top-3.5 text-gray-400" size={18} />
                         </div>
                       </div>
-                      {errors.telemovel && <p className="mt-1 text-sm text-red-600">{errors.telemovel}</p>}
+                      <InputError message={errors.telemovel} />
                     </div>
                     <div>
                       <label className="block mb-1 font-medium text-gray-700">
@@ -731,7 +893,7 @@ export default function Anamnese() {
                         />
                         <Weight className="absolute left-3 top-3.5 text-gray-400" size={18} />
                       </div>
-                      {errors.pesoJejum && <p className="mt-1 text-sm text-red-600">{errors.pesoJejum}</p>}
+                      <InputError message={errors.pesoJejum} />
                     </div>
                     <div>
                       <label className="block mb-1 font-medium text-gray-700">
@@ -750,7 +912,7 @@ export default function Anamnese() {
                         />
                         <Ruler className="absolute left-3 top-3.5 text-gray-400" size={18} />
                       </div>
-                      {errors.altura && <p className="mt-1 text-sm text-red-600">{errors.altura}</p>}
+                      <InputError message={errors.altura} />
                     </div>
 
                     <div>
@@ -764,34 +926,29 @@ export default function Anamnese() {
                           value={formData.dataNascimento || ''}
                           onChange={handleChange}
                           className={`w-full p-3 border ${errors.dataNascimento ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                          max={new Date().toISOString().split('T')[0]} // No future dates
+                          max={new Date().toISOString().split('T')[0]}
                         />
                         <Calendar className="absolute left-3 top-3.5 text-gray-400" size={18} />
                       </div>
-                      {errors.dataNascimento && <p className="mt-1 text-sm text-red-600">{errors.dataNascimento}</p>}
+                      <InputError message={errors.dataNascimento} />
                     </div>
 
                     <div>
                       <label className="block mb-2 font-semibold text-gray-800 text-sm">
-                        Género
+                        Sexo
                       </label>
                       <select
                         name="genero"
                         value={formData.genero}
                         onChange={handleChange}
-                        className="w-full h-3/4 p-3 px-4 py-2 border cursor-pointer border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700"
+                        className={`w-full p-3 cursor-pointer border ${errors.genero ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                       >
                         <option value="" disabled>Selecione o género</option>
                         <option value="masculino">Masculino</option>
                         <option value="feminino">Feminino</option>
-                        <option value="outro">Outro</option>
-                        <option value="prefiro_nao_dizer">Prefiro não dizer</option>
                       </select>
-                      {errors.genero && (
-                        <p className="mt-2 text-sm text-red-600">{errors.genero}</p>
-                      )}
+                      <InputError message={errors.genero} />
                     </div>
-
                   </div>
                 </div>
               )}
@@ -818,9 +975,127 @@ export default function Anamnese() {
                       />
                       <Target className="absolute left-3 top-3.5 text-gray-400" size={18} />
                     </div>
-                    {errors.objetivoExercicio && <p className="mt-1 text-sm text-red-600">{errors.objetivoExercicio}</p>}
+                    <InputError message={errors.objetivoExercicio} />
+                  </div>
+                  {/* Já praticaste alguma modalidade desportiva? */}
+                  <div className="mb-6">
+                    <label className="block mb-2 font-medium text-gray-700">
+                      Já praticaste alguma modalidade desportiva?
+                    </label>
+                    <div className="flex space-x-6 mt-2">
+                      <RadioButton
+                        name="praticouModalidade"
+                        value="sim"
+                        label="Sim"
+                        checked={formData.praticouModalidade === "sim"}
+                        onChange={() => setFormData({ ...formData, praticouModalidade: "sim" })}
+                      />
+                      <RadioButton
+                        name="praticouModalidade"
+                        value="não"
+                        label="Não"
+                        checked={formData.praticouModalidade === "não"}
+                        onChange={() => setFormData({ ...formData, praticouModalidade: "não" })}
+                      />
+                      <InputError message={errors.praticouModalidade} />
+                    </div>
+
                   </div>
 
+                  {/* Se sim, na tua opinião o que correu mal */}
+                  <ConditionalField
+                    isVisible={formData.praticouModalidade === "sim"}
+                    label="Que modalidades praticaste?"
+                    name="modalidadeDesportiva"
+                    value={formData.modalidadeDesportiva}
+                    onChange={handleChange}
+                    placeholder="Menciona as modalidades..."
+                    rows={2}
+                    fieldType="textarea"
+                    error={errors.modalidadeDesportiva}
+                  />
+
+                  {/* Já tiveste alguma experiência anterior em ser acompanhada à distância? */}
+                  <div className="mb-6 mt-5">
+                    <label className="block mb-2 font-medium text-gray-700">
+                      Já tiveste alguma experiência anterior em ser acompanhado(a) à distância?
+                    </label>
+                    <div className="flex space-x-6 mt-2">
+                      <RadioButton
+                        name="experienciaDistancia"
+                        value="sim"
+                        label="Sim"
+                        checked={formData.experienciaDistancia === "sim"}
+                        onChange={() => setFormData({ ...formData, experienciaDistancia: "sim" })}
+                      />
+                      <RadioButton
+                        name="experienciaDistancia"
+                        value="não"
+                        label="Não"
+                        checked={formData.experienciaDistancia === "não"}
+                        onChange={() => setFormData({ ...formData, experienciaDistancia: "não" })}
+                      />
+                      <InputError message={errors.experienciaDistancia} />
+                    </div>
+                  </div>
+                  <ConditionalField
+                    isVisible={formData.experienciaDistancia === "sim"}
+                    label="O que correu mal na tua opinião?"
+                    name="experienciaProblemas"
+                    value={formData.experienciaProblemas}
+                    onChange={handleChange}
+                    placeholder="Menciona as dificuldades..."
+                    rows={2}
+                    fieldType="textarea"
+                    error={errors.experienciaProblemas}
+                  />
+
+                  {/* Gostarias de treinar em casa ou no ginásio */}
+                  <div className="mb-6">
+                    <label className="block mb-2 font-medium text-gray-700">
+                      Gostarias de treinar em casa ou no ginásio?
+                    </label>
+                    <select
+                      name="preferenciaLocalTreino"
+                      value={formData.preferenciaLocalTreino}
+                      onChange={handleChange}
+                      className="w-full p-3 cursor-pointer border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Seleciona uma opção</option>
+                      <option value="casa">Casa</option>
+                      <option value="ginásio">Ginásio</option>
+                    </select>
+                    <InputError message={errors.preferenciaLocalTreino} />
+                  </div>
+
+                  <ConditionalField
+                    isVisible={formData.preferenciaLocalTreino === "casa"}
+                    label="Que material tens disponível?"
+                    name="materialDisponivel"
+                    value={formData.materialDisponivel}
+                    onChange={handleChange}
+                    placeholder="Menciona o manterial que tens dísponível em casa..."
+                    rows={2}
+                    fieldType="textarea"
+                    error={errors.materialDisponivel}
+                  />
+
+                  {/* De 0 a 10 quão à vontade te sentes em treinar sozinho */}
+                  <div className="mb-6">
+                    <label className="block mb-2 font-medium text-gray-700">
+                      De 0 a 10, quão à vontade te sentes em treinar sozinho?
+                    </label>
+                    <input
+                      type="number"
+                      name="nivelConfortoSozinho"
+                      min="0"
+                      max="10"
+                      value={formData.nivelConfortoSozinho}
+                      onChange={handleChange}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <InputError message={errors.nivelConfortoSozinho} />
+                  </div>
                   <div className="mb-6">
                     <label className="block mb-2 font-medium text-gray-700">
                       Praticas exercício físico atualmente?
@@ -840,30 +1115,38 @@ export default function Anamnese() {
                         checked={formData.praticaExercicio === "não"}
                         onChange={() => setFormData({ ...formData, praticaExercicio: "não" })}
                       />
+                      <InputError message={errors.praticaExercicio} />
                     </div>
                   </div>
-
-                  {formData.praticaExercicio === "sim" && (
-                    <div className="mb-6">
-                      <label className="block mb-2 font-medium text-gray-700">
-                        Quantas vezes por semana?
-                      </label>
-                      <input
-                        type="number"
-                        name="vezesPorSemana"
-                        min="0"
-                        max="7"
-                        value={formData.vezesPorSemana}
-                        onChange={handleChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                      {errors.vezesPorSemana && <p className="mt-1 text-sm text-red-600">{errors.vezesPorSemana}</p>}
-                    </div>
-                  )}
+                  <ConditionalField
+                    isVisible={formData.praticaExercicio === "sim"}
+                    label="Quantas vezes por semana?"
+                    name="vezesPorSemana"
+                    value={formData.vezesPorSemana.toString()}
+                    onChange={handleChange}
+                    placeholder="Número de vezes em que praticas exercício..."
+                    rows={2}
+                    fieldType="number"
+                    error={errors.vezesPorSemana}
+                  />
+                  {/* Quanto tempo tens disponível para treinar por sessão */}
+                  <div className="mb-6">
+                    <label className="block mb-2 font-medium text-gray-700">
+                      Quanto tempo tens disponível para treinar por sessão?<span className="text-zinc-500"> (em minutos)</span>
+                    </label>
+                    <input
+                      type="number"
+                      name="tempoPorSessao"
+                      value={formData.tempoPorSessao}
+                      onChange={handleChange}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <InputError message={errors.tempoPorSessao} />
+                  </div>
 
                   <div className="mb-6">
                     <label className="block mb-2 font-medium text-gray-700">
-                      Tens algum impedimento para praticar exercício?
+                      Tens alguma limitação para praticar exercício?
                     </label>
                     <div className="flex space-x-6 mt-2">
                       <RadioButton
@@ -880,21 +1163,20 @@ export default function Anamnese() {
                         checked={formData.impedimentoExercicio === "não"}
                         onChange={() => setFormData({ ...formData, impedimentoExercicio: "não" })}
                       />
+                      <InputError message={errors.possuiLimitacaoExercicio} />
                     </div>
                   </div>
-
-                  <div className="mb-6">
-                    <label className="block mb-2 font-medium text-gray-700">
-                      Observações adicionais sobre a tua rotina de exercícios
-                    </label>
-                    <textarea
-                      name="observacoes"
-                      value={formData.observacoes}
-                      onChange={handleChange}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      rows={3}
-                    />
-                  </div>
+                  <ConditionalField
+                    isVisible={formData.impedimentoExercicio === "sim"}
+                    label="Qual é o impedimento?"
+                    name="tipoImpedimento"
+                    value={formData.tipoImpedimento}
+                    onChange={handleChange}
+                    placeholder="Menciona o impedimento para a prática de exercício..."
+                    rows={2}
+                    fieldType="text"
+                    error={errors.tipoImpedimento}
+                  />
                 </div>
               )}
 
@@ -909,7 +1191,7 @@ export default function Anamnese() {
                   <div className="space-y-6">
                     <div>
                       <label className="block mb-2 font-medium text-gray-700">
-                        Tens dores na coluna?
+                        Tens dores no dia-a-dia em alguma articulação ou coluna?
                       </label>
                       <div className="flex space-x-6 mt-2">
                         <RadioButton
@@ -926,24 +1208,20 @@ export default function Anamnese() {
                           checked={formData.temDoresColuna === "não"}
                           onChange={() => setFormData({ ...formData, temDoresColuna: "não" })}
                         />
+                        <InputError message={errors.temDoresColuna} />
                       </div>
                     </div>
-
-                    {formData.temDoresColuna === "sim" && (
-                      <div>
-                        <label className="block mb-1 font-medium text-gray-700">
-                          Em que zona da coluna?
-                        </label>
-                        <input
-                          type="text"
-                          name="zonaColuna"
-                          value={formData.zonaColuna}
-                          onChange={handleChange}
-                          className={`w-full p-3 border ${errors.zonaColuna ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                        />
-                        {errors.zonaColuna && <p className="mt-1 text-sm text-red-600">{errors.zonaColuna}</p>}
-                      </div>
-                    )}
+                    <ConditionalField
+                      isVisible={formData.temDoresColuna === "sim"}
+                      label="Em que zona?"
+                      name="zonaColuna"
+                      value={formData.zonaColuna}
+                      onChange={handleChange}
+                      placeholder="Menciona em que zona da coluna tens dores..."
+                      rows={2}
+                      fieldType="textarea"
+                      error={errors.zonaColuna}
+                    />
 
                     <div>
                       <label className="block mb-2 font-medium text-gray-700">
@@ -964,25 +1242,21 @@ export default function Anamnese() {
                           checked={formData.temLesao === "não"}
                           onChange={() => setFormData({ ...formData, temLesao: "não" })}
                         />
+                        <InputError message={errors.temLesao} />
                       </div>
+
                     </div>
-
-                    {formData.temLesao === "sim" && (
-                      <div>
-                        <label className="block mb-1 font-medium text-gray-700">
-                          Onde é a lesão?
-                        </label>
-                        <input
-                          type="text"
-                          name="localLesao"
-                          value={formData.localLesao}
-                          onChange={handleChange}
-                          className={`w-full p-3 border ${errors.localLesao ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                        />
-                        {errors.localLesao && <p className="mt-1 text-sm text-red-600">{errors.localLesao}</p>}
-                      </div>
-                    )}
-
+                    <ConditionalField
+                      isVisible={formData.temLesao === "sim"}
+                      label="Em que zona?"
+                      name="localLesao"
+                      value={formData.localLesao}
+                      onChange={handleChange}
+                      placeholder="Menciona qual é o local onde possuis a lesão..."
+                      rows={2}
+                      fieldType="textarea"
+                      error={errors.localLesao}
+                    />
                     <div>
                       <label className="block mb-2 font-medium text-gray-700">
                         Fizeste alguma cirurgia recentemente?
@@ -1002,24 +1276,20 @@ export default function Anamnese() {
                           checked={formData.cirurgiaRecente === "não"}
                           onChange={() => setFormData({ ...formData, cirurgiaRecente: "não" })}
                         />
+                        <InputError message={errors.cirurgiaRecente} />
                       </div>
                     </div>
-
-                    {formData.cirurgiaRecente === "sim" && (
-                      <div>
-                        <label className="block mb-1 font-medium text-gray-700">
-                          Que cirurgia fizeste?
-                        </label>
-                        <input
-                          type="text"
-                          name="localcirurgia"
-                          value={formData.localcirurgia}
-                          onChange={handleChange}
-                          className={`w-full p-3 border ${errors.localcirurgia ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                        />
-                        {errors.localcirurgia && <p className="mt-1 text-sm text-red-600">{errors.localcirurgia}</p>}
-                      </div>
-                    )}
+                    <ConditionalField
+                      isVisible={formData.cirurgiaRecente === "sim"}
+                      label="Que cirurgia fizeste?"
+                      name="localcirurgia"
+                      value={formData.localcirurgia}
+                      onChange={handleChange}
+                      placeholder="Menciona qual é o local onde foi a intervenção circúrgica..."
+                      rows={2}
+                      fieldType="textarea"
+                      error={errors.localcirurgia}
+                    />
 
                     <div>
                       <label className="block mb-2 font-medium text-gray-700">
@@ -1040,29 +1310,26 @@ export default function Anamnese() {
                           checked={formData.usaMedicamento === "não"}
                           onChange={() => setFormData({ ...formData, usaMedicamento: "não" })}
                         />
+                        <InputError message={errors.usaMedicamento} />
                       </div>
                     </div>
 
-                    {formData.usaMedicamento === "sim" && (
-                      <div>
-                        <label className="block mb-1 font-medium text-gray-700">
-                          Quais medicamentos?
-                        </label>
-                        <textarea
-                          name="tiposmedicamentos"
-                          value={formData.tiposmedicamentos}
-                          onChange={handleChange}
-                          className={`w-full p-3 border ${errors.tiposmedicamentos ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                          rows={2}
-                        />
-                        {errors.tiposmedicamentos && <p className="mt-1 text-sm text-red-600">{errors.tiposmedicamentos}</p>}
-                      </div>
-                    )}
+                    <ConditionalField
+                      isVisible={formData.usaMedicamento === "sim"}
+                      label="Quais medicamentos?"
+                      name="tiposmedicamentos"
+                      value={formData.tiposmedicamentos}
+                      onChange={handleChange}
+                      placeholder="Menciona quais os medicamentos..."
+                      rows={2}
+                      fieldType="textarea"
+                      error={errors.tiposmedicamentos}
+                    />
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
                         <label className="block mb-2 font-medium text-gray-700">
-                          Tens problemas cardíacos?
+                          Algum médico te disse que possuis um problema cardíaco e recomendou exercícios apenas sob a supervisão médica?
                         </label>
                         <div className="flex space-x-6 mt-2">
                           <RadioButton
@@ -1080,11 +1347,12 @@ export default function Anamnese() {
                             onChange={() => setFormData({ ...formData, problemaCardiaco: "não" })}
                           />
                         </div>
+                        <InputError message={errors.problemaCardiaco} />
                       </div>
 
                       <div>
                         <label className="block mb-2 font-medium text-gray-700">
-                          Sentes dor no peito?
+                          Sentes dor no peito provocada pela prática de exercício fícico?
                         </label>
                         <div className="flex space-x-6 mt-2">
                           <RadioButton
@@ -1102,11 +1370,12 @@ export default function Anamnese() {
                             onChange={() => setFormData({ ...formData, dorNoPeito: "não" })}
                           />
                         </div>
+                        <InputError message={errors.dorNoPeito} />
                       </div>
 
                       <div>
                         <label className="block mb-2 font-medium text-gray-700">
-                          Já perdeste a consciência?
+                          Já perdeste a consciência em alguma ocasião ou sofreste alguma queda em virtude de tonturas??
                         </label>
                         <div className="flex space-x-6 mt-2">
                           <RadioButton
@@ -1124,11 +1393,12 @@ export default function Anamnese() {
                             onChange={() => setFormData({ ...formData, perdeuConsiencia: "não" })}
                           />
                         </div>
+                        <InputError message={errors.perdeuConsiencia} />
                       </div>
 
                       <div>
                         <label className="block mb-2 font-medium text-gray-700">
-                          Tens problemas ósseos?
+                          Tens problemas ósseos ou articulares que podem agravar-se com a prática de exercício físico?
                         </label>
                         <div className="flex space-x-6 mt-2">
                           <RadioButton
@@ -1146,6 +1416,7 @@ export default function Anamnese() {
                             onChange={() => setFormData({ ...formData, problemaOssos: "não" })}
                           />
                         </div>
+                        <InputError message={errors.problemaOssos} />
                       </div>
                     </div>
                   </div>
@@ -1174,15 +1445,41 @@ export default function Anamnese() {
                         onChange={handleChange}
                         className={`w-full p-3 border ${errors.refeicoesPorDia ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                       />
-                      {errors.refeicoesPorDia && <p className="mt-1 text-sm text-red-600">{errors.refeicoesPorDia}</p>}
+                      <InputError message={errors.refeicoesPorDia} />
                     </div>
 
                     {formData.refeicoesPorDia > 0 && (
-                      <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                        <h3 className={`font-medium border ${errors.restricaoAlimentar ? 'border-red-500' : 'border-gray-300'} text-gray-800 mb-4 `}>Descreve as tuas refeições</h3>
-                        {renderMealInputs()}
-                        {errors.restricaoAlimentar && <p className="mt-1 text-sm text-red-600">{errors.restricaoAlimentar}</p>}
-                      </div>
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className={`border rounded-lg p-4 ${errors.restricaoAlimentar
+                          ? 'border-red-300 bg-red-50'
+                          : 'border-gray-200 bg-gray-50'
+                          }`}
+                      >
+                        <ConditionalMealSection
+                          isVisible={formData.refeicoesPorDia > 0}
+                          title="Descreve as tuas refeições"
+                          error={errors.restricaoAlimentar}
+                        >
+                          {renderMealInputs()}
+                        </ConditionalMealSection>
+
+                        {errors.restricaoAlimentar && (
+                          <motion.p
+                            initial={{ opacity: 0, y: -5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mt-2 text-sm text-red-600 flex items-start"
+                          >
+                            <AlertCircle
+                              className="h-4 w-4 mr-1 flex-shrink-0 mt-0.5"
+                            />
+                            <span>{errors.restricaoAlimentar}</span>
+                          </motion.p>
+                        )}
+                      </motion.div>
                     )}
 
                     <div>
@@ -1196,23 +1493,102 @@ export default function Anamnese() {
                         className={`w-full p-3 border ${errors.alimentosGosta ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                         rows={2}
                       />
-                      {errors.alimentosGosta && <p className="mt-1 text-sm text-red-600">{errors.alimentosGosta}</p>}
+                      <InputError message={errors.alimentosGosta} />
                     </div>
-
+                    <div>
+                      <label className="block mb-2 font-medium text-gray-700">
+                        Que alimentos menos gostas?
+                      </label>
+                      <textarea
+                        name="alimentosNaoGosta"
+                        value={formData.alimentosNaoGosta}
+                        onChange={handleChange}
+                        className={`w-full p-3 border ${errors.alimentosNaoGosta ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
+                        rows={2}
+                      />
+                      <InputError message={errors.alimentosNaoGosta} />
+                    </div>
                     <div>
                       <label className="block mb-2 font-medium text-gray-700">
                         Tens alguma restrição alimentar?
                       </label>
-                      <textarea
-                        name="restricaoAlimentar"
-                        value={formData.restricaoAlimentar}
-                        onChange={handleChange}
-                        className={`w-full p-3 border ${errors.restricaoAlimentar ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                        rows={2}
-                      />
-                      {errors.restricaoAlimentar && <p className="mt-1 text-sm text-red-600">{errors.restricaoAlimentar}</p>}
+                      <div className="flex space-x-6 mt-2">
+                        <RadioButton
+                          name="restricaoAlimentar"
+                          value="sim"
+                          label="Sim"
+                          checked={formData.restricaoAlimentar === "sim"}
+                          onChange={() => setFormData({ ...formData, restricaoAlimentar: "sim" })}
+                        />
+                        <RadioButton
+                          name="restricaoAlimentar"
+                          value="não"
+                          label="Não"
+                          checked={formData.restricaoAlimentar === "não"}
+                          onChange={() => {
+                            setFormData({
+                              ...formData,
+                              restricaoAlimentar: "não",
+                              restricoesAlimentares: []
+                            });
+                          }}
+                        />
+                      </div>
                     </div>
-
+                    {formData.restricaoAlimentar === "sim" && (
+                      <div className="mt-6 space-y-4">
+                        <fieldset>
+                          <label className="block mb-2 font-medium text-gray-700">
+                            Quais restrições alimentares?
+                          </label>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {[
+                              "Vegetariano",
+                              "Vegano",
+                              "Sem glúten",
+                              "Sem lactose",
+                              "Diabético",
+                              "Halal",
+                              "Kosher"
+                            ].map((restricao) => (
+                              <div key={restricao} className="relative flex items-start">
+                                <div className="flex items-center h-5">
+                                  <input
+                                    type="checkbox"
+                                    id={`restricao-${restricao}`}
+                                    name="restricoesAlimentares"
+                                    value={restricao}
+                                    checked={formData.restricoesAlimentares?.includes(restricao) || false}
+                                    onChange={(e) => {
+                                      const isChecked = e.target.checked;
+                                      setFormData(prev => ({
+                                        ...prev,
+                                        restricoesAlimentares: isChecked
+                                          ? [...(prev.restricoesAlimentares || []), restricao]
+                                          : (prev.restricoesAlimentares || []).filter(r => r !== restricao)
+                                      }));
+                                    }}
+                                    className="focus:ring-blue-500 cursor-pointer h-4 w-4 text-blue-600 border-gray-300 rounded transition"
+                                    aria-describedby={`restricao-${restricao}-description`}
+                                  />
+                                </div>
+                                <div className="ml-3 text-sm">
+                                  <label htmlFor={`restricao-${restricao}`} className="font-medium text-gray-700 hover:text-gray-900 cursor-pointer">
+                                    {restricao}
+                                  </label>
+                                  {restricao === "Outros" && (
+                                    <p id={`restricao-${restricao}-description`} className="text-gray-500 mt-1">
+                                      Especifique abaixo
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <InputError message={errors.restricoesAlimentares} />
+                        </fieldset>
+                      </div>
+                    )}
                     <div>
                       <label className="block mb-2 font-medium text-gray-700">
                         Descreve as dificuldades para para seguir um plano alimentar
@@ -1238,7 +1614,7 @@ export default function Anamnese() {
                         onChange={handleChange}
                         className={`w-full p-3 border ${errors.aguaConsumida ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                       />
-                      {errors.aguaConsumida && <p className="mt-1 text-sm text-red-600">{errors.aguaConsumida}</p>}
+                      <InputError message={errors.aguaConsumida} />
                     </div>
 
                     <div>
@@ -1260,24 +1636,21 @@ export default function Anamnese() {
                           checked={formData.usaSuplemento === "não"}
                           onChange={() => setFormData({ ...formData, usaSuplemento: "não" })}
                         />
+                        <InputError message={errors.usaSuplemento} />
                       </div>
                     </div>
 
-                    {formData.usaSuplemento === "sim" && (
-                      <div>
-                        <label className="block mb-1 font-medium text-gray-700">
-                          Que suplemento(s)?
-                        </label>
-                        <input
-                          type="text"
-                          name="qualSuplemento"
-                          value={formData.qualSuplemento}
-                          onChange={handleChange}
-                          className={`w-full p-3 border ${errors.qualSuplemento ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                        />
-                        {errors.qualSuplemento && <p className="mt-1 text-sm text-red-600">{errors.qualSuplemento}</p>}
-                      </div>
-                    )}
+                    <ConditionalField
+                      isVisible={formData.usaSuplemento === "sim"}
+                      label="Que suplemento(s)?"
+                      name="qualSuplemento"
+                      value={formData.qualSuplemento}
+                      onChange={handleChange}
+                      placeholder="Menciona o(s) suplemento(s) que utilizas..."
+                      rows={2}
+                      fieldType="text"
+                    />
+                    {errors.qualSuplemento && <p className="mt-1 text-sm text-red-600">{errors.qualSuplemento}</p>}
 
                     <div>
                       <label className="block mb-2 font-medium text-gray-700">
@@ -1298,25 +1671,20 @@ export default function Anamnese() {
                           checked={formData.acompanhamentoDistancia === "não"}
                           onChange={() => setFormData({ ...formData, acompanhamentoDistancia: "não" })}
                         />
+                        <InputError message={errors.acompanhamentoDistancia} />
                       </div>
                     </div>
-
-                    {formData.acompanhamentoDistancia === "sim" && (
-                      <div>
-                        <label className="block mb-1 font-medium text-gray-700">
-                          Qual o motivo para o acompanhamento à distância?
-                        </label>
-                        <textarea
-                          name="motivoAcompanhamento"
-                          value={formData.motivoAcompanhamento}
-                          onChange={handleChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          rows={2}
-                        />
-                        {errors.motivoAcompanhamento && <p className="mt-1 text-sm text-red-600">{errors.motivoAcompanhamento}</p>}
-                      </div>
-
-                    )}
+                    <ConditionalField
+                      isVisible={formData.acompanhamentoDistancia === "sim"}
+                      label="Qual o motivo para o acompanhamento à distância?"
+                      name="motivoAcompanhamento"
+                      value={formData.motivoAcompanhamento}
+                      onChange={handleChange}
+                      placeholder="Menciona o(s) mnotivo(s) pelo(s) qual(is) estás interessado no acompanhamento à distância..."
+                      rows={2}
+                      fieldType="text"
+                      error={errors.motivoAcompanhamento}
+                    />
                   </div>
                 </div>
               )}
@@ -1337,15 +1705,47 @@ export default function Anamnese() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center h-48">
+                      {/* Foto Frontal */}
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center h-48 relative">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          name="fotoFrontal"
+                          onChange={(e) =>
+                            setFormData({ ...formData, fotoFrontal: e.target.files ? Array.from(e.target.files) : [] })
+                          }
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                        />
+                        <InputError message={errors.fotoFrontal} />
                         <Camera className="text-gray-400 mb-2" size={24} />
                         <p className="text-gray-500 text-sm">Foto Frontal</p>
                       </div>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center h-48">
+
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center h-48 relative">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          name="fotoLateral"
+                          onChange={(e) =>
+                            setFormData({ ...formData, fotoLateral: e.target.files ? Array.from(e.target.files) : [] })
+                          }
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                        />
+                        <InputError message={errors.fotoLateral} />
                         <Camera className="text-gray-400 mb-2" size={24} />
                         <p className="text-gray-500 text-sm">Foto Lateral</p>
                       </div>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center h-48">
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center h-48 relative">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          name="fotoCostas"
+                          onChange={(e) =>
+                            setFormData({ ...formData, fotoCostas: e.target.files ? Array.from(e.target.files) : [] })
+                          }
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                        />
+                        <InputError message={errors.fotoCostas} />
                         <Camera className="text-gray-400 mb-2" size={24} />
                         <p className="text-gray-500 text-sm">Foto de Costas</p>
                       </div>
@@ -1356,149 +1756,215 @@ export default function Anamnese() {
 
               {/* Step 6: Review */}
               {currentStep === 5 && (
-                <div className="p-6">
-                  <h2 className="text-xl font-semibold mb-6 flex items-center">
-                    <Clipboard className="mr-2 text-blue-600" />
+                <div className="p-6 max-w-4xl mx-auto">
+                  <h2 className="text-2xl font-bold mb-6 flex items-center text-blue-700 border-b pb-3">
+                    <Clipboard className="mr-3 text-blue-600" />
                     Revisão Final
                   </h2>
 
-                  <div className="bg-blue-50 rounded-lg p-4 mb-6">
+                  <div className="bg-blue-50 rounded-lg p-4 mb-8 border border-blue-200 shadow-sm">
                     <div className="flex items-center">
-                      <CheckCircle className="text-blue-600 mr-2" size={20} />
-                      <p className="text-blue-800 font-medium">Verifica todas as informações antes de enviar</p>
+                      <CheckCircle className="text-blue-600 mr-3 flex-shrink-0" size={24} />
+                      <p className="text-blue-800 font-medium">Por favor, verifica todas as informações antes de submeter o formulário</p>
                     </div>
                   </div>
 
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="font-medium text-gray-800 border-b pb-2 mb-3">Dados Pessoais</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-500">Nome</p>
-                          <p className="font-medium">{formData.nome || "Dados não introduzidos"}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Email</p>
-                          <p className="font-medium">{formData.email || "Dados não introduzidos"}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Localidade</p>
-                          <p className="font-medium">{formData.localidade || "Dados não introduzidos"}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Profissão</p>
-                          <p className="font-medium">{formData.profissao || "Dados não introduzidos"}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Telemóvel</p>
-                          <p className="font-medium">{formData.telemovel || "Dados não introduzidos"}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Peso em Jejum</p>
-                          <p className="font-medium">{formData.pesoJejum || "Dados não introduzidos"}</p>
-                        </div>
+                  <div className="space-y-8">
+                    {/* Dados Pessoais */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 className="font-semibold text-gray-800 flex items-center">
+                          <User className="mr-2 text-blue-600" size={18} />
+                          Dados Pessoais
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-6">
+                        <ReviewField label="Nome" value={formData.nome} />
+                        <ReviewField label="Email" value={formData.email} />
+                        <ReviewField label="Data de Nascimento" value={formData.dataNascimento} />
+                        <ReviewField label="Género" value={formData.genero} />
+                        <ReviewField label="Altura (cm)" value={formData.altura} />
+                        <ReviewField label="Localidade" value={formData.localidade} />
+                        <ReviewField label="Profissão" value={formData.profissao} />
+                        <ReviewField label="Telemóvel" value={formData.telemovel ? `${formData.countryCode} ${formData.telemovel}` : null} />
+                        <ReviewField label="Peso em Jejum" value={formData.pesoJejum} />
                       </div>
                     </div>
 
-                    <div>
-                      <h3 className="font-medium text-gray-800 border-b pb-2 mb-3">Exercício Físico</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-500">Objetivo</p>
-                          <p className="font-medium">{formData.objetivoExercicio || "Dados não introduzidos"}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Pratica exercício?</p>
-                          <p className="font-medium">{formData.praticaExercicio === "sim" ? "Sim" : "Não"}</p>
-                        </div>
+                    {/* Objetivos e Motivação */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 className="font-semibold text-gray-800 flex items-center">
+                          <Target className="mr-2 text-blue-600" size={18} />
+                          Objetivos e Motivação
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-6">
+                        <ReviewField label="Motivo do Acompanhamento" value={formData.motivoAcompanhamento} />
+                        <ReviewField label="Acompanhamento à Distância" value={formData.acompanhamentoDistancia} />
+                      </div>
+                    </div>
+
+                    {/* Exercício Físico */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 className="font-semibold text-gray-800 flex items-center">
+                          <Activity className="mr-2 text-blue-600" size={18} />
+                          Exercício Físico
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-6">
+                        <ReviewField label="Objetivo" value={formData.objetivoExercicio} />
+                        <ReviewField label="Pratica exercício?" value={formData.praticaExercicio === "sim" ? "Sim" : "Não"} />
+
                         {formData.praticaExercicio === "sim" && (
-                          <div>
-                            <p className="text-sm text-gray-500">Vezes por semana</p>
-                            <p className="font-medium">{formData.vezesPorSemana}</p>
-                          </div>
+                          <>
+                            <ReviewField label="Vezes por semana" value={formData.vezesPorSemana} />
+                            <ReviewField label="Modalidade Desportiva" value={formData.modalidadeDesportiva} />
+                            <ReviewField label="Já praticou esta modalidade?" value={formData.praticouModalidade} />
+                          </>
                         )}
-                        <div>
-                          <p className="text-sm text-gray-500">Impedimento para exercício</p>
-                          <p className="font-medium">{formData.impedimentoExercicio === "sim" ? "Sim" : "Não"}</p>
-                        </div>
+
+                        <ReviewField label="Impedimento para exercício" value={formData.impedimentoExercicio === "sim" ? "Sim" : "Não"} />
+
+                        {formData.impedimentoExercicio === "sim" && (
+                          <ReviewField label="Tipo de Impedimento" value={formData.tipoImpedimento} />
+                        )}
+
+                        <ReviewField label="Preferência de Local de Treino" value={formData.preferenciaLocalTreino} />
+                        <ReviewField label="Material Disponível" value={formData.materialDisponivel} />
+                        <ReviewField label="Nível de Conforto a Treinar Sozinho" value={formData.nivelConfortoSozinho} />
+                        <ReviewField label="Tempo por Sessão" value={formData.tempoPorSessao} />
+                        <ReviewField label="Experiência com Treino à Distância" value={formData.experienciaDistancia} />
+                        <ReviewField label="Problemas com Treino à Distância" value={formData.experienciaProblemas} />
                       </div>
                     </div>
 
-                    <div>
-                      <h3 className="font-medium text-gray-800 border-b pb-2 mb-3">Saúde</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-500">Dores na coluna</p>
-                          <p className="font-medium">{formData.temDoresColuna === "sim" ? "Sim" : "Não"}</p>
-                        </div>
+                    {/* Saúde */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 className="font-semibold text-gray-800 flex items-center">
+                          <Heart className="mr-2 text-blue-600" size={18} />
+                          Saúde
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-6">
+                        <ReviewField label="Dores na coluna" value={formData.temDoresColuna === "sim" ? "Sim" : "Não"} />
+
                         {formData.temDoresColuna === "sim" && (
-                          <div>
-                            <p className="text-sm text-gray-500">Zona da coluna</p>
-                            <p className="font-medium">{formData.zonaColuna}</p>
-                          </div>
+                          <ReviewField label="Zona da coluna" value={formData.zonaColuna} />
                         )}
-                        <div>
-                          <p className="text-sm text-gray-500">Lesão</p>
-                          <p className="font-medium">{formData.temLesao === "sim" ? "Sim" : "Não"}</p>
-                        </div>
+
+                        <ReviewField label="Lesão" value={formData.temLesao === "sim" ? "Sim" : "Não"} />
+
                         {formData.temLesao === "sim" && (
-                          <div>
-                            <p className="text-sm text-gray-500">Local da lesão</p>
-                            <p className="font-medium">{formData.localLesao}</p>
-                          </div>
+                          <ReviewField label="Local da lesão" value={formData.localLesao} />
                         )}
-                        <div>
-                          <p className="text-sm text-gray-500">Cirurgia recente</p>
-                          <p className="font-medium">{formData.cirurgiaRecente === "sim" ? "Sim" : "Não"}</p>
-                        </div>
+
+                        <ReviewField label="Cirurgia recente" value={formData.cirurgiaRecente === "sim" ? "Sim" : "Não"} />
+
                         {formData.cirurgiaRecente === "sim" && (
-                          <div>
-                            <p className="text-sm text-gray-500">Local da cirurgia</p>
-                            <p className="font-medium">{formData.localcirurgia}</p>
-                          </div>
+                          <ReviewField label="Local da cirurgia" value={formData.localcirurgia} />
                         )}
-                        <div>
-                          <p className="text-sm text-gray-500">Usa medicamento</p>
-                          <p className="font-medium">{formData.usaMedicamento === "sim" ? "Sim" : "Não"}</p>
-                        </div>
+
+                        <ReviewField label="Usa medicamento" value={formData.usaMedicamento === "sim" ? "Sim" : "Não"} />
+
                         {formData.usaMedicamento === "sim" && (
-                          <div>
-                            <p className="text-sm text-gray-500">Medicamentos</p>
-                            <p className="font-medium">{formData.tiposmedicamentos}</p>
-                          </div>
+                          <ReviewField label="Medicamentos" value={formData.tiposmedicamentos} />
+                        )}
+
+                        <ReviewField label="Problema Cardíaco" value={formData.problemaCardiaco} />
+                        <ReviewField label="Dor no Peito" value={formData.dorNoPeito} />
+                        <ReviewField label="Já perdeu consciência?" value={formData.perdeuConsiencia} />
+                        <ReviewField label="Problema Ósseo/Articular" value={formData.problemaOssos} />
+                        <ReviewField label="Medicamento para Pressão" value={formData.medicamentoPressao} />
+                      </div>
+                    </div>
+
+                    {/* Nutrição */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 className="font-semibold text-gray-800 flex items-center">
+                          <Apple className="mr-2 text-blue-600" size={18} />
+                          Nutrição
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-6">
+                        <ReviewField label="Refeições por dia" value={formData.refeicoesPorDia} />
+                        <ReviewField label="Água consumida (litros)" value={formData.aguaConsumida} />
+                        <ReviewField label="Alimentos preferidos" value={formData.alimentosGosta} />
+                        <ReviewField label="Alimentos que não gosta" value={formData.alimentosNaoGosta} />
+                        <ReviewField label="Restrições alimentares" value={formData.restricaoAlimentar} specialDefault="Nenhuma" />
+                        <ReviewField label="Dificuldades com Planos Alimentares" value={formData.dificuldadesPlanoAlimentar} />
+                        <ReviewField label="Usa suplemento" value={formData.usaSuplemento === "sim" ? "Sim" : "Não"} />
+
+                        {formData.usaSuplemento === "sim" && (
+                          <ReviewField label="Suplementos" value={formData.qualSuplemento} />
                         )}
                       </div>
                     </div>
 
-                    <div>
-                      <h3 className="font-medium text-gray-800 border-b pb-2 mb-3">Nutrição</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Fotos */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 className="font-semibold text-gray-800 flex items-center">
+                          <Camera className="mr-2 text-blue-600" size={18} />
+                          Fotos
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 p-6">
                         <div>
-                          <p className="text-sm text-gray-500">Refeições por dia</p>
-                          <p className="font-medium">{formData.refeicoesPorDia}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Água consumida (litros)</p>
-                          <p className="font-medium">{formData.aguaConsumida || "Dados não introduzidos"}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Alimentos preferidos</p>
-                          <p className="font-medium">{formData.alimentosGosta || "Dados não introduzidos"}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Restrições alimentares</p>
-                          <p className="font-medium">{formData.restricaoAlimentar || "Nenhuma"}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Usa suplemento</p>
-                          <p className="font-medium">{formData.usaSuplemento === "sim" ? "Sim" : "Não"}</p>
-                        </div>
-                        {formData.usaSuplemento === "sim" && (
-                          <div>
-                            <p className="text-sm text-gray-500">Suplementos</p>
-                            <p className="font-medium">{formData.qualSuplemento}</p>
+                          <p className="text-sm font-medium text-gray-600 mb-1">Foto Frontal</p>
+                          <div className={`px-3 py-2 rounded ${formData.fotoFrontal.length > 0 ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>
+                            <p className="font-medium flex items-center">
+                              {formData.fotoFrontal.length > 0 ? (
+                                <><CheckCircle size={16} className="mr-2" /> Enviada</>
+                              ) : (
+                                <><AlertCircle size={16} className="mr-2" /> Não enviada</>
+                              )}
+                            </p>
                           </div>
-                        )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-600 mb-1">Foto Lateral</p>
+                          <div className={`px-3 py-2 rounded ${formData.fotoLateral.length > 0 ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>
+                            <p className="font-medium flex items-center">
+                              {formData.fotoLateral.length > 0 ? (
+                                <><CheckCircle size={16} className="mr-2" /> Enviada</>
+                              ) : (
+                                <><AlertCircle size={16} className="mr-2" /> Não enviada</>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-600 mb-1">Foto de Costas</p>
+                          <div className={`px-3 py-2 rounded ${formData.fotoCostas.length > 0 ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>
+                            <p className="font-medium flex items-center">
+                              {formData.fotoCostas.length > 0 ? (
+                                <><CheckCircle size={16} className="mr-2" /> Enviada</>
+                              ) : (
+                                <><AlertCircle size={16} className="mr-2" /> Não enviada</>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Observações */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 className="font-semibold text-gray-800 flex items-center">
+                          <MessageSquare className="mr-2 text-blue-600" size={18} />
+                          Observações
+                        </h3>
+                      </div>
+                      <div className="p-6">
+                        <p className="text-sm font-medium text-gray-600 mb-2">Observações Adicionais</p>
+                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                          <p className="text-gray-700">{formData.observacoes || "Nenhuma observação adicional"}</p>
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -10,6 +10,14 @@ export type AnamneseFormData = {
   countryCode: string;
   profissao: string;
   telemovel: string;
+  praticouModalidade: string;
+  modalidadeDesportiva: string;
+  experienciaDistancia: string;
+  tempoPorSessao: string;
+  preferenciaLocalTreino: string;
+  experienciaProblemas: string;
+  materialDisponivel: string;
+  nivelConfortoSozinho: string;
   objetivoExercicio: string;
   praticaExercicio: string;
   vezesPorSemana: number;
@@ -27,6 +35,7 @@ export type AnamneseFormData = {
   problemaOssos: string;
   medicamentoPressao: string;
   impedimentoExercicio: string;
+  tipoImpedimento: string;
   observacoes: string;
   refeicoesPorDia: number;
   alimentosPrimeiraRefeicao: string;
@@ -38,7 +47,9 @@ export type AnamneseFormData = {
   alimentosSetimaRefeicao: string;
   alimentosOitavaRefeicao: string;
   alimentosGosta: string;
+  alimentosNaoGosta: string;
   restricaoAlimentar: string;
+  restricoesAlimentares: string[];
   dificuldadesPlanoAlimentar: string;
   aguaConsumida: string;
   usaSuplemento: string;

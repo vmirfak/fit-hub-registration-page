@@ -29,6 +29,11 @@ export const FormYupValidationSchema = yup.object().shape({
         .matches(/^[a-zA-ZÀ-ÖØ-öø-ÿ\s'-]+$/, 'Localidade deve conter apenas letras, espaços, hífens e apóstrofos')
         .required('Localidade é obrigatória'),
 
+    genero: yup
+        .string()
+        .oneOf(['masculino', 'feminino'], 'Sexo deve ser selecionado')
+        .required('Sexo é obrigatório'),
+
     profissao: yup
         .string()
         .trim()
@@ -48,21 +53,13 @@ export const FormYupValidationSchema = yup.object().shape({
         .required('Telemóvel é obrigatório')
         .test('phone-validation', 'Telemóvel inválido', function (value) {
             if (!value) return false;
-
-            // Remove espaços, hífens e parênteses que o usuário pode ter inserido
             const cleanValue = value.replace(/[\s\-()]/g, '');
-
-            // Validação específica para Portugal (+351)
             if (this.parent.countryCode === '+351') {
                 return cleanValue.length === 9 && /^9\d{8}$|^2\d{8}$|^3\d{8}$/.test(cleanValue);
             }
-
-            // Validação para Brasil (+55)
             if (this.parent.countryCode === '+55') {
                 return cleanValue.length === 11 && /^[1-9]{2}9\d{8}$/.test(cleanValue);
             }
-
-            // Validação genérica para outros países
             return /^\d{6,15}$/.test(cleanValue);
         }),
 
@@ -89,10 +86,19 @@ export const FormYupValidationSchema = yup.object().shape({
 
     dataNascimento: yup
         .date()
+        .transform((_value, originalValue) => {
+            // Convert from string (e.g. "1994-11-26") to Date object
+            return originalValue ? new Date(originalValue) : null;
+        })
+        .typeError('Data de nascimento inválida') // fallback if still not parsable
+        .required('Data de nascimento é obrigatória')
         .max(new Date(), 'Data de nascimento não pode ser no futuro')
-        .min(new Date(new Date().setFullYear(new Date().getFullYear() - 100)), 'Idade máxima é 100 anos')
+        .min(
+            new Date(new Date().setFullYear(new Date().getFullYear() - 100)),
+            'Idade máxima é 100 anos'
+        )
         .test('is-adult', 'Você deve ter pelo menos 18 anos', value => {
-            if (!value) return true; // Será capturado pela validação required, se necessário
+            if (!value) return true;
             const today = new Date();
             const birthDate = new Date(value);
             let age = today.getFullYear() - birthDate.getFullYear();
@@ -104,19 +110,80 @@ export const FormYupValidationSchema = yup.object().shape({
 
             return age >= 18;
         })
-        .required('Data de nascimento é obrigatória'),
-
-    genero: yup
-        .string()
-        .oneOf(['masculino', 'feminino', 'outro', 'prefiro não informar'], 'Gênero inválido')
-        .required('Gênero é obrigatório'),
-
+    ,
     objetivoExercicio: yup
         .string()
         .trim()
         .min(5, 'Por favor, forneça detalhes do seu objetivo')
         .max(500, 'Objetivo não pode exceder 500 caracteres')
-        .required('Objetivo do exercício é obrigatório'),
+        .required('Por favor, descreve qual é o teu objetivo com o exercício físico.'),
+
+    praticouModalidade: yup
+        .string()
+        .required('Por favor, seleciona uma opção')
+        .oneOf(['sim', 'não'], 'Seleciona uma opção'),
+
+    modalidadeDesportiva: yup
+        .string()
+        .when('praticouModalidade', (praticouModalidade, schema) =>
+            (Array.isArray(praticouModalidade) ? praticouModalidade[0] : praticouModalidade) === 'sim'
+                ? schema
+                    .trim()
+                    .required('Por favor, indique quais modalidades praticou')
+                    .min(3, 'Deves descrever pelo menos 3 caracteres acerca da(s) modalidade(s) que praticaste.')
+                : schema.notRequired()
+        ),
+    experienciaDistancia: yup
+        .string()
+        .required('Por favor, selecione uma opção')
+        .oneOf(['sim', 'não'], 'Por favor, selecione uma opção'),
+
+    experienciaProblemas: yup
+        .string()
+        .when('experienciaDistancia', (experienciaDistancia, schema) =>
+            (Array.isArray(experienciaDistancia) ? experienciaDistancia[0] : experienciaDistancia) === 'sim'
+                ? schema
+                    .trim()
+                    .required('Por favor, descreva o que correu mal')
+                    .min(10, 'A descrição deve ter pelo menos 10 caracteres')
+                    .max(500, 'A descrição não pode exceder 500 caracteres')
+                : schema.notRequired()
+        ),
+    nivelConfortoSozinho: yup
+        .number()
+        .typeError('Deve inserir um número entre 0 e 10')
+        .required('Por favor, avalie o seu nível de conforto')
+        .min(0, 'A avaliação mínima é 0')
+        .max(10, 'A avaliação máxima é 10')
+        .integer('A avaliação deve ser um número inteiro'),
+
+    impedimentoExercicio: yup.string()
+        .required('Seleciona uma opção')
+        .oneOf(['sim', 'não'], 'Opção inválida'),
+
+    tipoImpedimento: yup
+        .string()
+        .when('impedimentoExercicio', (impedimentoExercicio, schema) =>
+            (Array.isArray(impedimentoExercicio) ? impedimentoExercicio[0] : impedimentoExercicio) === 'sim'
+                ? schema
+                    .trim()
+                    .required('Por favor, indique qual o tipo de impedimento que possui')
+                    .min(3, 'Deves descrever pelo menos 3 caracteres acerca do(s) impedimento(s).')
+                : schema.notRequired()
+        ),
+
+    tempoPorSessao: yup
+        .number()
+        .typeError('Por favor, insira um número válido (ex: 30, 45, 60)')
+        .required('É obrigatório indicar a duração do treino')
+        .min(15, 'A duração mínima por sessão é de 15 minutos')
+        .max(240, 'A duração máxima por sessão é de 240 minutos (4 horas)')
+        .integer('A duração deve ser indicada em minutos inteiros (sem decimais)')
+        .test(
+            'valid-interval',
+            'Duração típica entre 30-120 minutos (ex: 30, 45, 60)',
+            (value) => value === 0 || (value >= 15 && value <= 240)
+        ),
 
     praticaExercicio: yup
         .string()
@@ -230,6 +297,25 @@ export const FormYupValidationSchema = yup.object().shape({
         .string()
         .oneOf(['sim', 'não'], 'Selecione uma opção válida')
         .required('Por favor indique se usa algum medicamento'),
+    problemaCardiaco: yup
+        .string()
+        .oneOf(['sim', 'não'], 'Selecione uma opção válida')
+        .required('Por favor indique se tem ou teve algum problema cardíaco'),
+
+    dorNoPeito: yup
+        .string()
+        .oneOf(['sim', 'não'], 'Selecione uma opção válida')
+        .required('Por favor indique se já sentiu dor no peito durante atividade física'),
+
+    perdeuConsiencia: yup
+        .string()
+        .oneOf(['sim', 'não'], 'Selecione uma opção válida')
+        .required('Por favor indique se já perdeu a consciência'),
+
+    problemaOssos: yup
+        .string()
+        .oneOf(['sim', 'não'], 'Selecione uma opção válida')
+        .required('Por favor indique se tem algum problema nos ossos ou articulações'),
 
     tiposmedicamentos: yup
         .string()
@@ -238,22 +324,6 @@ export const FormYupValidationSchema = yup.object().shape({
             is: 'sim',
             then: schema => schema
                 .required('Por favor indique quais medicamentos')
-                .min(3, 'Por favor, forneça informações detalhadas')
-                .max(500, 'Não pode exceder 500 caracteres')
-        }),
-
-    possuiDoencaCronica: yup
-        .string()
-        .oneOf(['sim', 'não'], 'Selecione uma opção válida')
-        .required('Por favor indique se possui alguma doença crônica'),
-
-    quaisDoencasCronicas: yup
-        .string()
-        .trim()
-        .when('possuiDoencaCronica', {
-            is: 'sim',
-            then: schema => schema
-                .required('Por favor especifique as doenças crônicas')
                 .min(3, 'Por favor, forneça informações detalhadas')
                 .max(500, 'Não pode exceder 500 caracteres')
         }),
@@ -270,13 +340,6 @@ export const FormYupValidationSchema = yup.object().shape({
         .max(8, 'Máximo de 8 refeições por dia')
         .required('Este campo é obrigatório'),
 
-    horarioRefeicoes: yup
-        .string()
-        .trim()
-        .min(5, 'Por favor, forneça detalhes dos horários')
-        .max(300, 'Não pode exceder 300 caracteres')
-        .required('Informe os horários habituais das refeições'),
-
     alimentosGosta: yup
         .string()
         .trim()
@@ -284,24 +347,23 @@ export const FormYupValidationSchema = yup.object().shape({
         .max(1000, 'Máximo de 1000 caracteres')
         .required('Campo obrigatório'),
 
-    alimentosNaoGosta: yup
-        .string()
-        .trim()
-        .min(5, 'Por favor, liste alguns alimentos')
-        .max(1000, 'Máximo de 1000 caracteres')
-        .required('Campo obrigatório'),
+    restricaoAlimentar: yup.string()
+        .required('Por favor, informe se possui alguma restrição alimentar'),
 
-    restricaoAlimentar: yup
-        .string()
-        .trim()
-        .max(1000, 'Máximo de 1000 caracteres'),
+    restricoesAlimentares: yup.array()
+        .when('restricaoAlimentar', {
+            is: 'sim',
+            then: (schema) => schema
+                .min(1, 'Por favor, selecione pelo menos uma restrição alimentar')
+                .required('Por favor, selecione pelo menos uma restrição alimentar'),
+            otherwise: (schema) => schema.notRequired()
+        }),
 
     alergiasAlimentares: yup
         .string()
         .trim()
         .test('format-check', 'Por favor, liste as alergias ou indique "não tenho"', function (value) {
             if (!value) return true;
-            // Permite resposta vazia ou deve ter pelo menos 3 caracteres
             return value.length === 0 || value.length >= 3;
         })
         .max(500, 'Máximo de 500 caracteres'),
@@ -311,7 +373,24 @@ export const FormYupValidationSchema = yup.object().shape({
         .trim()
         .min(5, 'Por favor, forneça mais detalhes')
         .max(1000, 'Máximo de 1000 caracteres')
-        .required('Por favor, indique suas dificuldades ou escreva "não tenho dificuldades"'),
+        .required('Por favor, indique as suas dificuldades ou escreva "não tenho dificuldades"'),
+
+    preferenciaLocalTreino: yup
+        .string()
+        .oneOf(['casa', 'ginásio'], 'Seleciona uma opção válida')
+        .required('Este campo é obrigatório'),
+
+    materialDisponivel: yup
+        .string()
+        .trim()
+        .when('preferenciaLocalTreino', (preferenciaLocalTreino, schema) =>
+            (Array.isArray(preferenciaLocalTreino) ? preferenciaLocalTreino[0] : preferenciaLocalTreino)?.toLowerCase() === 'casa'
+                ? schema
+                    .min(5, 'Por favor, fornece mais detalhes')
+                    .max(1000, 'Máximo de 1000 caracteres')
+                    .required('Indica, por favor qual o tipo de material que tens em casa.')
+                : schema.notRequired()
+        ),
 
     aguaConsumida: yup
         .string()
@@ -324,42 +403,9 @@ export const FormYupValidationSchema = yup.object().shape({
         })
         .required('Campo obrigatório'),
 
-    consumoAlcool: yup
-        .string()
-        .oneOf(['nunca', 'raramente', 'ocasionalmente', 'frequentemente', 'diariamente'], 'Opção inválida')
-        .required('Informe seu consumo de álcool'),
-
-    consumoCafe: yup
-        .string()
-        .oneOf(['nunca', 'raramente', 'ocasionalmente', 'frequentemente', 'diariamente'], 'Opção inválida')
-        .required('Informe seu consumo de café'),
-
-    fumante: yup
-        .string()
-        .oneOf(['sim', 'não', 'ex-fumante'], 'Opção inválida')
-        .required('Informe se é fumante'),
-
-    qualidadeSono: yup
-        .number()
-        .integer('Deve ser um número inteiro')
-        .min(1, 'Mínimo 1')
-        .max(10, 'Máximo 10')
-        .required('Avalie sua qualidade de sono'),
-
-    horasSono: yup
-        .number()
-        .transform((value, originalValue) => {
-            if (originalValue === '' || originalValue === null || originalValue === undefined) return undefined;
-            return isNaN(value) ? undefined : value;
-        })
-        .typeError('Deve ser um número')
-        .min(3, 'Mínimo de 3 horas por noite')
-        .max(12, 'Máximo de 12 horas por noite')
-        .required('Informe quantas horas dorme por noite'),
-
     usaSuplemento: yup
         .string()
-        .oneOf(['sim', 'não'], 'Valor inválido')
+        .oneOf(['sim', 'não'], 'Selecione uma opção')
         .required('Campo obrigatório'),
 
     qualSuplemento: yup
@@ -375,7 +421,7 @@ export const FormYupValidationSchema = yup.object().shape({
 
     acompanhamentoDistancia: yup
         .string()
-        .oneOf(['sim', 'não'], 'Valor inválido')
+        .oneOf(['sim', 'não'], 'Selecione uma opção')
         .required('Campo obrigatório'),
 
     motivoAcompanhamento: yup
@@ -388,44 +434,15 @@ export const FormYupValidationSchema = yup.object().shape({
                 .min(10, 'Por favor, forneça mais detalhes')
                 .max(1000, 'Máximo de 1000 caracteres')
         }),
+    fotoFrontal: yup
+        .mixed()
+        .required('Por favor envie a foto frontal'),
 
-    objetivosSaude: yup
-        .string()
-        .trim()
-        .min(10, 'Por favor, forneça mais detalhes sobre seus objetivos')
-        .max(1000, 'Máximo de 1000 caracteres')
-        .required('Por favor, indique seus objetivos de saúde'),
+    fotoLateral: yup
+        .mixed()
+        .required('Por favor envie a foto lateral'),
 
-    comoConheceu: yup
-        .string()
-        .oneOf([
-            'amigos',
-            'familia',
-            'redes_sociais',
-            'pesquisa_internet',
-            'email_marketing',
-            'evento',
-            'anuncio',
-            'outro'
-        ], 'Opção inválida')
-        .required('Por favor, indique como nos conheceu'),
-
-    outroComoConheceu: yup
-        .string()
-        .trim()
-        .when('comoConheceu', {
-            is: 'outro',
-            then: schema => schema
-                .required('Por favor, especifique como nos conheceu')
-                .min(3, 'Por favor, forneça mais detalhes')
-                .max(200, 'Máximo de 200 caracteres')
-        }),
-
-    consentimentoDados: yup
-        .boolean()
-        .oneOf([true], 'Você deve concordar com a política de privacidade')
-        .required('Você deve concordar com a política de privacidade'),
-
-    aceitaNewsletter: yup
-        .boolean()
+    fotoCostas: yup
+        .mixed()
+        .required('Por favor envie a foto de costas'),
 });
