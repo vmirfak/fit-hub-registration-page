@@ -3,6 +3,9 @@ import { ChangeEvent } from "react";
 export type AnamneseFormData = {
   nome: string;
   email: string;
+  genero: string;
+  altura: number;
+  dataNascimento: string;
   localidade: string;
   countryCode: string;
   profissao: string;

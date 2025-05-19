@@ -1,14 +1,17 @@
 import { Routes, Route } from "react-router-dom";
 import Anamnese from "./pages/Anamnese";
 import WebPage from "./pages/Lovable/Index";
+import { AnamneseProvider } from "@/context/useAnamnese";
 
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<WebPage />} />
-      <Route path="/anamnese" element={<Anamnese />} />
-    </Routes>
+    <AnamneseProvider>
+      <Routes>
+        <Route path="/" element={<WebPage />} />
+        <Route path="/anamnese" element={<Anamnese />} />
+      </Routes>
+    </AnamneseProvider>
   );
 }
 

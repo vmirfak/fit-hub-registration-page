@@ -1,4 +1,4 @@
-import { useState, ChangeEvent, FormEvent, useEffect } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
 import {
   ChevronRight,
   ChevronLeft,
@@ -18,13 +18,17 @@ import {
   FileText,
   MessageSquare,
   Clock,
-  Shield
+  Shield,
+  Ruler,
+  Calendar,
+  Weight
 } from "lucide-react";
 import { motion } from "framer-motion";
 import * as yup from 'yup';
 import { FormYupValidationSchema } from "@/utils/Validation/FormYupValidationSchema";
 import { AnamneseFormData, RadioButtonProps } from "@/types/anamnesetypes";
 import { countryOptions } from "@/utils/countryOptions";
+import { useAnamnese } from "@/context/useAnamnese";
 
 const FormLandingPage = ({ onStartForm }: { onStartForm: () => void }) => {
 
@@ -266,6 +270,9 @@ export default function Anamnese() {
   const [formData, setFormData] = useState<AnamneseFormData>({
     nome: "",
     email: "",
+    altura: 0,
+    genero: "",
+    dataNascimento: "",
     localidade: "",
     profissao: "",
     countryCode: '+351',
@@ -310,11 +317,12 @@ export default function Anamnese() {
     fotoLateral: [],
     fotoCostas: [],
   });
+  const { submitForm, isLoading, isSuccess, resetSubmission } = useAnamnese();
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const stepFields: Record<number, (keyof yup.InferType<typeof FormYupValidationSchema>)[]> = {
-    0: ['nome', 'email', 'localidade', 'countryCode', 'telemovel', 'profissao', 'pesoJejum'],
+    0: ['nome', 'email', 'localidade', 'countryCode', 'telemovel', 'profissao', 'pesoJejum', 'altura', 'dataNascimento'],
     1: ['objetivoExercicio', 'praticaExercicio', 'vezesPorSemana'],
     2: ['temDoresColuna', 'zonaColuna', 'temLesao', 'localLesao', 'cirurgiaRecente', 'localcirurgia', 'usaMedicamento', 'tiposmedicamentos'],
     3: ['refeicoesPorDia', 'alimentosGosta', 'restricaoAlimentar', 'dificuldadesPlanoAlimentar', 'aguaConsumida', 'usaSuplemento', 'qualSuplemento', 'acompanhamentoDistancia', 'motivoAcompanhamento'],
@@ -355,6 +363,9 @@ export default function Anamnese() {
           window.scrollTo(0, 0);
           setIsAnimating(false);
         }, 400);
+      } else {
+        // On the last step, submit the form
+        await handleSubmit(new Event('submit') as unknown as React.FormEvent);
       }
     } catch (err) {
       if (err instanceof yup.ValidationError) {
@@ -369,7 +380,6 @@ export default function Anamnese() {
     }
   };
 
-
   const prevStep = () => {
     if (currentStep > 0) {
       setIsAnimating(true);
@@ -381,10 +391,118 @@ export default function Anamnese() {
     }
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const resetForm = () => {
+    setFormData({
+      nome: "",
+      email: "",
+      altura: 0,
+      dataNascimento: "",
+      genero: "",
+      localidade: "",
+      profissao: "",
+      countryCode: '+351',
+      telemovel: '',
+      objetivoExercicio: "",
+      praticaExercicio: "não",
+      vezesPorSemana: 0,
+      temDoresColuna: "não",
+      zonaColuna: "",
+      temLesao: "não",
+      localLesao: "",
+      cirurgiaRecente: "não",
+      localcirurgia: "",
+      usaMedicamento: "não",
+      problemaCardiaco: "não",
+      dorNoPeito: "não",
+      perdeuConsiencia: "não",
+      problemaOssos: "não",
+      tiposmedicamentos: "",
+      medicamentoPressao: "não",
+      impedimentoExercicio: "não",
+      observacoes: "",
+      refeicoesPorDia: 0,
+      alimentosPrimeiraRefeicao: "",
+      alimentosSegundaRefeicao: "",
+      alimentosTerceiraRefeicao: "",
+      alimentosQuartaRefeicao: "",
+      alimentosQuintaRefeicao: "",
+      alimentosSextaRefeicao: "",
+      alimentosSetimaRefeicao: "",
+      alimentosOitavaRefeicao: "",
+      alimentosGosta: "",
+      restricaoAlimentar: "",
+      dificuldadesPlanoAlimentar: "",
+      aguaConsumida: "",
+      usaSuplemento: "não",
+      qualSuplemento: "",
+      acompanhamentoDistancia: "não",
+      motivoAcompanhamento: "",
+      pesoJejum: "",
+      fotoFrontal: [],
+      fotoLateral: [],
+      fotoCostas: [],
+    });
+    setCurrentStep(0);
+    resetSubmission();
+    setHasStarted(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Formulário enviado com sucesso!");
-    console.log(formData);
+
+    console.group('Form Submission Debug');
+    console.log('Initial form data:', JSON.parse(JSON.stringify(formData)));
+
+    try {
+      console.log('Starting validation...');
+
+      // Validate all fields before submission
+      await FormYupValidationSchema.validate(formData, { abortEarly: false });
+      setErrors({});
+      console.log('Validation successful - no errors');
+
+      console.log('Submitting form data...');
+      const submissionResponse = await submitForm(formData);
+      console.log('Submission response:', submissionResponse);
+
+      console.groupEnd();
+    } catch (err) {
+      console.error('Submission error:', err);
+
+      if (err instanceof yup.ValidationError) {
+        console.log('Validation errors found:', err.errors);
+        const newErrors: Record<string, string> = {};
+
+        err.inner.forEach((error, index) => {
+          console.log(`Error #${index + 1}:`, {
+            path: error.path,
+            message: error.message,
+            value: error.value
+          });
+
+          if (error.path) {
+            newErrors[error.path] = error.message;
+          }
+        });
+
+        setErrors(newErrors);
+        console.log('Current errors state:', newErrors);
+
+        // Scroll to the first error
+        const firstErrorField = Object.keys(newErrors)[0];
+        if (firstErrorField) {
+          console.log('Scrolling to first error field:', firstErrorField);
+          const element = document.querySelector(`[name="${firstErrorField}"]`);
+          console.log('Found element:', element);
+          element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      } else {
+        console.error('Non-validation error:', err);
+      }
+
+      console.groupEnd();
+      throw err; // Re-throw the error if you need to handle it elsewhere
+    }
   };
 
   const RadioButton = ({ name, value, label, checked, onChange }: RadioButtonProps) => {
@@ -419,6 +537,26 @@ export default function Anamnese() {
     }
     return inputs;
   };
+
+  if (isSuccess) {
+    return (
+      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md text-center">
+        <div className="mb-6">
+          <svg className="w-16 h-16 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold mb-4">Formulário enviado com sucesso!</h2>
+        <p className="mb-6">Obrigado por preencher o formulário. Entraremos em contato em breve.</p>
+        <button
+          onClick={resetForm}
+          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+        >
+          Preencher outro formulário
+        </button>
+      </div>
+    );
+  }
 
   if (!hasStarted) {
     return <FormLandingPage onStartForm={() => setHasStarted(true)} />;
@@ -591,9 +729,69 @@ export default function Anamnese() {
                           onChange={handleChange}
                           className={`w-full p-3 border ${errors.pesoJejum ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                         />
+                        <Weight className="absolute left-3 top-3.5 text-gray-400" size={18} />
                       </div>
                       {errors.pesoJejum && <p className="mt-1 text-sm text-red-600">{errors.pesoJejum}</p>}
                     </div>
+                    <div>
+                      <label className="block mb-1 font-medium text-gray-700">
+                        Altura (cm)
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          name="altura"
+                          value={formData.altura || ''}
+                          onChange={handleChange}
+                          className={`w-full p-3 border ${errors.altura ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
+                          min="100"
+                          max="250"
+                          step="1"
+                        />
+                        <Ruler className="absolute left-3 top-3.5 text-gray-400" size={18} />
+                      </div>
+                      {errors.altura && <p className="mt-1 text-sm text-red-600">{errors.altura}</p>}
+                    </div>
+
+                    <div>
+                      <label className="block mb-1 font-medium text-gray-700">
+                        Data de Nascimento
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="date"
+                          name="dataNascimento"
+                          value={formData.dataNascimento || ''}
+                          onChange={handleChange}
+                          className={`w-full p-3 border ${errors.dataNascimento ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
+                          max={new Date().toISOString().split('T')[0]} // No future dates
+                        />
+                        <Calendar className="absolute left-3 top-3.5 text-gray-400" size={18} />
+                      </div>
+                      {errors.dataNascimento && <p className="mt-1 text-sm text-red-600">{errors.dataNascimento}</p>}
+                    </div>
+
+                    <div>
+                      <label className="block mb-2 font-semibold text-gray-800 text-sm">
+                        Género
+                      </label>
+                      <select
+                        name="genero"
+                        value={formData.genero}
+                        onChange={handleChange}
+                        className="w-full h-3/4 p-3 px-4 py-2 border cursor-pointer border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700"
+                      >
+                        <option value="" disabled>Selecione o género</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="feminino">Feminino</option>
+                        <option value="outro">Outro</option>
+                        <option value="prefiro_nao_dizer">Prefiro não dizer</option>
+                      </select>
+                      {errors.genero && (
+                        <p className="mt-2 text-sm text-red-600">{errors.genero}</p>
+                      )}
+                    </div>
+
                   </div>
                 </div>
               )}
@@ -1327,18 +1525,46 @@ export default function Anamnese() {
                 <button
                   type="button"
                   onClick={nextStep}
-                  className="flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
+                  disabled={isLoading}
+                  className={`flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${isLoading ? 'opacity-75 cursor-not-allowed' : 'cursor-pointer'
+                    }`}
                 >
-                  Próximo
-                  <ChevronRight className="ml-1" size={16} />
+                  {isLoading ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Carregando...
+                    </>
+                  ) : (
+                    <>
+                      Próximo
+                      <ChevronRight className="ml-1" size={16} />
+                    </>
+                  )}
                 </button>
               ) : (
                 <button
                   type="submit"
-                  className="flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 cursor-pointer"
+                  disabled={isLoading}
+                  className={`flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${isLoading ? 'opacity-75 cursor-not-allowed' : 'cursor-pointer'
+                    }`}
                 >
-                  Enviar Formulário
-                  <CheckCircle className="ml-1" size={16} />
+                  {isLoading ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      Enviar Formulário
+                      <CheckCircle className="ml-1" size={16} />
+                    </>
+                  )}
                 </button>
               )}
             </div>
