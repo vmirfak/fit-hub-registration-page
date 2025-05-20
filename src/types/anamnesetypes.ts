@@ -1,65 +1,120 @@
 import { ChangeEvent } from "react";
 
 export type AnamneseFormData = {
-  nome: string;
-  email: string;
-  genero: string;
-  altura: number;
-  dataNascimento: string;
-  localidade: string;
-  countryCode: string;
-  profissao: string;
-  telemovel: string;
-  praticouModalidade: string;
-  modalidadeDesportiva: string;
-  experienciaDistancia: string;
-  tempoPorSessao: string;
-  preferenciaLocalTreino: string;
-  experienciaProblemas: string;
-  materialDisponivel: string;
-  nivelConfortoSozinho: string;
-  objetivoExercicio: string;
-  praticaExercicio: string;
-  vezesPorSemana: number;
-  temDoresColuna: string;
-  zonaColuna: string;
-  temLesao: string;
-  localLesao: string;
-  cirurgiaRecente: string;
-  localcirurgia: string;
-  usaMedicamento: string;
-  problemaCardiaco: string;
-  tiposmedicamentos: string;
-  dorNoPeito: string;
-  perdeuConsiencia: string;
-  problemaOssos: string;
-  medicamentoPressao: string;
-  impedimentoExercicio: string;
-  tipoImpedimento: string;
+  personalInfo: {
+    nome: string;
+    email: string;
+    genero: string;
+    dataNascimento: string;
+    contactInfo: {
+      localidade: string;
+      countryCode: string;
+      telemovel: string;
+    };
+    physicalInfo: {
+      altura: number;
+      pesoJejum: string;
+    };
+    profissao: string;
+  };
+
+  exerciseInfo: {
+    currentActivity: {
+      praticaExercicio: string;
+      vezesPorSemana: number;
+    };
+    pastExperience: {
+      praticouModalidade: string;
+      modalidadeDesportiva: string;
+      experienciaDistancia: string;
+    };
+    preferences: {
+      tempoPorSessao: string;
+      preferenciaLocalTreino: string;
+      materialDisponivel: string;
+      nivelConfortoSozinho: string;
+    };
+    goals: {
+      objetivoExercicio: string;
+      experienciaProblemas: string;
+    };
+  };
+
+  healthInfo: {
+    spine: {
+      temDoresColuna: string;
+      zonaColuna: string;
+    };
+    injuries: {
+      temLesao: string;
+      localLesao: string;
+    };
+    surgeries: {
+      cirurgiaRecente: string;
+      localcirurgia: string;
+    };
+    conditions: {
+      problemaCardiaco: string;
+      dorNoPeito: string;
+      perdeuConsiencia: string;
+      problemaOssos: string;
+      medicamentoPressao: string;
+    };
+    limitations: {
+      impedimentoExercicio: string;
+      tipoImpedimento: string;
+    };
+  };
+
+  medicationInfo: {
+    usaMedicamento: string;
+    tiposmedicamentos: string;
+  };
+
+  nutritionInfo: {
+    meals: {
+      refeicoesPorDia: number;
+      details: {
+        primeira: string;
+        segunda: string;
+        terceira: string;
+        quarta: string;
+        quinta: string;
+        sexta: string;
+        setima: string;
+        oitava: string;
+      };
+    };
+    preferences: {
+      alimentosGosta: string;
+      alimentosNaoGosta: string;
+    };
+    restrictions: {
+      restricaoAlimentar: string;
+      restricoesAlimentares: string[];
+    };
+    habits: {
+      aguaConsumida: string;
+      dificuldadesPlanoAlimentar: string;
+    };
+    supplements: {
+      usaSuplemento: string;
+      qualSuplemento: string;
+    };
+  };
+
+  coachingInfo: {
+    acompanhamentoDistancia: string;
+    motivoAcompanhamento: string;
+  };
+
+  photos: {
+    fotoFrontal: File[];
+    fotoLateral: File[];
+    fotoCostas: File[];
+  };
+
   observacoes: string;
-  refeicoesPorDia: number;
-  alimentosPrimeiraRefeicao: string;
-  alimentosSegundaRefeicao: string;
-  alimentosTerceiraRefeicao: string;
-  alimentosQuartaRefeicao: string;
-  alimentosQuintaRefeicao: string;
-  alimentosSextaRefeicao: string;
-  alimentosSetimaRefeicao: string;
-  alimentosOitavaRefeicao: string;
-  alimentosGosta: string;
-  alimentosNaoGosta: string;
-  restricaoAlimentar: string;
-  restricoesAlimentares: string[];
-  dificuldadesPlanoAlimentar: string;
-  aguaConsumida: string;
-  usaSuplemento: string;
-  qualSuplemento: string;
-  acompanhamentoDistancia: string;
-  motivoAcompanhamento: string;
-  pesoJejum: string;
-  fotoFrontal: File[];
-  fotoLateral: File[];
-  fotoCostas: File[];
 };
 
 export type RadioButtonProps = {
