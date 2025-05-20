@@ -24,12 +24,12 @@ import {
   Weight,
   AlertCircle,
   Apple,
-  
+  ChartArea
 } from "lucide-react";
 import { motion } from "framer-motion";
 import * as yup from 'yup';
 import { FormYupValidationSchema } from "@/utils/Validation/FormYupValidationSchema";
-import { AnamneseFormData, RadioButtonProps } from "@/types/anamnesetypes";
+import { AnamneseFormData } from "@/types/anamnesetypes";
 import { countryOptions } from "@/utils/countryOptions";
 import { useAnamnese } from "@/context/useAnamnese";
 import { ConditionalField } from "@/components/ui/ConditionalField";
@@ -38,7 +38,13 @@ import { debounce } from 'lodash';
 import { ConditionalMealSection } from "@/components/ui/ConditionalMealSection";
 import { PiHamburger, PiSmiley, PiSmileySad } from "react-icons/pi";
 import { MdOutlineTaskAlt, MdOutlineWaterDrop } from "react-icons/md"
-import CustomDropdown from "@/components/CustomDropdown";
+import { Trophy, Dumbbell, Scale, Sparkles } from 'lucide-react';
+import { Dropdown } from "@/components/Dropdown";
+import { InputField } from "@/components/Input";
+import { MdFemale, MdMale } from "react-icons/md";
+import { GiStopwatch } from "react-icons/gi";
+import { GiGymBag } from "react-icons/gi";
+import { RadioGroup } from "@/components/RadioGroup";
 
 const FormLandingPage = ({ onStartForm }: { onStartForm: () => void }) => {
 
@@ -656,18 +662,6 @@ export default function Anamnese() {
     }
   };
 
-  const RadioButton = ({ name, value, label, checked, onChange }: RadioButtonProps) => {
-    return (
-      <label className="flex items-center space-x-2 cursor-pointer">
-        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${checked ? "border-blue-600" : "border-gray-400"}`}>
-          {checked && <div className="w-3 h-3 bg-blue-600 rounded-full"></div>}
-        </div>
-        <input type="radio" name={name} value={value} checked={checked} onChange={onChange} className="hidden" />
-        <span className="text-sm">{label}</span>
-      </label>
-    );
-  };
-
   const renderMealInputs = () => {
     const inputs = [];
     const labels = ["Primeira", "Segunda", "Terceira", "Quarta", "Quinta", "Sexta", "Setima", "Oitava"];
@@ -707,6 +701,29 @@ export default function Anamnese() {
         </div>
       </div>
     );
+  };
+
+  const goalOptions = [
+    { value: "Alta Performance", label: "Alta Performance", icon: Trophy },
+    { value: "Aumento de massa muscular", label: "Aumento de massa muscular", icon: Dumbbell },
+    { value: "Perda de peso", label: "Perda de peso", icon: Scale },
+    { value: "Estética", label: "Estética", icon: Sparkles },
+    { value: "Saúde / Qualidade de vida", label: "Saúde / Qualidade de vida", icon: Heart },
+    { value: "Condicionamento Físico", label: "Condicionamento Físico", icon: Activity },
+  ];
+
+  const locationOptions = [
+    { value: "casa", label: "Casa", icon: Home },
+    { value: "ginásio", label: "Ginásio", icon: GiGymBag },
+  ];
+
+  const genderOptions = [
+    { value: "masculino", label: "Masculino", icon: MdMale },
+    { value: "feminino", label: "Feminino", icon: MdFemale },
+  ]
+
+  const handleGeneroChange = (value: string) => {
+    setFormData(prev => ({ ...prev, genero: value }));
   };
 
   if (isSuccess) {
@@ -780,75 +797,46 @@ export default function Anamnese() {
                   </h2>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block mb-1 font-medium text-gray-700">
-                        Nome Completo
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          name="nome"
-                          value={formData.nome}
-                          onChange={handleChange}
-                          className={`w-full p-3 border ${errors.nome ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                          required
-                        />
-                        <User className="absolute left-3 top-3.5 text-gray-400" size={18} />
-                      </div>
-                      <InputError message={errors.nome} />
-                    </div>
-                    <div>
-                      <label className="block mb-1 font-medium text-gray-700">
-                        Email
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          className={`w-full p-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                          required
-                        />
-                        <Mail className="absolute left-3 top-3.5 text-gray-400" size={18} />
-                      </div>
-                      <InputError message={errors.email} />
-                    </div>
-
-                    <div>
-                      <label className="block mb-1 font-medium text-gray-700">
-                        Localidade
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          name="localidade"
-                          value={formData.localidade}
-                          onChange={handleChange}
-                          className={`w-full p-3 border ${errors.localidade ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                          required
-                        />
-                        <Home className="absolute left-3 top-3.5 text-gray-400" size={18} />
-                      </div>
-                      <InputError message={errors.localidade} />
-                    </div>
-
-                    <div>
-                      <label className="block mb-1 font-medium text-gray-700">
-                        Profissão
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          name="profissao"
-                          value={formData.profissao}
-                          onChange={handleChange}
-                          className={`w-full p-3 border ${errors.profissao ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                        />
-                        <Briefcase className="absolute left-3 top-3.5 text-gray-400" size={18} />
-                      </div>
-                      <InputError message={errors.profissao} />
-                    </div>
+                    <InputField
+                      type="text"
+                      name="nome"
+                      value={formData.nome}
+                      onChange={handleChange}
+                      label="Nome Completo"
+                      error={errors.nome}
+                      required
+                      icon={User}
+                    />
+                    <InputField
+                      type="text"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      label="E-mail"
+                      error={errors.email}
+                      required
+                      icon={Mail}
+                    />
+                    <InputField
+                      type="text"
+                      name="localidade"
+                      value={formData.localidade}
+                      onChange={handleChange}
+                      label="Localidade"
+                      error={errors.Localidade}
+                      required
+                      icon={Home}
+                    />
+                    <InputField
+                      type="text"
+                      name="profissao"
+                      value={formData.profissao}
+                      onChange={handleChange}
+                      label="Profissão"
+                      error={errors.profissao}
+                      required
+                      icon={Briefcase}
+                    />
 
                     <div>
                       <label className="block mb-1 font-medium text-gray-700">Telemóvel</label>
@@ -887,76 +875,46 @@ export default function Anamnese() {
                       </div>
                       <InputError message={errors.telemovel} />
                     </div>
-                    <div>
-                      <label className="block mb-1 font-medium text-gray-700">
-                        Peso em Jejum (kg)
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          name="pesoJejum"
-                          value={formData.pesoJejum}
-                          onChange={handleChange}
-                          className={`w-full p-3 border ${errors.pesoJejum ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                        />
-                        <Weight className="absolute left-3 top-3.5 text-gray-400" size={18} />
-                      </div>
-                      <InputError message={errors.pesoJejum} />
-                    </div>
-                    <div>
-                      <label className="block mb-1 font-medium text-gray-700">
-                        Altura (cm)
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          name="altura"
-                          value={formData.altura || ''}
-                          onChange={handleChange}
-                          className={`w-full p-3 border ${errors.altura ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                          min="100"
-                          max="250"
-                          step="1"
-                        />
-                        <Ruler className="absolute left-3 top-3.5 text-gray-400" size={18} />
-                      </div>
-                      <InputError message={errors.altura} />
-                    </div>
+                    <InputField
+                      type="text"
+                      name="pesoJejum"
+                      value={formData.pesoJejum}
+                      onChange={handleChange}
+                      label="Peso em Jejum (kg)"
+                      error={errors.pesoJejum}
+                      required
+                      icon={Weight}
+                    />
+                    <InputField
+                      type="number"
+                      name="altura"
+                      value={formData.altura || ''}
+                      onChange={handleChange}
+                      label="Altura (cm)"
+                      error={errors.altura}
+                      required
+                      icon={Ruler}
+                    />
+                    <InputField
+                      type="date"
+                      name="dataNascimento"
+                      value={formData.dataNascimento || ''}
+                      onChange={handleChange}
+                      label="Data de Nascimento"
+                      error={errors.dataNascimento}
+                      required
+                      icon={Calendar}
+                    />
 
-                    <div>
-                      <label className="block mb-1 font-medium text-gray-700">
-                        Data de Nascimento
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="date"
-                          name="dataNascimento"
-                          value={formData.dataNascimento || ''}
-                          onChange={handleChange}
-                          className={`w-full p-3 border ${errors.dataNascimento ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                          max={new Date().toISOString().split('T')[0]}
-                        />
-                        <Calendar className="absolute left-3 top-3.5 text-gray-400" size={18} />
-                      </div>
-                      <InputError message={errors.dataNascimento} />
-                    </div>
-
-                    <div>
-                      <label className="block mb-2 font-semibold text-gray-800 text-sm">
-                        Sexo
-                      </label>
-                      <select
-                        name="genero"
-                        value={formData.genero}
-                        onChange={handleChange}
-                        className={`w-full p-3 cursor-pointer border ${errors.genero ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                      >
-                        <option value="" disabled>Selecione o género</option>
-                        <option value="masculino">Masculino</option>
-                        <option value="feminino">Feminino</option>
-                      </select>
-                      <InputError message={errors.genero} />
-                    </div>
+                    <Dropdown
+                      label="Sexo"
+                      options={genderOptions}
+                      value={formData.genero}
+                      onChange={handleGeneroChange}
+                      error={errors.genero}
+                      placeholder="Seleciona uma opção"
+                      required
+                    />
                   </div>
                 </div>
               )}
@@ -970,35 +928,30 @@ export default function Anamnese() {
                   </h2>
 
                   <div className="mb-6">
-                    <label className="block mb-2 font-medium text-gray-700">
-                      Qual é o teu objetivo com o exercício?
-                    </label>
-                    <CustomDropdown />
-                    <InputError message={errors.objetivoExercicio} />
+                    <Dropdown
+                      label="Qual é o teu objetivo principal?"
+                      options={goalOptions}
+                      value={formData.objetivoExercicio}
+                      onChange={(value) => setFormData(prev => ({ ...prev, objetivoExercicio: value }))}
+                      error={errors.objetivoExercicio}
+                      defaultIcon={Target}
+                      required
+                    />
                   </div>
                   {/* Já praticaste alguma modalidade desportiva? */}
                   <div className="mb-6">
-                    <label className="block mb-2 font-medium text-gray-700">
-                      Já praticaste alguma modalidade desportiva?
-                    </label>
-                    <div className="flex space-x-6 mt-2">
-                      <RadioButton
-                        name="praticouModalidade"
-                        value="sim"
-                        label="Sim"
-                        checked={formData.praticouModalidade === "sim"}
-                        onChange={() => setFormData({ ...formData, praticouModalidade: "sim" })}
-                      />
-                      <RadioButton
-                        name="praticouModalidade"
-                        value="não"
-                        label="Não"
-                        checked={formData.praticouModalidade === "não"}
-                        onChange={() => setFormData({ ...formData, praticouModalidade: "não" })}
-                      />
-                      <InputError message={errors.praticouModalidade} />
-                    </div>
-
+                    <RadioGroup
+                      name="praticouModalidade"
+                      label="Já praticaste alguma modalidade desportiva?"
+                      value={formData.praticouModalidade}
+                      onChange={(value) => setFormData({ ...formData, praticouModalidade: value })}
+                      options={[
+                        { value: "sim", label: "Sim" },
+                        { value: "não", label: "Não" },
+                      ]}
+                      error={errors.praticouModalidade}
+                      required
+                    />
                   </div>
 
                   {/* Se sim, na tua opinião o que correu mal */}
@@ -1016,26 +969,18 @@ export default function Anamnese() {
 
                   {/* Já tiveste alguma experiência anterior em ser acompanhada à distância? */}
                   <div className="mb-6 mt-5">
-                    <label className="block mb-2 font-medium text-gray-700">
-                      Já tiveste alguma experiência anterior em ser acompanhado(a) à distância?
-                    </label>
-                    <div className="flex space-x-6 mt-2">
-                      <RadioButton
-                        name="experienciaDistancia"
-                        value="sim"
-                        label="Sim"
-                        checked={formData.experienciaDistancia === "sim"}
-                        onChange={() => setFormData({ ...formData, experienciaDistancia: "sim" })}
-                      />
-                      <RadioButton
-                        name="experienciaDistancia"
-                        value="não"
-                        label="Não"
-                        checked={formData.experienciaDistancia === "não"}
-                        onChange={() => setFormData({ ...formData, experienciaDistancia: "não" })}
-                      />
-                      <InputError message={errors.experienciaDistancia} />
-                    </div>
+                    <RadioGroup
+                      name="experienciaDistancia"
+                      label="Já tiveste alguma experiência anterior em ser acompanhado(a) à distância?"
+                      value={formData.experienciaDistancia}
+                      onChange={(value) => setFormData({ ...formData, experienciaDistancia: value })}
+                      options={[
+                        { value: "sim", label: "Sim" },
+                        { value: "não", label: "Não" },
+                      ]}
+                      error={errors.experienciaDistancia}
+                      required
+                    />
                   </div>
                   <ConditionalField
                     isVisible={formData.experienciaDistancia === "sim"}
@@ -1051,20 +996,15 @@ export default function Anamnese() {
 
                   {/* Gostarias de treinar em casa ou no ginásio */}
                   <div className="mb-6">
-                    <label className="block mb-2 font-medium text-gray-700">
-                      Gostarias de treinar em casa ou no ginásio?
-                    </label>
-                    <select
-                      name="preferenciaLocalTreino"
+                    <Dropdown
+                      label="Gostarias de treinar em casa ou no ginásio?"
+                      options={locationOptions}
                       value={formData.preferenciaLocalTreino}
-                      onChange={handleChange}
-                      className="w-full p-3 cursor-pointer border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">Seleciona uma opção</option>
-                      <option value="casa">Casa</option>
-                      <option value="ginásio">Ginásio</option>
-                    </select>
-                    <InputError message={errors.preferenciaLocalTreino} />
+                      onChange={(value) => setFormData(prev => ({ ...prev, preferenciaLocalTreino: value }))}
+                      error={errors.preferenciaLocalTreino}
+                      placeholder="Seleciona uma opção"
+                      required
+                    />
                   </div>
 
                   <ConditionalField
@@ -1081,41 +1021,32 @@ export default function Anamnese() {
 
                   {/* De 0 a 10 quão à vontade te sentes em treinar sozinho */}
                   <div className="mb-6">
-                    <label className="block mb-2 font-medium text-gray-700">
-                      De 0 a 10, quão à vontade te sentes em treinar sozinho?
-                    </label>
-                    <input
+                    <InputField
                       type="number"
                       name="nivelConfortoSozinho"
-                      min="0"
-                      max="10"
                       value={formData.nivelConfortoSozinho}
                       onChange={handleChange}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      label="De 0 a 10, quão à vontade te sentes em treinar sozinho?"
+                      error={errors.nivelConfortoSozinho}
+                      required
+                      min={0}
+                      max={10}
+                      icon={ChartArea}
                     />
-                    <InputError message={errors.nivelConfortoSozinho} />
                   </div>
                   <div className="mb-6">
-                    <label className="block mb-2 font-medium text-gray-700">
-                      Praticas exercício físico atualmente?
-                    </label>
-                    <div className="flex space-x-6 mt-2">
-                      <RadioButton
-                        name="praticaExercicio"
-                        value="sim"
-                        label="Sim"
-                        checked={formData.praticaExercicio === "sim"}
-                        onChange={() => setFormData({ ...formData, praticaExercicio: "sim" })}
-                      />
-                      <RadioButton
-                        name="praticaExercicio"
-                        value="não"
-                        label="Não"
-                        checked={formData.praticaExercicio === "não"}
-                        onChange={() => setFormData({ ...formData, praticaExercicio: "não" })}
-                      />
-                      <InputError message={errors.praticaExercicio} />
-                    </div>
+                    <RadioGroup
+                      name="praticaExercicio"
+                      label="Praticas exercício físico atualmente?"
+                      value={formData.praticaExercicio}
+                      onChange={(value) => setFormData({ ...formData, praticaExercicio: value })}
+                      options={[
+                        { value: "sim", label: "Sim" },
+                        { value: "não", label: "Não" },
+                      ]}
+                      error={errors.praticaExercicio}
+                      required
+                    />
                   </div>
                   <ConditionalField
                     isVisible={formData.praticaExercicio === "sim"}
@@ -1130,40 +1061,31 @@ export default function Anamnese() {
                   />
                   {/* Quanto tempo tens disponível para treinar por sessão */}
                   <div className="mb-6">
-                    <label className="block mb-2 font-medium text-gray-700">
-                      Quanto tempo tens disponível para treinar por sessão?<span className="text-zinc-500"> (em minutos)</span>
-                    </label>
-                    <input
+                    <InputField
                       type="number"
                       name="tempoPorSessao"
                       value={formData.tempoPorSessao}
                       onChange={handleChange}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      label="Quanto tempo tens disponível para treinar por sessão? (Em minutos)"
+                      error={errors.tempoPorSessao}
+                      required
+                      icon={GiStopwatch}
                     />
-                    <InputError message={errors.tempoPorSessao} />
                   </div>
 
                   <div className="mb-6">
-                    <label className="block mb-2 font-medium text-gray-700">
-                      Tens alguma limitação para praticar exercício?
-                    </label>
-                    <div className="flex space-x-6 mt-2">
-                      <RadioButton
-                        name="impedimentoExercicio"
-                        value="sim"
-                        label="Sim"
-                        checked={formData.impedimentoExercicio === "sim"}
-                        onChange={() => setFormData({ ...formData, impedimentoExercicio: "sim" })}
-                      />
-                      <RadioButton
-                        name="impedimentoExercicio"
-                        value="não"
-                        label="Não"
-                        checked={formData.impedimentoExercicio === "não"}
-                        onChange={() => setFormData({ ...formData, impedimentoExercicio: "não" })}
-                      />
-                      <InputError message={errors.possuiLimitacaoExercicio} />
-                    </div>
+                    <RadioGroup
+                      name="impedimentoExercicio"
+                      label="Tens alguma limitação para praticar exercício?"
+                      value={formData.impedimentoExercicio}
+                      onChange={(value) => setFormData({ ...formData, impedimentoExercicio: value })}
+                      options={[
+                        { value: "sim", label: "Sim" },
+                        { value: "não", label: "Não" },
+                      ]}
+                      error={errors.impedimentoExercicio}
+                      required
+                    />
                   </div>
                   <ConditionalField
                     isVisible={formData.impedimentoExercicio === "sim"}
@@ -1188,28 +1110,18 @@ export default function Anamnese() {
                   </h2>
 
                   <div className="space-y-6">
-                    <div>
-                      <label className="block mb-2 font-medium text-gray-700">
-                        Tens dores no dia-a-dia em alguma articulação ou coluna?
-                      </label>
-                      <div className="flex space-x-6 mt-2">
-                        <RadioButton
-                          name="temDoresColuna"
-                          value="sim"
-                          label="Sim"
-                          checked={formData.temDoresColuna === "sim"}
-                          onChange={() => setFormData({ ...formData, temDoresColuna: "sim" })}
-                        />
-                        <RadioButton
-                          name="temDoresColuna"
-                          value="não"
-                          label="Não"
-                          checked={formData.temDoresColuna === "não"}
-                          onChange={() => setFormData({ ...formData, temDoresColuna: "não" })}
-                        />
-                        <InputError message={errors.temDoresColuna} />
-                      </div>
-                    </div>
+                    <RadioGroup
+                      name="temDoresColuna"
+                      label="Tens dores no dia-a-dia em alguma articulação ou coluna?"
+                      value={formData.temDoresColuna}
+                      onChange={(value) => setFormData({ ...formData, temDoresColuna: value })}
+                      options={[
+                        { value: "sim", label: "Sim" },
+                        { value: "não", label: "Não" },
+                      ]}
+                      error={errors.temDoresColuna}
+                      required
+                    />
                     <ConditionalField
                       isVisible={formData.temDoresColuna === "sim"}
                       label="Em que zona?"
@@ -1221,30 +1133,18 @@ export default function Anamnese() {
                       fieldType="textarea"
                       error={errors.zonaColuna}
                     />
-
-                    <div>
-                      <label className="block mb-2 font-medium text-gray-700">
-                        Tens alguma lesão?
-                      </label>
-                      <div className="flex space-x-6 mt-2">
-                        <RadioButton
-                          name="temLesao"
-                          value="sim"
-                          label="Sim"
-                          checked={formData.temLesao === "sim"}
-                          onChange={() => setFormData({ ...formData, temLesao: "sim" })}
-                        />
-                        <RadioButton
-                          name="temLesao"
-                          value="não"
-                          label="Não"
-                          checked={formData.temLesao === "não"}
-                          onChange={() => setFormData({ ...formData, temLesao: "não" })}
-                        />
-                        <InputError message={errors.temLesao} />
-                      </div>
-
-                    </div>
+                    <RadioGroup
+                      name="temLesao"
+                      label=" Tens alguma lesão?"
+                      value={formData.temLesao}
+                      onChange={(value) => setFormData({ ...formData, temLesao: value })}
+                      options={[
+                        { value: "sim", label: "Sim" },
+                        { value: "não", label: "Não" },
+                      ]}
+                      error={errors.temLesao}
+                      required
+                    />
                     <ConditionalField
                       isVisible={formData.temLesao === "sim"}
                       label="Em que zona?"
@@ -1256,28 +1156,18 @@ export default function Anamnese() {
                       fieldType="textarea"
                       error={errors.localLesao}
                     />
-                    <div>
-                      <label className="block mb-2 font-medium text-gray-700">
-                        Já realizou alguma cirurgia?
-                      </label>
-                      <div className="flex space-x-6 mt-2">
-                        <RadioButton
-                          name="cirurgiaRecente"
-                          value="sim"
-                          label="Sim"
-                          checked={formData.cirurgiaRecente === "sim"}
-                          onChange={() => setFormData({ ...formData, cirurgiaRecente: "sim" })}
-                        />
-                        <RadioButton
-                          name="cirurgiaRecente"
-                          value="não"
-                          label="Não"
-                          checked={formData.cirurgiaRecente === "não"}
-                          onChange={() => setFormData({ ...formData, cirurgiaRecente: "não" })}
-                        />
-                        <InputError message={errors.cirurgiaRecente} />
-                      </div>
-                    </div>
+                    <RadioGroup
+                      name="cirurgiaRecente"
+                      label="Já realizou alguma cirurgia?"
+                      value={formData.cirurgiaRecente}
+                      onChange={(value) => setFormData({ ...formData, cirurgiaRecente: value })}
+                      options={[
+                        { value: "sim", label: "Sim" },
+                        { value: "não", label: "Não" },
+                      ]}
+                      error={errors.cirurgiaRecente}
+                      required
+                    />
                     <ConditionalField
                       isVisible={formData.cirurgiaRecente === "sim"}
                       label="Que cirurgia fizeste?"
@@ -1289,30 +1179,18 @@ export default function Anamnese() {
                       fieldType="textarea"
                       error={errors.localcirurgia}
                     />
-
-                    <div>
-                      <label className="block mb-2 font-medium text-gray-700">
-                        Usas algum medicamento?
-                      </label>
-                      <div className="flex space-x-6 mt-2">
-                        <RadioButton
-                          name="usaMedicamento"
-                          value="sim"
-                          label="Sim"
-                          checked={formData.usaMedicamento === "sim"}
-                          onChange={() => setFormData({ ...formData, usaMedicamento: "sim" })}
-                        />
-                        <RadioButton
-                          name="usaMedicamento"
-                          value="não"
-                          label="Não"
-                          checked={formData.usaMedicamento === "não"}
-                          onChange={() => setFormData({ ...formData, usaMedicamento: "não" })}
-                        />
-                        <InputError message={errors.usaMedicamento} />
-                      </div>
-                    </div>
-
+                    <RadioGroup
+                      name="usaMedicamento"
+                      label="Usas algum medicamento?"
+                      value={formData.usaMedicamento}
+                      onChange={(value) => setFormData({ ...formData, usaMedicamento: value })}
+                      options={[
+                        { value: "sim", label: "Sim" },
+                        { value: "não", label: "Não" },
+                      ]}
+                      error={errors.usaMedicamento}
+                      required
+                    />
                     <ConditionalField
                       isVisible={formData.usaMedicamento === "sim"}
                       label="Quais medicamentos?"
@@ -1326,97 +1204,54 @@ export default function Anamnese() {
                     />
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block mb-2 font-medium text-gray-700">
-                          Algum médico te disse que possuis um problema cardíaco e recomendou exercícios apenas sob a supervisão médica?
-                        </label>
-                        <div className="flex space-x-6 mt-2">
-                          <RadioButton
-                            name="problemaCardiaco"
-                            value="sim"
-                            label="Sim"
-                            checked={formData.problemaCardiaco === "sim"}
-                            onChange={() => setFormData({ ...formData, problemaCardiaco: "sim" })}
-                          />
-                          <RadioButton
-                            name="problemaCardiaco"
-                            value="não"
-                            label="Não"
-                            checked={formData.problemaCardiaco === "não"}
-                            onChange={() => setFormData({ ...formData, problemaCardiaco: "não" })}
-                          />
-                        </div>
-                        <InputError message={errors.problemaCardiaco} />
-                      </div>
-
-                      <div>
-                        <label className="block mb-2 font-medium text-gray-700">
-                          Sentes dor no peito provocada pela prática de exercício fícico?
-                        </label>
-                        <div className="flex space-x-6 mt-2">
-                          <RadioButton
-                            name="dorNoPeito"
-                            value="sim"
-                            label="Sim"
-                            checked={formData.dorNoPeito === "sim"}
-                            onChange={() => setFormData({ ...formData, dorNoPeito: "sim" })}
-                          />
-                          <RadioButton
-                            name="dorNoPeito"
-                            value="não"
-                            label="Não"
-                            checked={formData.dorNoPeito === "não"}
-                            onChange={() => setFormData({ ...formData, dorNoPeito: "não" })}
-                          />
-                        </div>
-                        <InputError message={errors.dorNoPeito} />
-                      </div>
-
-                      <div>
-                        <label className="block mb-2 font-medium text-gray-700">
-                          Já perdeste a consciência em alguma ocasião ou sofreste alguma queda em virtude de tonturas??
-                        </label>
-                        <div className="flex space-x-6 mt-2">
-                          <RadioButton
-                            name="perdeuConsiencia"
-                            value="sim"
-                            label="Sim"
-                            checked={formData.perdeuConsiencia === "sim"}
-                            onChange={() => setFormData({ ...formData, perdeuConsiencia: "sim" })}
-                          />
-                          <RadioButton
-                            name="perdeuConsiencia"
-                            value="não"
-                            label="Não"
-                            checked={formData.perdeuConsiencia === "não"}
-                            onChange={() => setFormData({ ...formData, perdeuConsiencia: "não" })}
-                          />
-                        </div>
-                        <InputError message={errors.perdeuConsiencia} />
-                      </div>
-
-                      <div>
-                        <label className="block mb-2 font-medium text-gray-700">
-                          Tens problemas ósseos ou articulares que podem agravar-se com a prática de exercício físico?
-                        </label>
-                        <div className="flex space-x-6 mt-2">
-                          <RadioButton
-                            name="problemaOssos"
-                            value="sim"
-                            label="Sim"
-                            checked={formData.problemaOssos === "sim"}
-                            onChange={() => setFormData({ ...formData, problemaOssos: "sim" })}
-                          />
-                          <RadioButton
-                            name="problemaOssos"
-                            value="não"
-                            label="Não"
-                            checked={formData.problemaOssos === "não"}
-                            onChange={() => setFormData({ ...formData, problemaOssos: "não" })}
-                          />
-                        </div>
-                        <InputError message={errors.problemaOssos} />
-                      </div>
+                      <RadioGroup
+                        name="problemaCardiaco"
+                        label="Algum médico te disse que possuis um problema cardíaco e recomendou exercícios apenas sob a supervisão médica?"
+                        value={formData.problemaCardiaco}
+                        onChange={(value) => setFormData({ ...formData, problemaCardiaco: value })}
+                        options={[
+                          { value: "sim", label: "Sim" },
+                          { value: "não", label: "Não" },
+                        ]}
+                        error={errors.problemaCardiaco}
+                        required
+                      />
+                      <RadioGroup
+                        name="dorNoPeito"
+                        label="Sentes dor no peito provocada pela prática de exercício fícico?"
+                        value={formData.dorNoPeito}
+                        onChange={(value) => setFormData({ ...formData, dorNoPeito: value })}
+                        options={[
+                          { value: "sim", label: "Sim" },
+                          { value: "não", label: "Não" },
+                        ]}
+                        error={errors.dorNoPeito}
+                        required
+                      />
+                      <RadioGroup
+                        name="perdeuConsiencia"
+                        label="Já perdeste a consciência em alguma ocasião ou sofreste alguma queda em virtude de tonturas?"
+                        value={formData.perdeuConsiencia}
+                        onChange={(value) => setFormData({ ...formData, perdeuConsiencia: value })}
+                        options={[
+                          { value: "sim", label: "Sim" },
+                          { value: "não", label: "Não" },
+                        ]}
+                        error={errors.perdeuConsiencia}
+                        required
+                      />
+                      <RadioGroup
+                        name="problemaOssos"
+                        label="Tens problemas ósseos ou articulares que podem agravar-se com a prática de exercício físico?"
+                        value={formData.problemaOssos}
+                        onChange={(value) => setFormData({ ...formData, problemaOssos: value })}
+                        options={[
+                          { value: "sim", label: "Sim" },
+                          { value: "não", label: "Não" },
+                        ]}
+                        error={errors.problemaOssos}
+                        required
+                      />
                     </div>
                   </div>
                 </div>
@@ -1431,23 +1266,16 @@ export default function Anamnese() {
                   </h2>
 
                   <div className="space-y-6">
-                    <div className="relative">
-                      <label className="block mb-2 font-medium text-gray-700">
-                        Quantas refeições faz por dia?
-                      </label>
-                      <PiHamburger className="absolute left-3 top-12 text-gray-400" size={18} />
-                      <input
-                        type="number"
-                        name="refeicoesPorDia"
-                        min="0"
-                        max="8"
-                        value={formData.refeicoesPorDia}
-                        onChange={handleChange}
-                        className={`w-full p-3 border ${errors.refeicoesPorDia ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                      />
-                      <InputError message={errors.refeicoesPorDia} />
-                    </div>
-
+                    <InputField
+                      type="number"
+                      name="refeicoesPorDia"
+                      value={formData.refeicoesPorDia}
+                      onChange={handleChange}
+                      label="Quantas refeições faz por dia?"
+                      error={errors.refeicoesPorDia}
+                      required
+                      icon={PiHamburger}
+                    />
                     {formData.refeicoesPorDia > 0 && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
@@ -1481,66 +1309,38 @@ export default function Anamnese() {
                         )}
                       </motion.div>
                     )}
-
-                    <div>
-                      <label className="block mb-2 font-medium text-gray-700">
-                        Que alimentos mais gostas?
-                      </label>
-                      <div className="relative">
-                        <PiSmiley className="absolute left-3 top-3.5 text-gray-400" size={20} />
-                        <textarea
-                          name="alimentosGosta"
-                          value={formData.alimentosGosta}
-                          onChange={handleChange}
-                          className={`w-full p-3 border ${errors.alimentosGosta ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                          rows={2}
-                        />
-                      </div>
-                      <InputError message={errors.alimentosGosta} />
-                    </div>
-                    <div>
-                      <label className="block mb-2 font-medium text-gray-700">
-                        Que alimentos menos gostas?
-                      </label>
-                      <div className="relative">
-                        <PiSmileySad className="absolute left-3 top-3.5 text-gray-400" size={20} />
-                        <textarea
-                          name="alimentosNaoGosta"
-                          value={formData.alimentosNaoGosta}
-                          onChange={handleChange}
-                          className={`w-full p-3 border ${errors.alimentosNaoGosta ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                          rows={2}
-                        />
-                      </div>
-                      <InputError message={errors.alimentosNaoGosta} />
-                    </div>
-                    <div>
-                      <label className="block mb-2 font-medium text-gray-700">
-                        Tens alguma restrição alimentar?
-                      </label>
-                      <div className="flex space-x-6 mt-2">
-                        <RadioButton
-                          name="restricaoAlimentar"
-                          value="sim"
-                          label="Sim"
-                          checked={formData.restricaoAlimentar === "sim"}
-                          onChange={() => setFormData({ ...formData, restricaoAlimentar: "sim" })}
-                        />
-                        <RadioButton
-                          name="restricaoAlimentar"
-                          value="não"
-                          label="Não"
-                          checked={formData.restricaoAlimentar === "não"}
-                          onChange={() => {
-                            setFormData({
-                              ...formData,
-                              restricaoAlimentar: "não",
-                              restricoesAlimentares: []
-                            });
-                          }}
-                        />
-                      </div>
-                    </div>
+                    <InputField
+                      type="text"
+                      name="alimentosGosta"
+                      value={formData.alimentosGosta}
+                      onChange={handleChange}
+                      label="Quais são os alimentos que mais gostas?"
+                      error={errors.alimentosGosta}
+                      required
+                      icon={PiSmiley}
+                    />
+                    <InputField
+                      type="text"
+                      name="alimentosNaoGosta"
+                      value={formData.alimentosNaoGosta}
+                      onChange={handleChange}
+                      label="Quais são os alimentos que menos gostas?"
+                      error={errors.alimentosNaoGosta}
+                      required
+                      icon={PiSmileySad}
+                    />
+                    <RadioGroup
+                      name="restricaoAlimentar"
+                      label="Tens alguma restrição alimentar?"
+                      value={formData.restricaoAlimentar}
+                      onChange={(value) => setFormData({ ...formData, restricaoAlimentar: value })}
+                      options={[
+                        { value: "sim", label: "Sim" },
+                        { value: "não", label: "Não" },
+                      ]}
+                      error={errors.restricaoAlimentar}
+                      required
+                    />
                     {formData.restricaoAlimentar === "sim" && (
                       <div className="mt-6 space-y-4">
                         <fieldset>
@@ -1595,64 +1395,38 @@ export default function Anamnese() {
                         </fieldset>
                       </div>
                     )}
-                    <div>
-                      <label className="block mb-2 font-medium text-gray-700">
-                        Descreve as dificuldades para para seguir um plano alimentar
-                      </label>
-                      <div className="relative">
-                        <MdOutlineTaskAlt className="absolute left-3 top-3.5 text-gray-400" size={20} />
-                        <textarea
-                          name="dificuldadesPlanoAlimentar"
-                          value={formData.dificuldadesPlanoAlimentar}
-                          onChange={handleChange}
-                          className={`w-full p-3 border ${errors.dificuldadesPlanoAlimentar ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                          rows={2}
-                        />
-                      </div>
-
-                      {errors.dificuldadesPlanoAlimentar && <p className="mt-1 text-sm text-red-600">{errors.dificuldadesPlanoAlimentar}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block mb-2 font-medium text-gray-700">
-                        Quantidade de água consumida por dia (litros)
-                      </label>
-                      <div className="relative">
-                        <MdOutlineWaterDrop className="absolute left-3 top-3.5 text-gray-400" size={20} />
-                        <input
-                          type="text"
-                          name="aguaConsumida"
-                          value={formData.aguaConsumida}
-                          onChange={handleChange}
-                          className={`w-full p-3 border ${errors.aguaConsumida ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                        />
-                      </div>
-                      <InputError message={errors.aguaConsumida} />
-                    </div>
-
-                    <div>
-                      <label className="block mb-2 font-medium text-gray-700">
-                        Usas algum suplemento?
-                      </label>
-                      <div className="flex space-x-6 mt-2">
-                        <RadioButton
-                          name="usaSuplemento"
-                          value="sim"
-                          label="Sim"
-                          checked={formData.usaSuplemento === "sim"}
-                          onChange={() => setFormData({ ...formData, usaSuplemento: "sim" })}
-                        />
-                        <RadioButton
-                          name="usaSuplemento"
-                          value="não"
-                          label="Não"
-                          checked={formData.usaSuplemento === "não"}
-                          onChange={() => setFormData({ ...formData, usaSuplemento: "não" })}
-                        />
-                        <InputError message={errors.usaSuplemento} />
-                      </div>
-                    </div>
-
+                    <InputField
+                      type="text"
+                      name="dificuldadesPlanoAlimentar"
+                      value={formData.dificuldadesPlanoAlimentar}
+                      onChange={handleChange}
+                      label=" Descreve as dificuldades para para seguir um plano alimentar"
+                      error={errors.dificuldadesPlanoAlimentar}
+                      required
+                      icon={MdOutlineTaskAlt}
+                    />
+                    <InputField
+                      type="number"
+                      name="aguaConsumida"
+                      value={formData.aguaConsumida}
+                      onChange={handleChange}
+                      label="Quantidade de água consumida por dia (Em litros)"
+                      error={errors.aguaConsumida}
+                      required
+                      icon={MdOutlineWaterDrop}
+                    />
+                    <RadioGroup
+                      name="usaSuplemento"
+                      label=" Usas algum suplemento?"
+                      value={formData.usaSuplemento}
+                      onChange={(value) => setFormData({ ...formData, usaSuplemento: value })}
+                      options={[
+                        { value: "sim", label: "Sim" },
+                        { value: "não", label: "Não" },
+                      ]}
+                      error={errors.usaSuplemento}
+                      required
+                    />
                     <ConditionalField
                       isVisible={formData.usaSuplemento === "sim"}
                       label="Que suplemento(s)?"
@@ -1664,29 +1438,18 @@ export default function Anamnese() {
                       fieldType="text"
                     />
                     {errors.qualSuplemento && <p className="mt-1 text-sm text-red-600">{errors.qualSuplemento}</p>}
-
-                    <div>
-                      <label className="block mb-2 font-medium text-gray-700">
-                        Estás interessado em acompanhamento à distância?
-                      </label>
-                      <div className="flex space-x-6 mt-2">
-                        <RadioButton
-                          name="acompanhamentoDistancia"
-                          value="sim"
-                          label="Sim"
-                          checked={formData.acompanhamentoDistancia === "sim"}
-                          onChange={() => setFormData({ ...formData, acompanhamentoDistancia: "sim" })}
-                        />
-                        <RadioButton
-                          name="acompanhamentoDistancia"
-                          value="não"
-                          label="Não"
-                          checked={formData.acompanhamentoDistancia === "não"}
-                          onChange={() => setFormData({ ...formData, acompanhamentoDistancia: "não" })}
-                        />
-                        <InputError message={errors.acompanhamentoDistancia} />
-                      </div>
-                    </div>
+                    <RadioGroup
+                      name="acompanhamentoDistancia"
+                      label="Estás interessado em acompanhamento à distância?"
+                      value={formData.acompanhamentoDistancia}
+                      onChange={(value) => setFormData({ ...formData, acompanhamentoDistancia: value })}
+                      options={[
+                        { value: "sim", label: "Sim" },
+                        { value: "não", label: "Não" },
+                      ]}
+                      error={errors.acompanhamentoDistancia}
+                      required
+                    />
                     <ConditionalField
                       isVisible={formData.acompanhamentoDistancia === "sim"}
                       label="Qual o motivo para o acompanhamento à distância?"

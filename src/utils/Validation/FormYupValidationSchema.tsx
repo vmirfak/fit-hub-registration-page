@@ -264,7 +264,7 @@ export const FormYupValidationSchema = yup.object().shape({
         .integer('A avaliação deve ser um número inteiro sem decimais')
         .test(
             'typical-range',
-            'Valores típicos entre 3-8. Confirme seu valor.',
+            'Introduza um valor entre 0 e 10. Confirme o valor introduzido.',
             value => value === null || (value >= 0 && value <= 10)
         ),
 
