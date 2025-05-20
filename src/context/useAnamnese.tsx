@@ -1,54 +1,169 @@
-import { createContext, useContext, ReactNode, useState } from 'react';
+import { createContext, useContext, ReactNode, useState, useCallback } from 'react';
 import { AnamneseFormData } from '@/types/anamnesetypes';
 import { submitAnamnese } from '@/service/anamneseService';
 
-type AnamneseContextType = {
-    submitForm: (formData: AnamneseFormData) => Promise<void>;
-    isLoading: boolean;
-    error: string | null;
-    isSuccess: boolean;
-    resetSubmission: () => void;
+// Define specific error types for better error handling
+export type AnamneseError = {
+    code?: string;
+    message: string;
+    details?: unknown;
 };
 
+// Define the submission status for tracking state
+export type SubmissionStatus = 'idle' | 'submitting' | 'success' | 'error';
+
+// Enhanced context type with additional functionality
+export type AnamneseContextType = {
+    // Core submission functionality
+    submitForm: (formData: AnamneseFormData) => Promise<void>;
+
+    // Status indicators
+    isLoading: boolean;
+    submissionStatus: SubmissionStatus;
+    error: AnamneseError | null;
+    isSuccess: boolean;
+
+    // Reset functions
+    resetSubmission: () => void;
+    resetError: () => void;
+
+    // Last submission data for reference or retry
+    lastSubmittedData: AnamneseFormData | null;
+};
+
+// Create the context with undefined initial value
 const AnamneseContext = createContext<AnamneseContextType | undefined>(undefined);
 
 export const AnamneseProvider = ({ children }: { children: ReactNode }) => {
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [isSuccess, setIsSuccess] = useState(false);
+    // State management
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus>('idle');
+    const [error, setError] = useState<AnamneseError | null>(null);
+    const [isSuccess, setIsSuccess] = useState<boolean>(false);
+    const [lastSubmittedData, setLastSubmittedData] = useState<AnamneseFormData | null>(null);
 
-    const submitForm = async (formData: AnamneseFormData) => {
+    // Submit form with enhanced error handling
+    const submitForm = useCallback(async (formData: AnamneseFormData) => {
+        // Log the initial submission attempt with sanitized data
+        console.log('Anamnese submission started', {
+            timestamp: new Date().toISOString(),
+        });
+
         setIsLoading(true);
+        setSubmissionStatus('submitting');
         setError(null);
         setIsSuccess(false);
+        setLastSubmittedData(formData);
+
+        const startTime = performance.now();
 
         try {
+            // Log before API call
+            console.log('Calling submitAnamnese API');
+
             await submitAnamnese(formData);
+
+            // Calculate and log response time
+            const responseTime = performance.now() - startTime;
+            console.log(`Anamnese submission successful`, {
+                timestamp: new Date().toISOString(),
+                responseTimeMs: responseTime.toFixed(2),
+            });
+
             setIsSuccess(true);
+            setSubmissionStatus('success');
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An unknown error occurred');
+            // Calculate and log error response time
+            const responseTime = performance.now() - startTime;
+
+            // Enhanced error handling with detailed logging
+            let errorCode = 'UNKNOWN_ERROR';
+            let errorMessage = 'An unknown error occurred during submission';
+            let errorDetails = {};
+
+            if (err instanceof Error) {
+                errorCode = err.name === 'TypeError' ? 'NETWORK_ERROR' : 'SUBMISSION_ERROR';
+                errorMessage = err.message;
+                errorDetails = {
+                    name: err.name,
+                    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+                };
+
+                setError({
+                    message: errorMessage,
+                    code: errorCode,
+                    details: err
+                });
+            } else if (typeof err === 'string') {
+                errorCode = 'STRING_ERROR';
+                errorMessage = err;
+                setError({ message: err });
+            } else {
+                // For unknown error types
+                setError({ message: errorMessage });
+            }
+
+            // Comprehensive error logging
+            console.error('Anamnese submission failed', {
+                timestamp: new Date().toISOString(),
+                responseTimeMs: responseTime.toFixed(2),
+                errorCode,
+                errorMessage,
+                details: errorDetails
+            });
+
+            setSubmissionStatus('error');
         } finally {
             setIsLoading(false);
+            console.log('Anamnese submission process completed');
         }
-    };
+    }, []);
 
-    const resetSubmission = () => {
+    // Reset the entire submission state
+    const resetSubmission = useCallback(() => {
         setIsSuccess(false);
         setError(null);
+        setSubmissionStatus('idle');
+    }, []);
+
+    // Reset just the error state
+    const resetError = useCallback(() => {
+        setError(null);
+        if (submissionStatus === 'error') {
+            setSubmissionStatus('idle');
+        }
+    }, [submissionStatus]);
+
+    const contextValue: AnamneseContextType = {
+        submitForm,
+        isLoading,
+        submissionStatus,
+        error,
+        isSuccess,
+        resetSubmission,
+        resetError,
+        lastSubmittedData
     };
 
     return (
-        <AnamneseContext.Provider value={{ submitForm, isLoading, error, isSuccess, resetSubmission }}>
+        <AnamneseContext.Provider value={contextValue}>
             {children}
         </AnamneseContext.Provider>
     );
 };
 
+/**
+ * Custom hook to use the anamnese context
+ * @returns The anamnese context
+ * @throws Error if used outside of an AnamneseProvider
+ */
 // eslint-disable-next-line react-refresh/only-export-components
-export const useAnamnese = () => {
+export const useAnamnese = (): AnamneseContextType => {
     const context = useContext(AnamneseContext);
+
     if (context === undefined) {
         throw new Error('useAnamnese must be used within an AnamneseProvider');
     }
+
     return context;
 };

@@ -15,7 +15,11 @@ export const submitAnamnese = async (formData: AnamneseFormData) => {
         key === "fotoCostas"
       ) {
         // Handle file arrays - append each file separately
-        if (Array.isArray(value) && value.length > 0 && value[0] instanceof File) {
+        if (
+          Array.isArray(value) &&
+          value.length > 0 &&
+          value[0] instanceof File
+        ) {
           (value as File[]).forEach((file) => {
             formDataToSend.append(key, file);
           });
