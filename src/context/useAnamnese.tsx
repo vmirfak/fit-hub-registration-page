@@ -1,6 +1,7 @@
 import { createContext, useContext, ReactNode, useState, useCallback } from 'react';
 import { AnamneseFormData } from '@/types/anamnesetypes';
 import { submitAnamnese } from '@/service/anamneseService';
+import { showErrorToast, showSuccessToast } from '@/utils/toastUtils';
 
 // Define specific error types for better error handling
 export type AnamneseError = {
@@ -44,7 +45,6 @@ export const AnamneseProvider = ({ children }: { children: ReactNode }) => {
 
     // Submit form with enhanced error handling
     const submitForm = useCallback(async (formData: AnamneseFormData) => {
-        // Log the initial submission attempt with sanitized data
         console.log('Anamnese submission started', {
             timestamp: new Date().toISOString(),
         });
@@ -58,12 +58,10 @@ export const AnamneseProvider = ({ children }: { children: ReactNode }) => {
         const startTime = performance.now();
 
         try {
-            // Log before API call
             console.log('Calling submitAnamnese API');
 
             await submitAnamnese(formData);
 
-            // Calculate and log response time
             const responseTime = performance.now() - startTime;
             console.log(`Anamnese submission successful`, {
                 timestamp: new Date().toISOString(),
@@ -72,11 +70,12 @@ export const AnamneseProvider = ({ children }: { children: ReactNode }) => {
 
             setIsSuccess(true);
             setSubmissionStatus('success');
+
+            // ✅ Show success toast
+            showSuccessToast("Anamnese submitted successfully!");
         } catch (err) {
-            // Calculate and log error response time
             const responseTime = performance.now() - startTime;
 
-            // Enhanced error handling with detailed logging
             let errorCode = 'UNKNOWN_ERROR';
             let errorMessage = 'An unknown error occurred during submission';
             let errorDetails = {};
@@ -86,33 +85,34 @@ export const AnamneseProvider = ({ children }: { children: ReactNode }) => {
                 errorMessage = err.message;
                 errorDetails = {
                     name: err.name,
-                    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+                    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
                 };
 
                 setError({
                     message: errorMessage,
                     code: errorCode,
-                    details: err
+                    details: err,
                 });
             } else if (typeof err === 'string') {
                 errorCode = 'STRING_ERROR';
                 errorMessage = err;
                 setError({ message: err });
             } else {
-                // For unknown error types
                 setError({ message: errorMessage });
             }
 
-            // Comprehensive error logging
             console.error('Anamnese submission failed', {
                 timestamp: new Date().toISOString(),
                 responseTimeMs: responseTime.toFixed(2),
                 errorCode,
                 errorMessage,
-                details: errorDetails
+                details: errorDetails,
             });
 
             setSubmissionStatus('error');
+
+            // ❌ Show error toast
+            showErrorToast(errorMessage);
         } finally {
             setIsLoading(false);
             console.log('Anamnese submission process completed');

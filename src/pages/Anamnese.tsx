@@ -24,6 +24,7 @@ import {
   Weight,
   AlertCircle,
   Apple,
+  
 } from "lucide-react";
 import { motion } from "framer-motion";
 import * as yup from 'yup';
@@ -37,6 +38,7 @@ import { debounce } from 'lodash';
 import { ConditionalMealSection } from "@/components/ui/ConditionalMealSection";
 import { PiHamburger, PiSmiley, PiSmileySad } from "react-icons/pi";
 import { MdOutlineTaskAlt, MdOutlineWaterDrop } from "react-icons/md"
+import CustomDropdown from "@/components/CustomDropdown";
 
 const FormLandingPage = ({ onStartForm }: { onStartForm: () => void }) => {
 
@@ -276,120 +278,65 @@ const steps = [
 export default function Anamnese() {
   const [hasStarted, setHasStarted] = useState(false);
   const [formData, setFormData] = useState<AnamneseFormData>({
-    personalInfo: {
-      nome: "",
-      email: "",
-      genero: "",
-      dataNascimento: "",
-      contactInfo: {
-        localidade: "",
-        countryCode: "+351",
-        telemovel: "",
-      },
-      physicalInfo: {
-        altura: 0,
-        pesoJejum: "",
-      },
-      profissao: "",
-    },
-
-    exerciseInfo: {
-      currentActivity: {
-        praticaExercicio: "",
-        vezesPorSemana: 0,
-      },
-      pastExperience: {
-        praticouModalidade: "",
-        modalidadeDesportiva: "",
-        experienciaDistancia: "",
-      },
-      preferences: {
-        tempoPorSessao: "",
-        preferenciaLocalTreino: "",
-        materialDisponivel: "",
-        nivelConfortoSozinho: "",
-      },
-      goals: {
-        objetivoExercicio: "",
-        experienciaProblemas: "",
-      },
-    },
-
-    healthInfo: {
-      spine: {
-        temDoresColuna: "",
-        zonaColuna: "",
-      },
-      injuries: {
-        temLesao: "",
-        localLesao: "",
-      },
-      surgeries: {
-        cirurgiaRecente: "",
-        localcirurgia: "",
-      },
-      conditions: {
-        problemaCardiaco: "",
-        dorNoPeito: "",
-        perdeuConsiencia: "",
-        problemaOssos: "",
-        medicamentoPressao: "",
-      },
-      limitations: {
-        impedimentoExercicio: "",
-        tipoImpedimento: "",
-      },
-    },
-
-    medicationInfo: {
-      usaMedicamento: "",
-      tiposmedicamentos: "",
-    },
-
-    nutritionInfo: {
-      meals: {
-        refeicoesPorDia: 0,
-        details: {
-          primeira: "",
-          segunda: "",
-          terceira: "",
-          quarta: "",
-          quinta: "",
-          sexta: "",
-          setima: "",
-          oitava: "",
-        },
-      },
-      preferences: {
-        alimentosGosta: "",
-        alimentosNaoGosta: "",
-      },
-      restrictions: {
-        restricaoAlimentar: "",
-        restricoesAlimentares: [],
-      },
-      habits: {
-        aguaConsumida: "",
-        dificuldadesPlanoAlimentar: "",
-      },
-      supplements: {
-        usaSuplemento: "",
-        qualSuplemento: "",
-      },
-    },
-
-    coachingInfo: {
-      acompanhamentoDistancia: "",
-      motivoAcompanhamento: "",
-    },
-
-    photos: {
-      fotoFrontal: [],
-      fotoLateral: [],
-      fotoCostas: [],
-    },
-
+    nome: "",
+    email: "",
+    altura: 0,
+    genero: "",
+    tipoImpedimento: "",
+    praticouModalidade: "",
+    dataNascimento: "",
+    localidade: "",
+    restricaoAlimentar: "",
+    restricoesAlimentares: [],
+    profissao: "",
+    countryCode: '+351',
+    telemovel: '',
+    objetivoExercicio: "",
+    praticaExercicio: "",
+    vezesPorSemana: 0,
+    impedimentoExercicio: "",
     observacoes: "",
+    modalidadeDesportiva: "",
+    experienciaDistancia: "",
+    experienciaProblemas: "",
+    tempoPorSessao: "",
+    preferenciaLocalTreino: "",
+    materialDisponivel: "",
+    nivelConfortoSozinho: "",
+    temDoresColuna: "",
+    zonaColuna: "",
+    temLesao: "",
+    localLesao: "",
+    cirurgiaRecente: "",
+    localcirurgia: "",
+    usaMedicamento: "",
+    problemaCardiaco: "",
+    dorNoPeito: "",
+    perdeuConsiencia: "",
+    problemaOssos: "",
+    tiposmedicamentos: "",
+    medicamentoPressao: "",
+    refeicoesPorDia: 0,
+    alimentosPrimeiraRefeicao: "",
+    alimentosSegundaRefeicao: "",
+    alimentosTerceiraRefeicao: "",
+    alimentosQuartaRefeicao: "",
+    alimentosQuintaRefeicao: "",
+    alimentosSextaRefeicao: "",
+    alimentosSetimaRefeicao: "",
+    alimentosOitavaRefeicao: "",
+    alimentosGosta: "",
+    alimentosNaoGosta: "",
+    dificuldadesPlanoAlimentar: "",
+    aguaConsumida: "",
+    usaSuplemento: "",
+    qualSuplemento: "",
+    acompanhamentoDistancia: "",
+    motivoAcompanhamento: "",
+    pesoJejum: "",
+    fotoFrontal: [],
+    fotoLateral: [],
+    fotoCostas: [],
   });
   const { submitForm, isLoading, isSuccess, resetSubmission } = useAnamnese();
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -454,7 +401,7 @@ export default function Anamnese() {
 
   const formatPhoneNumber = (phoneNumber: string): string => {
     if (!phoneNumber) return '';
-    if (formData.personalInfo.contactInfo.countryCode === '+351') {
+    if (formData.countryCode === '+351') {
       const match = phoneNumber.match(/^(\d{3})(\d{3})(\d{3})$/);
       if (match) return `${match[1]} ${match[2]} ${match[3]}`;
     }
@@ -586,122 +533,66 @@ export default function Anamnese() {
 
   const resetForm = () => {
     setFormData({
-      personalInfo: {
-        nome: "",
-        email: "",
-        genero: "",
-        dataNascimento: "",
-        contactInfo: {
-          localidade: "",
-          countryCode: "+351",
-          telemovel: "",
-        },
-        physicalInfo: {
-          altura: 0,
-          pesoJejum: "",
-        },
-        profissao: "",
-      },
-
-      exerciseInfo: {
-        currentActivity: {
-          praticaExercicio: "",
-          vezesPorSemana: 0,
-        },
-        pastExperience: {
-          praticouModalidade: "",
-          modalidadeDesportiva: "",
-          experienciaDistancia: "",
-        },
-        preferences: {
-          tempoPorSessao: "",
-          preferenciaLocalTreino: "",
-          materialDisponivel: "",
-          nivelConfortoSozinho: "",
-        },
-        goals: {
-          objetivoExercicio: "",
-          experienciaProblemas: "",
-        },
-      },
-
-      healthInfo: {
-        spine: {
-          temDoresColuna: "",
-          zonaColuna: "",
-        },
-        injuries: {
-          temLesao: "",
-          localLesao: "",
-        },
-        surgeries: {
-          cirurgiaRecente: "",
-          localcirurgia: "",
-        },
-        conditions: {
-          problemaCardiaco: "",
-          dorNoPeito: "",
-          perdeuConsiencia: "",
-          problemaOssos: "",
-          medicamentoPressao: "",
-        },
-        limitations: {
-          impedimentoExercicio: "",
-          tipoImpedimento: "",
-        },
-      },
-
-      medicationInfo: {
-        usaMedicamento: "",
-        tiposmedicamentos: "",
-      },
-
-      nutritionInfo: {
-        meals: {
-          refeicoesPorDia: 0,
-          details: {
-            primeira: "",
-            segunda: "",
-            terceira: "",
-            quarta: "",
-            quinta: "",
-            sexta: "",
-            setima: "",
-            oitava: "",
-          },
-        },
-        preferences: {
-          alimentosGosta: "",
-          alimentosNaoGosta: "",
-        },
-        restrictions: {
-          restricaoAlimentar: "",
-          restricoesAlimentares: [],
-        },
-        habits: {
-          aguaConsumida: "",
-          dificuldadesPlanoAlimentar: "",
-        },
-        supplements: {
-          usaSuplemento: "",
-          qualSuplemento: "",
-        },
-      },
-
-      coachingInfo: {
-        acompanhamentoDistancia: "",
-        motivoAcompanhamento: "",
-      },
-
-      photos: {
-        fotoFrontal: [],
-        fotoLateral: [],
-        fotoCostas: [],
-      },
-
+      nome: "",
+      email: "",
+      altura: 0,
+      praticouModalidade: "",
+      dataNascimento: "",
+      genero: "",
+      experienciaDistancia: "",
+      localidade: "",
+      profissao: "",
+      countryCode: '+351',
+      telemovel: '',
+      tipoImpedimento: "",
+      objetivoExercicio: "",
+      praticaExercicio: "",
+      vezesPorSemana: 0,
+      temDoresColuna: "",
+      zonaColuna: "",
+      temLesao: "",
+      localLesao: "",
+      cirurgiaRecente: "",
+      localcirurgia: "",
+      usaMedicamento: "",
+      problemaCardiaco: "",
+      dorNoPeito: "",
+      perdeuConsiencia: "",
+      problemaOssos: "",
+      tiposmedicamentos: "",
+      medicamentoPressao: "",
+      impedimentoExercicio: "",
       observacoes: "",
+      refeicoesPorDia: 0,
+      tempoPorSessao: "",
+      modalidadeDesportiva: "",
+      preferenciaLocalTreino: "",
+      materialDisponivel: "",
+      nivelConfortoSozinho: "",
+      experienciaProblemas: "",
+      alimentosPrimeiraRefeicao: "",
+      alimentosSegundaRefeicao: "",
+      alimentosTerceiraRefeicao: "",
+      alimentosQuartaRefeicao: "",
+      alimentosQuintaRefeicao: "",
+      restricoesAlimentares: [],
+      alimentosSextaRefeicao: "",
+      alimentosSetimaRefeicao: "",
+      alimentosOitavaRefeicao: "",
+      alimentosGosta: "",
+      alimentosNaoGosta: "",
+      restricaoAlimentar: "",
+      dificuldadesPlanoAlimentar: "",
+      aguaConsumida: "",
+      usaSuplemento: "",
+      qualSuplemento: "",
+      acompanhamentoDistancia: "",
+      motivoAcompanhamento: "",
+      pesoJejum: "",
+      fotoFrontal: [],
+      fotoLateral: [],
+      fotoCostas: [],
     });
-
     setCurrentStep(0);
     resetSubmission();
     setHasStarted(false);
@@ -780,7 +671,7 @@ export default function Anamnese() {
   const renderMealInputs = () => {
     const inputs = [];
     const labels = ["Primeira", "Segunda", "Terceira", "Quarta", "Quinta", "Sexta", "Setima", "Oitava"];
-    for (let i = 1; i <= formData.nutritionInfo.meals.refeicoesPorDia && i <= labels.length; i++) {
+    for (let i = 1; i <= formData.refeicoesPorDia && i <= labels.length; i++) {
       const mealKey = `alimentos${labels[i - 1]}Refeicao` as keyof AnamneseFormData;
       inputs.push(
         <div key={mealKey} className="mb-4">
@@ -897,7 +788,7 @@ export default function Anamnese() {
                         <input
                           type="text"
                           name="nome"
-                          value={formData.personalInfo.nome}
+                          value={formData.nome}
                           onChange={handleChange}
                           className={`w-full p-3 border ${errors.nome ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                           required
@@ -914,7 +805,7 @@ export default function Anamnese() {
                         <input
                           type="email"
                           name="email"
-                          value={formData.personalInfo.email}
+                          value={formData.email}
                           onChange={handleChange}
                           className={`w-full p-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                           required
@@ -932,7 +823,7 @@ export default function Anamnese() {
                         <input
                           type="text"
                           name="localidade"
-                          value={formData.personalInfo.contactInfo.localidade}
+                          value={formData.localidade}
                           onChange={handleChange}
                           className={`w-full p-3 border ${errors.localidade ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                           required
@@ -950,7 +841,7 @@ export default function Anamnese() {
                         <input
                           type="text"
                           name="profissao"
-                          value={formData.personalInfo.profissao}
+                          value={formData.profissao}
                           onChange={handleChange}
                           className={`w-full p-3 border ${errors.profissao ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                         />
@@ -965,7 +856,7 @@ export default function Anamnese() {
                         {/* Country Code Select */}
                         <select
                           name="countryCode"
-                          value={formData.personalInfo.contactInfo.countryCode}
+                          value={formData.countryCode}
                           onChange={handleChange}
                           className="p-3 border border-gray-300 rounded-l-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer appearance-none"
                           required
@@ -982,7 +873,7 @@ export default function Anamnese() {
                           <input
                             type="tel"
                             name="telemovel"
-                            value={formatPhoneNumber(formData.personalInfo.contactInfo.telemovel)}
+                            value={formatPhoneNumber(formData.telemovel)}
                             onChange={(e) => {
                               const onlyNumbers = e.target.value.replace(/\D/g, "");
                               setFormData(prev => ({ ...prev, telemovel: onlyNumbers }));
@@ -1004,7 +895,7 @@ export default function Anamnese() {
                         <input
                           type="text"
                           name="pesoJejum"
-                          value={formData.personalInfo.physicalInfo.pesoJejum}
+                          value={formData.pesoJejum}
                           onChange={handleChange}
                           className={`w-full p-3 border ${errors.pesoJejum ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                         />
@@ -1020,7 +911,7 @@ export default function Anamnese() {
                         <input
                           type="number"
                           name="altura"
-                          value={formData.personalInfo.physicalInfo.altura || ''}
+                          value={formData.altura || ''}
                           onChange={handleChange}
                           className={`w-full p-3 border ${errors.altura ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                           min="100"
@@ -1040,7 +931,7 @@ export default function Anamnese() {
                         <input
                           type="date"
                           name="dataNascimento"
-                          value={formData.personalInfo.dataNascimento || ''}
+                          value={formData.dataNascimento || ''}
                           onChange={handleChange}
                           className={`w-full p-3 border ${errors.dataNascimento ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                           max={new Date().toISOString().split('T')[0]}
@@ -1056,7 +947,7 @@ export default function Anamnese() {
                       </label>
                       <select
                         name="genero"
-                        value={formData.personalInfo.genero}
+                        value={formData.genero}
                         onChange={handleChange}
                         className={`w-full p-3 cursor-pointer border ${errors.genero ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                       >
@@ -1082,16 +973,7 @@ export default function Anamnese() {
                     <label className="block mb-2 font-medium text-gray-700">
                       Qual é o teu objetivo com o exercício?
                     </label>
-                    <div className="relative">
-                      <textarea
-                        name="objetivoExercicio"
-                        value={formData.exerciseInfo.goals.objetivoExercicio}
-                        onChange={handleChange}
-                        className={`w-full p-3 border ${errors.objetivoExercicio ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                        rows={3}
-                      />
-                      <Target className="absolute left-3 top-3.5 text-gray-400" size={18} />
-                    </div>
+                    <CustomDropdown />
                     <InputError message={errors.objetivoExercicio} />
                   </div>
                   {/* Já praticaste alguma modalidade desportiva? */}
@@ -1104,37 +986,15 @@ export default function Anamnese() {
                         name="praticouModalidade"
                         value="sim"
                         label="Sim"
-                        checked={formData.exerciseInfo.pastExperience.praticouModalidade === "sim"}
-                        onChange={() =>
-                          setFormData(prev => ({
-                            ...prev,
-                            exerciseInfo: {
-                              ...prev.exerciseInfo,
-                              pastExperience: {
-                                ...prev.exerciseInfo.pastExperience,
-                                praticouModalidade: "sim"
-                              }
-                            }
-                          }))
-                        }
+                        checked={formData.praticouModalidade === "sim"}
+                        onChange={() => setFormData({ ...formData, praticouModalidade: "sim" })}
                       />
                       <RadioButton
                         name="praticouModalidade"
                         value="não"
                         label="Não"
-                        checked={formData.exerciseInfo.pastExperience.praticouModalidade === "não"}
-                        onChange={() =>
-                          setFormData(prev => ({
-                            ...prev,
-                            exerciseInfo: {
-                              ...prev.exerciseInfo,
-                              pastExperience: {
-                                ...prev.exerciseInfo.pastExperience,
-                                praticouModalidade: "não"
-                              }
-                            }
-                          }))
-                        }
+                        checked={formData.praticouModalidade === "não"}
+                        onChange={() => setFormData({ ...formData, praticouModalidade: "não" })}
                       />
                       <InputError message={errors.praticouModalidade} />
                     </div>
@@ -1143,10 +1003,10 @@ export default function Anamnese() {
 
                   {/* Se sim, na tua opinião o que correu mal */}
                   <ConditionalField
-                    isVisible={formData.exerciseInfo.pastExperience.praticouModalidade === "sim"}
+                    isVisible={formData.praticouModalidade === "sim"}
                     label="Que modalidades praticaste?"
                     name="modalidadeDesportiva"
-                    value={formData.exerciseInfo.pastExperience.modalidadeDesportiva}
+                    value={formData.modalidadeDesportiva}
                     onChange={handleChange}
                     placeholder="Menciona as modalidades..."
                     rows={2}
@@ -1164,46 +1024,24 @@ export default function Anamnese() {
                         name="experienciaDistancia"
                         value="sim"
                         label="Sim"
-                        checked={formData.exerciseInfo.pastExperience.experienciaDistancia === "sim"}
-                        onChange={() =>
-                          setFormData(prev => ({
-                            ...prev,
-                            exerciseInfo: {
-                              ...prev.exerciseInfo,
-                              pastExperience: {
-                                ...prev.exerciseInfo.pastExperience,
-                                experienciaDistancia: "sim"
-                              }
-                            }
-                          }))
-                        }
+                        checked={formData.experienciaDistancia === "sim"}
+                        onChange={() => setFormData({ ...formData, experienciaDistancia: "sim" })}
                       />
                       <RadioButton
                         name="experienciaDistancia"
                         value="não"
                         label="Não"
-                        checked={formData.exerciseInfo.pastExperience.experienciaDistancia === "não"}
-                        onChange={() =>
-                          setFormData(prev => ({
-                            ...prev,
-                            exerciseInfo: {
-                              ...prev.exerciseInfo,
-                              pastExperience: {
-                                ...prev.exerciseInfo.pastExperience,
-                                experienciaDistancia: "não"
-                              }
-                            }
-                          }))
-                        }
+                        checked={formData.experienciaDistancia === "não"}
+                        onChange={() => setFormData({ ...formData, experienciaDistancia: "não" })}
                       />
                       <InputError message={errors.experienciaDistancia} />
                     </div>
                   </div>
                   <ConditionalField
-                    isVisible={formData.exerciseInfo.pastExperience.experienciaDistancia === "sim"}
+                    isVisible={formData.experienciaDistancia === "sim"}
                     label="O que correu mal na tua opinião?"
                     name="experienciaProblemas"
-                    value={formData.exerciseInfo.goals.experienciaProblemas}
+                    value={formData.experienciaProblemas}
                     onChange={handleChange}
                     placeholder="Menciona as dificuldades..."
                     rows={2}
@@ -1218,7 +1056,7 @@ export default function Anamnese() {
                     </label>
                     <select
                       name="preferenciaLocalTreino"
-                      value={formData.exerciseInfo.preferences.preferenciaLocalTreino}
+                      value={formData.preferenciaLocalTreino}
                       onChange={handleChange}
                       className="w-full p-3 cursor-pointer border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
@@ -1230,10 +1068,10 @@ export default function Anamnese() {
                   </div>
 
                   <ConditionalField
-                    isVisible={formData.exerciseInfo.preferences.preferenciaLocalTreino === "casa"}
+                    isVisible={formData.preferenciaLocalTreino === "casa"}
                     label="Que material tens disponível?"
                     name="materialDisponivel"
-                    value={formData.exerciseInfo.preferences.materialDisponivel}
+                    value={formData.materialDisponivel}
                     onChange={handleChange}
                     placeholder="Menciona o manterial que tens dísponível em casa..."
                     rows={2}
@@ -1251,7 +1089,7 @@ export default function Anamnese() {
                       name="nivelConfortoSozinho"
                       min="0"
                       max="10"
-                      value={formData.exerciseInfo.preferences.nivelConfortoSozinho}
+                      value={formData.nivelConfortoSozinho}
                       onChange={handleChange}
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
@@ -1266,46 +1104,24 @@ export default function Anamnese() {
                         name="praticaExercicio"
                         value="sim"
                         label="Sim"
-                        checked={formData.exerciseInfo.currentActivity.praticaExercicio === "sim"}
-                        onChange={() =>
-                          setFormData(prev => ({
-                            ...prev,
-                            exerciseInfo: {
-                              ...prev.exerciseInfo,
-                              currentActivity: {
-                                ...prev.exerciseInfo.currentActivity,
-                                praticaExercicio: "sim"
-                              }
-                            }
-                          }))
-                        }
+                        checked={formData.praticaExercicio === "sim"}
+                        onChange={() => setFormData({ ...formData, praticaExercicio: "sim" })}
                       />
                       <RadioButton
                         name="praticaExercicio"
                         value="não"
                         label="Não"
-                        checked={formData.exerciseInfo.currentActivity.praticaExercicio === "não"}
-                        onChange={() =>
-                          setFormData(prev => ({
-                            ...prev,
-                            exerciseInfo: {
-                              ...prev.exerciseInfo,
-                              currentActivity: {
-                                ...prev.exerciseInfo.currentActivity,
-                                praticaExercicio: "não"
-                              }
-                            }
-                          }))
-                        }
+                        checked={formData.praticaExercicio === "não"}
+                        onChange={() => setFormData({ ...formData, praticaExercicio: "não" })}
                       />
                       <InputError message={errors.praticaExercicio} />
                     </div>
                   </div>
                   <ConditionalField
-                    isVisible={formData.exerciseInfo.currentActivity.praticaExercicio === "sim"}
+                    isVisible={formData.praticaExercicio === "sim"}
                     label="Quantas vezes por semana?"
                     name="vezesPorSemana"
-                    value={formData.exerciseInfo.currentActivity.vezesPorSemana.toString()}
+                    value={formData.vezesPorSemana.toString()}
                     onChange={handleChange}
                     placeholder="Número de vezes em que praticas exercício..."
                     rows={2}
@@ -1320,7 +1136,7 @@ export default function Anamnese() {
                     <input
                       type="number"
                       name="tempoPorSessao"
-                      value={formData.exerciseInfo.preferences.tempoPorSessao}
+                      value={formData.tempoPorSessao}
                       onChange={handleChange}
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
@@ -1336,46 +1152,24 @@ export default function Anamnese() {
                         name="impedimentoExercicio"
                         value="sim"
                         label="Sim"
-                        checked={formData.healthInfo.limitations.impedimentoExercicio === "sim"}
-                        onChange={() =>
-                          setFormData(prev => ({
-                            ...prev,
-                            healthInfo: {
-                              ...prev.healthInfo,
-                              limitations: {
-                                ...prev.healthInfo.limitations,
-                                impedimentoExercicio: "sim"
-                              }
-                            }
-                          }))
-                        }
+                        checked={formData.impedimentoExercicio === "sim"}
+                        onChange={() => setFormData({ ...formData, impedimentoExercicio: "sim" })}
                       />
                       <RadioButton
                         name="impedimentoExercicio"
                         value="não"
                         label="Não"
-                        checked={formData.healthInfo.limitations.impedimentoExercicio === "não"}
-                        onChange={() =>
-                          setFormData(prev => ({
-                            ...prev,
-                            healthInfo: {
-                              ...prev.healthInfo,
-                              limitations: {
-                                ...prev.healthInfo.limitations,
-                                impedimentoExercicio: "não"
-                              }
-                            }
-                          }))
-                        }
+                        checked={formData.impedimentoExercicio === "não"}
+                        onChange={() => setFormData({ ...formData, impedimentoExercicio: "não" })}
                       />
                       <InputError message={errors.possuiLimitacaoExercicio} />
                     </div>
                   </div>
                   <ConditionalField
-                    isVisible={formData.healthInfo.limitations.impedimentoExercicio === "sim"}
+                    isVisible={formData.impedimentoExercicio === "sim"}
                     label="Qual é o impedimento?"
                     name="tipoImpedimento"
-                    value={formData.healthInfo.limitations.tipoImpedimento}
+                    value={formData.tipoImpedimento}
                     onChange={handleChange}
                     placeholder="Menciona o impedimento para a prática de exercício..."
                     rows={2}
@@ -1403,46 +1197,24 @@ export default function Anamnese() {
                           name="temDoresColuna"
                           value="sim"
                           label="Sim"
-                          checked={formData.healthInfo.spine.temDoresColuna === "sim"}
-                          onChange={() =>
-                            setFormData(prev => ({
-                              ...prev,
-                              healthInfo: {
-                                ...prev.healthInfo,
-                                spine: {
-                                  ...prev.healthInfo.spine,
-                                  temDoresColuna: "sim"
-                                }
-                              }
-                            }))
-                          }
+                          checked={formData.temDoresColuna === "sim"}
+                          onChange={() => setFormData({ ...formData, temDoresColuna: "sim" })}
                         />
                         <RadioButton
                           name="temDoresColuna"
                           value="não"
                           label="Não"
-                          checked={formData.healthInfo.spine.temDoresColuna === "não"}
-                          onChange={() =>
-                            setFormData(prev => ({
-                              ...prev,
-                              healthInfo: {
-                                ...prev.healthInfo,
-                                spine: {
-                                  ...prev.healthInfo.spine,
-                                  temDoresColuna: "não"
-                                }
-                              }
-                            }))
-                          }
+                          checked={formData.temDoresColuna === "não"}
+                          onChange={() => setFormData({ ...formData, temDoresColuna: "não" })}
                         />
                         <InputError message={errors.temDoresColuna} />
                       </div>
                     </div>
                     <ConditionalField
-                      isVisible={formData.healthInfo.spine.temDoresColuna === "sim"}
+                      isVisible={formData.temDoresColuna === "sim"}
                       label="Em que zona?"
                       name="zonaColuna"
-                      value={formData.healthInfo.spine.zonaColuna}
+                      value={formData.zonaColuna}
                       onChange={handleChange}
                       placeholder="Menciona em que zona da coluna tens dores..."
                       rows={2}
@@ -1459,47 +1231,25 @@ export default function Anamnese() {
                           name="temLesao"
                           value="sim"
                           label="Sim"
-                          checked={formData.healthInfo.injuries.temLesao === "sim"}
-                          onChange={() =>
-                            setFormData(prev => ({
-                              ...prev,
-                              healthInfo: {
-                                ...prev.healthInfo,
-                                injuries: {
-                                  ...prev.healthInfo.injuries,
-                                  temLesao: "sim"
-                                }
-                              }
-                            }))
-                          }
+                          checked={formData.temLesao === "sim"}
+                          onChange={() => setFormData({ ...formData, temLesao: "sim" })}
                         />
                         <RadioButton
                           name="temLesao"
                           value="não"
                           label="Não"
-                          checked={formData.healthInfo.injuries.temLesao === "não"}
-                          onChange={() =>
-                            setFormData(prev => ({
-                              ...prev,
-                              healthInfo: {
-                                ...prev.healthInfo,
-                                injuries: {
-                                  ...prev.healthInfo.injuries,
-                                  temLesao: "não"
-                                }
-                              }
-                            }))
-                          }
+                          checked={formData.temLesao === "não"}
+                          onChange={() => setFormData({ ...formData, temLesao: "não" })}
                         />
                         <InputError message={errors.temLesao} />
                       </div>
 
                     </div>
                     <ConditionalField
-                      isVisible={formData.healthInfo.injuries.temLesao === "sim"}
+                      isVisible={formData.temLesao === "sim"}
                       label="Em que zona?"
                       name="localLesao"
-                      value={formData.healthInfo.injuries.localLesao}
+                      value={formData.localLesao}
                       onChange={handleChange}
                       placeholder="Menciona qual é o local onde possuis a lesão..."
                       rows={2}
@@ -1508,53 +1258,31 @@ export default function Anamnese() {
                     />
                     <div>
                       <label className="block mb-2 font-medium text-gray-700">
-                        Fizeste alguma cirurgia recentemente?
+                        Já realizou alguma cirurgia?
                       </label>
                       <div className="flex space-x-6 mt-2">
                         <RadioButton
                           name="cirurgiaRecente"
                           value="sim"
                           label="Sim"
-                          checked={formData.healthInfo.surgeries.cirurgiaRecente === "sim"}
-                          onChange={() =>
-                            setFormData(prev => ({
-                              ...prev,
-                              healthInfo: {
-                                ...prev.healthInfo,
-                                surgeries: {
-                                  ...prev.healthInfo.surgeries,
-                                  cirurgiaRecente: "sim"
-                                }
-                              }
-                            }))
-                          }
+                          checked={formData.cirurgiaRecente === "sim"}
+                          onChange={() => setFormData({ ...formData, cirurgiaRecente: "sim" })}
                         />
                         <RadioButton
                           name="cirurgiaRecente"
                           value="não"
                           label="Não"
-                          checked={formData.healthInfo.surgeries.cirurgiaRecente === "não"}
-                          onChange={() =>
-                            setFormData(prev => ({
-                              ...prev,
-                              healthInfo: {
-                                ...prev.healthInfo,
-                                surgeries: {
-                                  ...prev.healthInfo.surgeries,
-                                  cirurgiaRecente: "não"
-                                }
-                              }
-                            }))
-                          }
+                          checked={formData.cirurgiaRecente === "não"}
+                          onChange={() => setFormData({ ...formData, cirurgiaRecente: "não" })}
                         />
                         <InputError message={errors.cirurgiaRecente} />
                       </div>
                     </div>
                     <ConditionalField
-                      isVisible={formData.healthInfo.surgeries.cirurgiaRecente === "sim"}
+                      isVisible={formData.cirurgiaRecente === "sim"}
                       label="Que cirurgia fizeste?"
                       name="localcirurgia"
-                      value={formData.healthInfo.surgeries.localcirurgia}
+                      value={formData.localcirurgia}
                       onChange={handleChange}
                       placeholder="Menciona qual é o local onde foi a intervenção circúrgica..."
                       rows={2}
@@ -1571,41 +1299,25 @@ export default function Anamnese() {
                           name="usaMedicamento"
                           value="sim"
                           label="Sim"
-                          checked={formData.medicationInfo.usaMedicamento === "sim"}
-                          onChange={() =>
-                            setFormData(prev => ({
-                              ...prev,
-                              medicationInfo: {
-                                ...prev.medicationInfo,
-                                usaMedicamento: "sim"
-                              }
-                            }))
-                          }
+                          checked={formData.usaMedicamento === "sim"}
+                          onChange={() => setFormData({ ...formData, usaMedicamento: "sim" })}
                         />
                         <RadioButton
                           name="usaMedicamento"
                           value="não"
                           label="Não"
-                          checked={formData.medicationInfo.usaMedicamento === "não"}
-                          onChange={() =>
-                            setFormData(prev => ({
-                              ...prev,
-                              medicationInfo: {
-                                ...prev.medicationInfo,
-                                usaMedicamento: "não"
-                              }
-                            }))
-                          }
+                          checked={formData.usaMedicamento === "não"}
+                          onChange={() => setFormData({ ...formData, usaMedicamento: "não" })}
                         />
                         <InputError message={errors.usaMedicamento} />
                       </div>
                     </div>
 
                     <ConditionalField
-                      isVisible={formData.medicationInfo.usaMedicamento === "sim"}
+                      isVisible={formData.usaMedicamento === "sim"}
                       label="Quais medicamentos?"
                       name="tiposmedicamentos"
-                      value={formData.medicationInfo.usaMedicamento}
+                      value={formData.tiposmedicamentos}
                       onChange={handleChange}
                       placeholder="Menciona quais os medicamentos..."
                       rows={2}
@@ -1623,41 +1335,20 @@ export default function Anamnese() {
                             name="problemaCardiaco"
                             value="sim"
                             label="Sim"
-                            checked={formData.healthInfo.conditions.problemaCardiaco === "sim"}
-                            onChange={() =>
-                              setFormData(prev => ({
-                                ...prev,
-                                healthInfo: {
-                                  ...prev.healthInfo,
-                                  conditions: {
-                                    ...prev.healthInfo.conditions,
-                                    problemaCardiaco: "sim"
-                                  }
-                                }
-                              }))
-                            }
+                            checked={formData.problemaCardiaco === "sim"}
+                            onChange={() => setFormData({ ...formData, problemaCardiaco: "sim" })}
                           />
                           <RadioButton
                             name="problemaCardiaco"
                             value="não"
                             label="Não"
-                            checked={formData.healthInfo.conditions.problemaCardiaco === "não"}
-                            onChange={() =>
-                              setFormData(prev => ({
-                                ...prev,
-                                healthInfo: {
-                                  ...prev.healthInfo,
-                                  conditions: {
-                                    ...prev.healthInfo.conditions,
-                                    problemaCardiaco: "não"
-                                  }
-                                }
-                              }))
-                            }
+                            checked={formData.problemaCardiaco === "não"}
+                            onChange={() => setFormData({ ...formData, problemaCardiaco: "não" })}
                           />
                         </div>
                         <InputError message={errors.problemaCardiaco} />
                       </div>
+
                       <div>
                         <label className="block mb-2 font-medium text-gray-700">
                           Sentes dor no peito provocada pela prática de exercício fícico?
@@ -1667,37 +1358,15 @@ export default function Anamnese() {
                             name="dorNoPeito"
                             value="sim"
                             label="Sim"
-                            checked={formData.healthInfo.conditions.dorNoPeito === "sim"}
-                            onChange={() =>
-                              setFormData(prev => ({
-                                ...prev,
-                                healthInfo: {
-                                  ...prev.healthInfo,
-                                  conditions: {
-                                    ...prev.healthInfo.conditions,
-                                    dorNoPeito: "sim"
-                                  }
-                                }
-                              }))
-                            }
+                            checked={formData.dorNoPeito === "sim"}
+                            onChange={() => setFormData({ ...formData, dorNoPeito: "sim" })}
                           />
                           <RadioButton
                             name="dorNoPeito"
                             value="não"
                             label="Não"
-                            checked={formData.healthInfo.conditions.dorNoPeito === "não"}
-                            onChange={() =>
-                              setFormData(prev => ({
-                                ...prev,
-                                healthInfo: {
-                                  ...prev.healthInfo,
-                                  conditions: {
-                                    ...prev.healthInfo.conditions,
-                                    dorNoPeito: "não"
-                                  }
-                                }
-                              }))
-                            }
+                            checked={formData.dorNoPeito === "não"}
+                            onChange={() => setFormData({ ...formData, dorNoPeito: "não" })}
                           />
                         </div>
                         <InputError message={errors.dorNoPeito} />
@@ -1712,37 +1381,15 @@ export default function Anamnese() {
                             name="perdeuConsiencia"
                             value="sim"
                             label="Sim"
-                            checked={formData.healthInfo.conditions.perdeuConsiencia === "sim"}
-                            onChange={() =>
-                              setFormData(prev => ({
-                                ...prev,
-                                healthInfo: {
-                                  ...prev.healthInfo,
-                                  conditions: {
-                                    ...prev.healthInfo.conditions,
-                                    perdeuConsiencia: "sim"
-                                  }
-                                }
-                              }))
-                            }
+                            checked={formData.perdeuConsiencia === "sim"}
+                            onChange={() => setFormData({ ...formData, perdeuConsiencia: "sim" })}
                           />
                           <RadioButton
                             name="perdeuConsiencia"
                             value="não"
                             label="Não"
-                            checked={formData.healthInfo.conditions.perdeuConsiencia === "não"}
-                            onChange={() =>
-                              setFormData(prev => ({
-                                ...prev,
-                                healthInfo: {
-                                  ...prev.healthInfo,
-                                  conditions: {
-                                    ...prev.healthInfo.conditions,
-                                    perdeuConsiencia: "não"
-                                  }
-                                }
-                              }))
-                            }
+                            checked={formData.perdeuConsiencia === "não"}
+                            onChange={() => setFormData({ ...formData, perdeuConsiencia: "não" })}
                           />
                         </div>
                         <InputError message={errors.perdeuConsiencia} />
@@ -1757,37 +1404,15 @@ export default function Anamnese() {
                             name="problemaOssos"
                             value="sim"
                             label="Sim"
-                            checked={formData.healthInfo.conditions.problemaOssos === "sim"}
-                            onChange={() =>
-                              setFormData(prev => ({
-                                ...prev,
-                                healthInfo: {
-                                  ...prev.healthInfo,
-                                  conditions: {
-                                    ...prev.healthInfo.conditions,
-                                    problemaOssos: "sim"
-                                  }
-                                }
-                              }))
-                            }
+                            checked={formData.problemaOssos === "sim"}
+                            onChange={() => setFormData({ ...formData, problemaOssos: "sim" })}
                           />
                           <RadioButton
                             name="problemaOssos"
                             value="não"
                             label="Não"
-                            checked={formData.healthInfo.conditions.problemaOssos === "não"}
-                            onChange={() =>
-                              setFormData(prev => ({
-                                ...prev,
-                                healthInfo: {
-                                  ...prev.healthInfo,
-                                  conditions: {
-                                    ...prev.healthInfo.conditions,
-                                    problemaOssos: "não"
-                                  }
-                                }
-                              }))
-                            }
+                            checked={formData.problemaOssos === "não"}
+                            onChange={() => setFormData({ ...formData, problemaOssos: "não" })}
                           />
                         </div>
                         <InputError message={errors.problemaOssos} />
@@ -1816,14 +1441,14 @@ export default function Anamnese() {
                         name="refeicoesPorDia"
                         min="0"
                         max="8"
-                        value={formData.nutritionInfo.meals.refeicoesPorDia}
+                        value={formData.refeicoesPorDia}
                         onChange={handleChange}
                         className={`w-full p-3 border ${errors.refeicoesPorDia ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                       />
                       <InputError message={errors.refeicoesPorDia} />
                     </div>
 
-                    {formData.nutritionInfo.meals.refeicoesPorDia > 0 && (
+                    {formData.refeicoesPorDia > 0 && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
@@ -1835,7 +1460,7 @@ export default function Anamnese() {
                           }`}
                       >
                         <ConditionalMealSection
-                          isVisible={formData.nutritionInfo.meals.refeicoesPorDia > 0}
+                          isVisible={formData.refeicoesPorDia > 0}
                           title="Descreve as tuas refeições"
                           error={errors.restricaoAlimentar}
                         >
@@ -1865,7 +1490,7 @@ export default function Anamnese() {
                         <PiSmiley className="absolute left-3 top-3.5 text-gray-400" size={20} />
                         <textarea
                           name="alimentosGosta"
-                          value={formData.nutritionInfo.preferences.alimentosGosta}
+                          value={formData.alimentosGosta}
                           onChange={handleChange}
                           className={`w-full p-3 border ${errors.alimentosGosta ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                           rows={2}
@@ -1881,7 +1506,7 @@ export default function Anamnese() {
                         <PiSmileySad className="absolute left-3 top-3.5 text-gray-400" size={20} />
                         <textarea
                           name="alimentosNaoGosta"
-                          value={formData.nutritionInfo.preferences.alimentosNaoGosta}
+                          value={formData.alimentosNaoGosta}
                           onChange={handleChange}
                           className={`w-full p-3 border ${errors.alimentosNaoGosta ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                           rows={2}
@@ -1898,40 +1523,25 @@ export default function Anamnese() {
                           name="restricaoAlimentar"
                           value="sim"
                           label="Sim"
-                          checked={formData.nutritionInfo.restrictions.restricaoAlimentar === "sim"}
-                          onChange={() => setFormData(prev => ({
-                            ...prev,
-                            nutritionInfo: {
-                              ...prev.nutritionInfo,
-                              restrictions: {
-                                ...prev.nutritionInfo.restrictions,
-                                restricaoAlimentar: "sim"
-                              }
-                            }
-                          }))}
+                          checked={formData.restricaoAlimentar === "sim"}
+                          onChange={() => setFormData({ ...formData, restricaoAlimentar: "sim" })}
                         />
                         <RadioButton
                           name="restricaoAlimentar"
                           value="não"
                           label="Não"
-                          checked={formData.nutritionInfo.restrictions.restricaoAlimentar === "não"}
+                          checked={formData.restricaoAlimentar === "não"}
                           onChange={() => {
-                            setFormData(prev => ({
-                              ...prev,
-                              nutritionInfo: {
-                                ...prev.nutritionInfo,
-                                restrictions: {
-                                  ...prev.nutritionInfo.restrictions,
-                                  restricaoAlimentar: "não",
-                                  restricoesAlimentares: []
-                                }
-                              }
-                            }));
+                            setFormData({
+                              ...formData,
+                              restricaoAlimentar: "não",
+                              restricoesAlimentares: []
+                            });
                           }}
                         />
                       </div>
                     </div>
-                    {formData.nutritionInfo.restrictions.restricaoAlimentar === "sim" && (
+                    {formData.restricaoAlimentar === "sim" && (
                       <div className="mt-6 space-y-4">
                         <fieldset>
                           <label className="block mb-2 font-medium text-gray-700">
@@ -1954,23 +1564,14 @@ export default function Anamnese() {
                                     id={`restricao-${restricao}`}
                                     name="restricoesAlimentares"
                                     value={restricao}
-                                    checked={formData.nutritionInfo.restrictions.restricaoAlimentar?.includes(restricao) || false}
+                                    checked={formData.restricoesAlimentares?.includes(restricao) || false}
                                     onChange={(e) => {
                                       const isChecked = e.target.checked;
                                       setFormData(prev => ({
                                         ...prev,
-                                        nutritionInfo: {
-                                          ...prev.nutritionInfo,
-                                          restrictions: {
-                                            ...prev.nutritionInfo.restrictions,
-                                            restricoesAlimentares: isChecked
-                                              ? [
-                                                ...(prev.nutritionInfo.restrictions.restricoesAlimentares || []),
-                                                restricao
-                                              ]
-                                              : (prev.nutritionInfo.restrictions.restricoesAlimentares || []).filter(r => r !== restricao)
-                                          }
-                                        }
+                                        restricoesAlimentares: isChecked
+                                          ? [...(prev.restricoesAlimentares || []), restricao]
+                                          : (prev.restricoesAlimentares || []).filter(r => r !== restricao)
                                       }));
                                     }}
                                     className="focus:ring-blue-500 cursor-pointer h-4 w-4 text-blue-600 border-gray-300 rounded transition"
@@ -2002,7 +1603,7 @@ export default function Anamnese() {
                         <MdOutlineTaskAlt className="absolute left-3 top-3.5 text-gray-400" size={20} />
                         <textarea
                           name="dificuldadesPlanoAlimentar"
-                          value={formData.nutritionInfo.habits.dificuldadesPlanoAlimentar}
+                          value={formData.dificuldadesPlanoAlimentar}
                           onChange={handleChange}
                           className={`w-full p-3 border ${errors.dificuldadesPlanoAlimentar ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                           rows={2}
@@ -2021,7 +1622,7 @@ export default function Anamnese() {
                         <input
                           type="text"
                           name="aguaConsumida"
-                          value={formData.nutritionInfo.habits.aguaConsumida}
+                          value={formData.aguaConsumida}
                           onChange={handleChange}
                           className={`w-full p-3 border ${errors.aguaConsumida ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
                         />
@@ -2038,43 +1639,25 @@ export default function Anamnese() {
                           name="usaSuplemento"
                           value="sim"
                           label="Sim"
-                          checked={formData.nutritionInfo.supplements.usaSuplemento === "sim"}
-                          onChange={() => setFormData(prev => ({
-                            ...prev,
-                            nutritionInfo: {
-                              ...prev.nutritionInfo,
-                              supplements: {
-                                ...prev.nutritionInfo.supplements,
-                                usaSuplemento: "sim"
-                              }
-                            }
-                          }))}
+                          checked={formData.usaSuplemento === "sim"}
+                          onChange={() => setFormData({ ...formData, usaSuplemento: "sim" })}
                         />
                         <RadioButton
                           name="usaSuplemento"
                           value="não"
                           label="Não"
-                          checked={formData.nutritionInfo.supplements.usaSuplemento === "não"}
-                          onChange={() => setFormData(prev => ({
-                            ...prev,
-                            nutritionInfo: {
-                              ...prev.nutritionInfo,
-                              supplements: {
-                                ...prev.nutritionInfo.supplements,
-                                usaSuplemento: "não"
-                              }
-                            }
-                          }))}
+                          checked={formData.usaSuplemento === "não"}
+                          onChange={() => setFormData({ ...formData, usaSuplemento: "não" })}
                         />
                         <InputError message={errors.usaSuplemento} />
                       </div>
                     </div>
 
                     <ConditionalField
-                      isVisible={formData.nutritionInfo.supplements.usaSuplemento === "sim"}
+                      isVisible={formData.usaSuplemento === "sim"}
                       label="Que suplemento(s)?"
                       name="qualSuplemento"
-                      value={formData.nutritionInfo.supplements.qualSuplemento}
+                      value={formData.qualSuplemento}
                       onChange={handleChange}
                       placeholder="Menciona o(s) suplemento(s) que utilizas..."
                       rows={2}
@@ -2091,36 +1674,24 @@ export default function Anamnese() {
                           name="acompanhamentoDistancia"
                           value="sim"
                           label="Sim"
-                          checked={formData.coachingInfo.acompanhamentoDistancia === "sim"}
-                          onChange={() => setFormData(prev => ({
-                            ...prev,
-                            coachingInfo: {
-                              ...prev.coachingInfo,
-                              acompanhamentoDistancia: "sim"
-                            }
-                          }))}
+                          checked={formData.acompanhamentoDistancia === "sim"}
+                          onChange={() => setFormData({ ...formData, acompanhamentoDistancia: "sim" })}
                         />
                         <RadioButton
                           name="acompanhamentoDistancia"
                           value="não"
                           label="Não"
-                          checked={formData.coachingInfo.acompanhamentoDistancia === "não"}
-                          onChange={() => setFormData(prev => ({
-                            ...prev,
-                            coachingInfo: {
-                              ...prev.coachingInfo,
-                              acompanhamentoDistancia: "não"
-                            }
-                          }))}
+                          checked={formData.acompanhamentoDistancia === "não"}
+                          onChange={() => setFormData({ ...formData, acompanhamentoDistancia: "não" })}
                         />
                         <InputError message={errors.acompanhamentoDistancia} />
                       </div>
                     </div>
                     <ConditionalField
-                      isVisible={formData.coachingInfo.acompanhamentoDistancia === "sim"}
+                      isVisible={formData.acompanhamentoDistancia === "sim"}
                       label="Qual o motivo para o acompanhamento à distância?"
                       name="motivoAcompanhamento"
-                      value={formData.coachingInfo.motivoAcompanhamento}
+                      value={formData.motivoAcompanhamento}
                       onChange={handleChange}
                       placeholder="Menciona o(s) mnotivo(s) pelo(s) qual(is) estás interessado no acompanhamento à distância..."
                       rows={2}
@@ -2154,13 +1725,7 @@ export default function Anamnese() {
                           accept="image/*"
                           name="fotoFrontal"
                           onChange={(e) =>
-                            setFormData(prev => ({
-                              ...prev,
-                              photos: {
-                                ...prev.photos,
-                                fotoFrontal: e.target.files ? Array.from(e.target.files) : []
-                              }
-                            }))
+                            setFormData({ ...formData, fotoFrontal: e.target.files ? Array.from(e.target.files) : [] })
                           }
                           className="absolute inset-0 opacity-0 cursor-pointer"
                         />
@@ -2175,13 +1740,7 @@ export default function Anamnese() {
                           accept="image/*"
                           name="fotoLateral"
                           onChange={(e) =>
-                            setFormData(prev => ({
-                              ...prev,
-                              photos: {
-                                ...prev.photos,
-                                fotoLateral: e.target.files ? Array.from(e.target.files) : []
-                              }
-                            }))
+                            setFormData({ ...formData, fotoLateral: e.target.files ? Array.from(e.target.files) : [] })
                           }
                           className="absolute inset-0 opacity-0 cursor-pointer"
                         />
@@ -2195,13 +1754,7 @@ export default function Anamnese() {
                           accept="image/*"
                           name="fotoCostas"
                           onChange={(e) =>
-                            setFormData(prev => ({
-                              ...prev,
-                              photos: {
-                                ...prev.photos,
-                                fotoCostas: e.target.files ? Array.from(e.target.files) : []
-                              }
-                            }))
+                            setFormData({ ...formData, fotoCostas: e.target.files ? Array.from(e.target.files) : [] })
                           }
                           className="absolute inset-0 opacity-0 cursor-pointer"
                         />
@@ -2239,15 +1792,15 @@ export default function Anamnese() {
                         </h3>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-6">
-                        <ReviewField label="Nome" value={formData.personalInfo.nome} />
-                        <ReviewField label="Email" value={formData.personalInfo.email} />
-                        <ReviewField label="Data de Nascimento" value={formData.personalInfo.dataNascimento} />
-                        <ReviewField label="Género" value={formData.personalInfo.genero} />
-                        <ReviewField label="Altura (cm)" value={formData.personalInfo.physicalInfo.altura} />
-                        <ReviewField label="Localidade" value={formData.personalInfo.contactInfo.localidade} />
-                        <ReviewField label="Profissão" value={formData.personalInfo.profissao} />
-                        <ReviewField label="Telemóvel" value={formData.personalInfo.contactInfo.telemovel ? `${formData.personalInfo.contactInfo.countryCode} ${formData.personalInfo.contactInfo.telemovel}` : null} />
-                        <ReviewField label="Peso em Jejum" value={formData.personalInfo.physicalInfo.pesoJejum} />
+                        <ReviewField label="Nome" value={formData.nome} />
+                        <ReviewField label="Email" value={formData.email} />
+                        <ReviewField label="Data de Nascimento" value={formData.dataNascimento} />
+                        <ReviewField label="Género" value={formData.genero} />
+                        <ReviewField label="Altura (cm)" value={formData.altura} />
+                        <ReviewField label="Localidade" value={formData.localidade} />
+                        <ReviewField label="Profissão" value={formData.profissao} />
+                        <ReviewField label="Telemóvel" value={formData.telemovel ? `${formData.countryCode} ${formData.telemovel}` : null} />
+                        <ReviewField label="Peso em Jejum" value={formData.pesoJejum} />
                       </div>
                     </div>
 
@@ -2260,8 +1813,8 @@ export default function Anamnese() {
                         </h3>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-6">
-                        <ReviewField label="Motivo do Acompanhamento" value={formData.coachingInfo.motivoAcompanhamento} />
-                        <ReviewField label="Acompanhamento à Distância" value={formData.coachingInfo.acompanhamentoDistancia} />
+                        <ReviewField label="Motivo do Acompanhamento" value={formData.motivoAcompanhamento} />
+                        <ReviewField label="Acompanhamento à Distância" value={formData.acompanhamentoDistancia} />
                       </div>
                     </div>
 
@@ -2274,30 +1827,29 @@ export default function Anamnese() {
                         </h3>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-6">
-                        <ReviewField label="Objetivo" value={formData.exerciseInfo.goals.objetivoExercicio} />
-                        <ReviewField label="Pratica exercício?" value={formData.exerciseInfo.currentActivity.praticaExercicio === "sim" ? "Sim" : "Não"} />
+                        <ReviewField label="Objetivo" value={formData.objetivoExercicio} />
+                        <ReviewField label="Pratica exercício?" value={formData.praticaExercicio === "sim" ? "Sim" : "Não"} />
 
-                        {formData.exerciseInfo.currentActivity.praticaExercicio === "sim" && (
+                        {formData.praticaExercicio === "sim" && (
                           <>
-                            <ReviewField label="Vezes por semana" value={formData.exerciseInfo.currentActivity.vezesPorSemana} />
+                            <ReviewField label="Vezes por semana" value={formData.vezesPorSemana} />
+                            <ReviewField label="Modalidade Desportiva" value={formData.modalidadeDesportiva} />
+                            <ReviewField label="Já praticou esta modalidade?" value={formData.praticouModalidade} />
                           </>
                         )}
 
-                        <ReviewField label="Modalidade Desportiva" value={formData.exerciseInfo.pastExperience.modalidadeDesportiva} />
-                        <ReviewField label="Já praticou esta modalidade?" value={formData.exerciseInfo.pastExperience.praticouModalidade} />
+                        <ReviewField label="Impedimento para exercício" value={formData.impedimentoExercicio === "sim" ? "Sim" : "Não"} />
 
-                        <ReviewField label="Impedimento para exercício" value={formData.healthInfo.limitations.impedimentoExercicio === "sim" ? "Sim" : "Não"} />
-
-                        {formData.healthInfo.limitations.impedimentoExercicio === "sim" && (
-                          <ReviewField label="Tipo de Impedimento" value={formData.healthInfo.limitations.tipoImpedimento} />
+                        {formData.impedimentoExercicio === "sim" && (
+                          <ReviewField label="Tipo de Impedimento" value={formData.tipoImpedimento} />
                         )}
 
-                        <ReviewField label="Preferência de Local de Treino" value={formData.exerciseInfo.preferences.preferenciaLocalTreino} />
-                        <ReviewField label="Material Disponível" value={formData.exerciseInfo.preferences.materialDisponivel} />
-                        <ReviewField label="Nível de Conforto a Treinar Sozinho" value={formData.exerciseInfo.preferences.nivelConfortoSozinho} />
-                        <ReviewField label="Tempo por Sessão" value={formData.exerciseInfo.preferences.tempoPorSessao} />
-                        <ReviewField label="Experiência com Treino à Distância" value={formData.exerciseInfo.pastExperience.experienciaDistancia} />
-                        <ReviewField label="Problemas com Treino à Distância" value={formData.exerciseInfo.goals.experienciaProblemas} />
+                        <ReviewField label="Preferência de Local de Treino" value={formData.preferenciaLocalTreino} />
+                        <ReviewField label="Material Disponível" value={formData.materialDisponivel} />
+                        <ReviewField label="Nível de Conforto a Treinar Sozinho" value={formData.nivelConfortoSozinho} />
+                        <ReviewField label="Tempo por Sessão" value={formData.tempoPorSessao} />
+                        <ReviewField label="Experiência com Treino à Distância" value={formData.experienciaDistancia} />
+                        <ReviewField label="Problemas com Treino à Distância" value={formData.experienciaProblemas} />
                       </div>
                     </div>
 
@@ -2310,27 +1862,35 @@ export default function Anamnese() {
                         </h3>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-6">
-                        <ReviewField label="Dores na coluna" value={formData.healthInfo.spine.temDoresColuna === "sim" ? "Sim" : "Não"} />
-                        {formData.healthInfo.spine.temDoresColuna === "sim" && (
-                          <ReviewField label="Zona da coluna" value={formData.healthInfo.spine.zonaColuna} />
+                        <ReviewField label="Dores na coluna" value={formData.temDoresColuna === "sim" ? "Sim" : "Não"} />
+
+                        {formData.temDoresColuna === "sim" && (
+                          <ReviewField label="Zona da coluna" value={formData.zonaColuna} />
                         )}
-                        <ReviewField label="Lesão" value={formData.healthInfo.injuries.temLesao === "sim" ? "Sim" : "Não"} />
-                        {formData.healthInfo.injuries.temLesao === "sim" && (
-                          <ReviewField label="Local da lesão" value={formData.healthInfo.injuries.localLesao} />
+
+                        <ReviewField label="Lesão" value={formData.temLesao === "sim" ? "Sim" : "Não"} />
+
+                        {formData.temLesao === "sim" && (
+                          <ReviewField label="Local da lesão" value={formData.localLesao} />
                         )}
-                        <ReviewField label="Cirurgia recente" value={formData.healthInfo.surgeries.cirurgiaRecente === "sim" ? "Sim" : "Não"} />
-                        {formData.healthInfo.surgeries.cirurgiaRecente === "sim" && (
-                          <ReviewField label="Local da cirurgia" value={formData.healthInfo.surgeries.localcirurgia} />
+
+                        <ReviewField label="Cirurgia recente" value={formData.cirurgiaRecente === "sim" ? "Sim" : "Não"} />
+
+                        {formData.cirurgiaRecente === "sim" && (
+                          <ReviewField label="Local da cirurgia" value={formData.localcirurgia} />
                         )}
-                        <ReviewField label="Usa medicamento" value={formData.medicationInfo.usaMedicamento === "sim" ? "Sim" : "Não"} />
-                        {formData.medicationInfo.usaMedicamento === "sim" && (
-                          <ReviewField label="Medicamentos" value={formData.medicationInfo.tiposmedicamentos} />
+
+                        <ReviewField label="Usa medicamento" value={formData.usaMedicamento === "sim" ? "Sim" : "Não"} />
+
+                        {formData.usaMedicamento === "sim" && (
+                          <ReviewField label="Medicamentos" value={formData.tiposmedicamentos} />
                         )}
-                        <ReviewField label="Problema Cardíaco" value={formData.healthInfo.conditions.problemaCardiaco} />
-                        <ReviewField label="Dor no Peito" value={formData.healthInfo.conditions.dorNoPeito} />
-                        <ReviewField label="Já perdeu consciência?" value={formData.healthInfo.conditions.perdeuConsiencia} />
-                        <ReviewField label="Problema Ósseo/Articular" value={formData.healthInfo.conditions.problemaOssos} />
-                        <ReviewField label="Medicamento para Pressão" value={formData.healthInfo.conditions.medicamentoPressao} />
+
+                        <ReviewField label="Problema Cardíaco" value={formData.problemaCardiaco} />
+                        <ReviewField label="Dor no Peito" value={formData.dorNoPeito} />
+                        <ReviewField label="Já perdeu consciência?" value={formData.perdeuConsiencia} />
+                        <ReviewField label="Problema Ósseo/Articular" value={formData.problemaOssos} />
+                        <ReviewField label="Medicamento para Pressão" value={formData.medicamentoPressao} />
                       </div>
                     </div>
 
@@ -2343,15 +1903,16 @@ export default function Anamnese() {
                         </h3>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-6">
-                        <ReviewField label="Refeições por dia" value={formData.nutritionInfo.meals.refeicoesPorDia} />
-                        <ReviewField label="Água consumida (litros)" value={formData.nutritionInfo.habits.aguaConsumida} />
-                        <ReviewField label="Alimentos preferidos" value={formData.nutritionInfo.preferences.alimentosGosta} />
-                        <ReviewField label="Alimentos que não gosta" value={formData.nutritionInfo.preferences.alimentosNaoGosta} />
-                        <ReviewField label="Restrições alimentares" value={formData.nutritionInfo.restrictions.restricaoAlimentar} specialDefault="Nenhuma" />
-                        <ReviewField label="Dificuldades com Planos Alimentares" value={formData.nutritionInfo.habits.dificuldadesPlanoAlimentar} />
-                        <ReviewField label="Usa suplemento" value={formData.nutritionInfo.supplements.usaSuplemento === "sim" ? "Sim" : "Não"} />
-                        {formData.nutritionInfo.supplements.usaSuplemento === "sim" && (
-                          <ReviewField label="Suplementos" value={formData.nutritionInfo.supplements.qualSuplemento} />
+                        <ReviewField label="Refeições por dia" value={formData.refeicoesPorDia} />
+                        <ReviewField label="Água consumida (litros)" value={formData.aguaConsumida} />
+                        <ReviewField label="Alimentos preferidos" value={formData.alimentosGosta} />
+                        <ReviewField label="Alimentos que não gosta" value={formData.alimentosNaoGosta} />
+                        <ReviewField label="Restrições alimentares" value={formData.restricaoAlimentar} specialDefault="Nenhuma" />
+                        <ReviewField label="Dificuldades com Planos Alimentares" value={formData.dificuldadesPlanoAlimentar} />
+                        <ReviewField label="Usa suplemento" value={formData.usaSuplemento === "sim" ? "Sim" : "Não"} />
+
+                        {formData.usaSuplemento === "sim" && (
+                          <ReviewField label="Suplementos" value={formData.qualSuplemento} />
                         )}
                       </div>
                     </div>
@@ -2367,9 +1928,9 @@ export default function Anamnese() {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 p-6">
                         <div>
                           <p className="text-sm font-medium text-gray-600 mb-1">Foto Frontal</p>
-                          <div className={`px-3 py-2 rounded ${formData.photos.fotoFrontal.length > 0 ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>
+                          <div className={`px-3 py-2 rounded ${formData.fotoFrontal.length > 0 ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>
                             <p className="font-medium flex items-center">
-                              {formData.photos.fotoFrontal.length > 0 ? (
+                              {formData.fotoFrontal.length > 0 ? (
                                 <><CheckCircle size={16} className="mr-2" /> Enviada</>
                               ) : (
                                 <><AlertCircle size={16} className="mr-2" /> Não enviada</>
@@ -2379,9 +1940,9 @@ export default function Anamnese() {
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-600 mb-1">Foto Lateral</p>
-                          <div className={`px-3 py-2 rounded ${formData.photos.fotoLateral.length > 0 ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>
+                          <div className={`px-3 py-2 rounded ${formData.fotoLateral.length > 0 ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>
                             <p className="font-medium flex items-center">
-                              {formData.photos.fotoLateral.length > 0 ? (
+                              {formData.fotoLateral.length > 0 ? (
                                 <><CheckCircle size={16} className="mr-2" /> Enviada</>
                               ) : (
                                 <><AlertCircle size={16} className="mr-2" /> Não enviada</>
@@ -2391,9 +1952,9 @@ export default function Anamnese() {
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-600 mb-1">Foto de Costas</p>
-                          <div className={`px-3 py-2 rounded ${formData.photos.fotoCostas.length > 0 ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>
+                          <div className={`px-3 py-2 rounded ${formData.fotoCostas.length > 0 ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>
                             <p className="font-medium flex items-center">
-                              {formData.photos.fotoCostas.length > 0 ? (
+                              {formData.fotoCostas.length > 0 ? (
                                 <><CheckCircle size={16} className="mr-2" /> Enviada</>
                               ) : (
                                 <><AlertCircle size={16} className="mr-2" /> Não enviada</>

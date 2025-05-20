@@ -1,6 +1,6 @@
 import { AnamneseFormData } from "@/types/anamnesetypes";
 
-const API_BASE_URL = "http://your-api-url.com";
+const API_BASE_URL = "http://localhost:3000";
 
 export const submitAnamnese = async (formData: AnamneseFormData) => {
   try {
@@ -30,7 +30,7 @@ export const submitAnamnese = async (formData: AnamneseFormData) => {
       }
     });
 
-    const response = await fetch(`${API_BASE_URL}/anamnese`, {
+    const response = await fetch(`${API_BASE_URL}/api/anamneses`, {
       method: "POST",
       body: formDataToSend,
       // Don't set Content-Type header - let the browser set it with the boundary
