@@ -295,12 +295,7 @@ export const FormYupValidationSchema = yup.object().shape({
         .required('Por favor, indique a duração preferida do treino (em minutos)')
         .min(15, 'A duração mínima por sessão é de 15 minutos')
         .max(240, 'A duração máxima por sessão é de 240 minutos (4 horas)')
-        .integer('A duração deve ser em minutos inteiros (sem decimais)')
-        .test(
-            'common-durations',
-            'Durações comuns: 30, 45, 60, 90 minutos. Confirme seu valor.',
-            value => [15, 20, 30, 45, 60, 90, 120, 180, 240].includes(value)
-        ),
+        .integer('A duração deve ser em minutos inteiros (sem decimais)'),
 
     praticaExercicio: yup
         .string()
