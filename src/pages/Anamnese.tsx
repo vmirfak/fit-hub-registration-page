@@ -35,6 +35,8 @@ import { ConditionalField } from "@/components/ui/ConditionalField";
 import { InputError } from "@/components/InputError";
 import { debounce } from 'lodash';
 import { ConditionalMealSection } from "@/components/ui/ConditionalMealSection";
+import { PiHamburger, PiSmiley, PiSmileySad } from "react-icons/pi";
+import { MdOutlineTaskAlt, MdOutlineWaterDrop } from "react-icons/md"
 
 const FormLandingPage = ({ onStartForm }: { onStartForm: () => void }) => {
 
@@ -342,7 +344,7 @@ export default function Anamnese() {
     0: ['nome', 'email', 'localidade', 'countryCode', 'telemovel', 'profissao', 'pesoJejum', 'altura', 'genero', 'dataNascimento'],
     1: ['preferenciaLocalTreino', 'materialDisponivel', 'impedimentoExercicio', 'tipoImpedimento', 'objetivoExercicio', 'praticouModalidade', 'modalidadeDesportiva', 'praticaExercicio', 'vezesPorSemana', 'tempoPorSessao', 'experienciaDistancia', 'experienciaProblemas', 'nivelConfortoSozinho'],
     2: ['temDoresColuna', 'zonaColuna', 'temLesao', 'localLesao', 'cirurgiaRecente', 'localcirurgia', 'usaMedicamento', 'tiposmedicamentos', 'problemaCardiaco', 'dorNoPeito', 'perdeuConsiencia', 'problemaOssos'],
-    3: ['refeicoesPorDia', 'alimentosGosta', 'restricaoAlimentar', 'restricoesAlimentares', 'dificuldadesPlanoAlimentar', 'aguaConsumida', 'usaSuplemento', 'qualSuplemento', 'acompanhamentoDistancia', 'motivoAcompanhamento'],
+    3: ['refeicoesPorDia', 'alimentosGosta', 'alimentosNaoGosta', 'restricaoAlimentar', 'restricoesAlimentares', 'dificuldadesPlanoAlimentar', 'aguaConsumida', 'usaSuplemento', 'qualSuplemento', 'acompanhamentoDistancia', 'motivoAcompanhamento'],
     4: ['fotoFrontal', 'fotoLateral', 'fotoCostas']
   };
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
@@ -384,6 +386,10 @@ export default function Anamnese() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep, touchedFields]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const debouncedValidate = debounce(validateCurrentStep, 500);
@@ -1432,10 +1438,11 @@ export default function Anamnese() {
                   </h2>
 
                   <div className="space-y-6">
-                    <div>
+                    <div className="relative">
                       <label className="block mb-2 font-medium text-gray-700">
                         Quantas refeições faz por dia?
                       </label>
+                      <PiHamburger className="absolute left-3 top-12 text-gray-400" size={18} />
                       <input
                         type="number"
                         name="refeicoesPorDia"
@@ -1486,26 +1493,32 @@ export default function Anamnese() {
                       <label className="block mb-2 font-medium text-gray-700">
                         Que alimentos mais gostas?
                       </label>
-                      <textarea
-                        name="alimentosGosta"
-                        value={formData.alimentosGosta}
-                        onChange={handleChange}
-                        className={`w-full p-3 border ${errors.alimentosGosta ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                        rows={2}
-                      />
+                      <div className="relative">
+                        <PiSmiley className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                        <textarea
+                          name="alimentosGosta"
+                          value={formData.alimentosGosta}
+                          onChange={handleChange}
+                          className={`w-full p-3 border ${errors.alimentosGosta ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
+                          rows={2}
+                        />
+                      </div>
                       <InputError message={errors.alimentosGosta} />
                     </div>
                     <div>
                       <label className="block mb-2 font-medium text-gray-700">
                         Que alimentos menos gostas?
                       </label>
-                      <textarea
-                        name="alimentosNaoGosta"
-                        value={formData.alimentosNaoGosta}
-                        onChange={handleChange}
-                        className={`w-full p-3 border ${errors.alimentosNaoGosta ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                        rows={2}
-                      />
+                      <div className="relative">
+                        <PiSmileySad className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                        <textarea
+                          name="alimentosNaoGosta"
+                          value={formData.alimentosNaoGosta}
+                          onChange={handleChange}
+                          className={`w-full p-3 border ${errors.alimentosNaoGosta ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
+                          rows={2}
+                        />
+                      </div>
                       <InputError message={errors.alimentosNaoGosta} />
                     </div>
                     <div>
@@ -1593,13 +1606,17 @@ export default function Anamnese() {
                       <label className="block mb-2 font-medium text-gray-700">
                         Descreve as dificuldades para para seguir um plano alimentar
                       </label>
-                      <textarea
-                        name="dificuldadesPlanoAlimentar"
-                        value={formData.dificuldadesPlanoAlimentar}
-                        onChange={handleChange}
-                        className={`w-full p-3 border ${errors.dificuldadesPlanoAlimentar ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                        rows={2}
-                      />
+                      <div className="relative">
+                        <MdOutlineTaskAlt className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                        <textarea
+                          name="dificuldadesPlanoAlimentar"
+                          value={formData.dificuldadesPlanoAlimentar}
+                          onChange={handleChange}
+                          className={`w-full p-3 border ${errors.dificuldadesPlanoAlimentar ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
+                          rows={2}
+                        />
+                      </div>
+
                       {errors.dificuldadesPlanoAlimentar && <p className="mt-1 text-sm text-red-600">{errors.dificuldadesPlanoAlimentar}</p>}
                     </div>
 
@@ -1607,13 +1624,16 @@ export default function Anamnese() {
                       <label className="block mb-2 font-medium text-gray-700">
                         Quantidade de água consumida por dia (litros)
                       </label>
-                      <input
-                        type="text"
-                        name="aguaConsumida"
-                        value={formData.aguaConsumida}
-                        onChange={handleChange}
-                        className={`w-full p-3 border ${errors.aguaConsumida ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
-                      />
+                      <div className="relative">
+                        <MdOutlineWaterDrop className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                        <input
+                          type="text"
+                          name="aguaConsumida"
+                          value={formData.aguaConsumida}
+                          onChange={handleChange}
+                          className={`w-full p-3 border ${errors.aguaConsumida ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10`}
+                        />
+                      </div>
                       <InputError message={errors.aguaConsumida} />
                     </div>
 
