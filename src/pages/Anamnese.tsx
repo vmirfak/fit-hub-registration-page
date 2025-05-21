@@ -823,7 +823,7 @@ export default function Anamnese() {
                       value={formData.localidade}
                       onChange={handleChange}
                       label="Localidade"
-                      error={errors.Localidade}
+                      error={errors.localidade}
                       required
                       icon={Home}
                     />
