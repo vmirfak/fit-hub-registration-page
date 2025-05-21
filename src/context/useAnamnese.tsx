@@ -45,7 +45,7 @@ export const AnamneseProvider = ({ children }: { children: ReactNode }) => {
 
     // Submit form with enhanced error handling
     const submitForm = useCallback(async (formData: AnamneseFormData) => {
-        console.log('Anamnese submission started', {
+        console.log('Submissão da anamnese iniciada', {
             timestamp: new Date().toISOString(),
         });
 
@@ -58,12 +58,12 @@ export const AnamneseProvider = ({ children }: { children: ReactNode }) => {
         const startTime = performance.now();
 
         try {
-            console.log('Calling submitAnamnese API');
+            console.log('A chamar a API submitAnamnese');
 
             await submitAnamnese(formData);
 
             const responseTime = performance.now() - startTime;
-            console.log(`Anamnese submission successful`, {
+            console.log(`Submissão da anamnese concluída com sucesso`, {
                 timestamp: new Date().toISOString(),
                 responseTimeMs: responseTime.toFixed(2),
             });
@@ -71,17 +71,17 @@ export const AnamneseProvider = ({ children }: { children: ReactNode }) => {
             setIsSuccess(true);
             setSubmissionStatus('success');
 
-            // ✅ Show success toast
-            showSuccessToast("Anamnese submitted successfully!");
+            // ✅ Mostrar notificação de sucesso
+            showSuccessToast("Anamnese submetida com sucesso!");
         } catch (err) {
             const responseTime = performance.now() - startTime;
 
-            let errorCode = 'UNKNOWN_ERROR';
-            let errorMessage = 'An unknown error occurred during submission';
+            let errorCode = 'ERRO_DESCONHECIDO';
+            let errorMessage = 'Ocorreu um erro desconhecido durante a submissão';
             let errorDetails = {};
 
             if (err instanceof Error) {
-                errorCode = err.name === 'TypeError' ? 'NETWORK_ERROR' : 'SUBMISSION_ERROR';
+                errorCode = err.name === 'TypeError' ? 'ERRO_DE_REDE' : 'ERRO_DE_SUBMISSÃO';
                 errorMessage = err.message;
                 errorDetails = {
                     name: err.name,
@@ -94,14 +94,14 @@ export const AnamneseProvider = ({ children }: { children: ReactNode }) => {
                     details: err,
                 });
             } else if (typeof err === 'string') {
-                errorCode = 'STRING_ERROR';
+                errorCode = 'ERRO_DE_TEXTO';
                 errorMessage = err;
                 setError({ message: err });
             } else {
                 setError({ message: errorMessage });
             }
 
-            console.error('Anamnese submission failed', {
+            console.error('Falha na submissão da anamnese', {
                 timestamp: new Date().toISOString(),
                 responseTimeMs: responseTime.toFixed(2),
                 errorCode,
@@ -111,11 +111,11 @@ export const AnamneseProvider = ({ children }: { children: ReactNode }) => {
 
             setSubmissionStatus('error');
 
-            // ❌ Show error toast
+            // ❌ Mostrar notificação de erro
             showErrorToast(errorMessage);
         } finally {
             setIsLoading(false);
-            console.log('Anamnese submission process completed');
+            console.log('Processo de submissão da anamnese concluído');
         }
     }, []);
 

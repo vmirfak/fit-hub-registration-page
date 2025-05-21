@@ -216,19 +216,12 @@ export const FormYupValidationSchema = yup.object().shape({
 
     objetivoExercicio: yup
         .string()
-        .transform(normalizeSpaces)
-        .min(5, 'Por favor, fornece um objetivo mais detalhado (mínimo 5 caracteres)')
-        .max(500, 'O objetivo não pode ultrapassar 500 caracteres')
-        .required('Por favor, descreve qual é o teu objetivo com o exercício físico')
-        .test(
-            'meaningful-objective',
-            'Por favor, fornece um objetivo mais específico (mínimo 3 palavras)',
-            value => {
-                if (!value) return false;
-                const wordCount = value.trim().split(/\s+/).length;
-                return wordCount >= 3;
-            }
+        .required('Por favor, escolhe um objetivo com o exercício físico')
+        .oneOf(
+            ['Alta Performance', 'Perda de peso', 'Estética', 'Saúde / Qualidade de vida', 'Aumento de massa muscular', 'Condicionamento Físico'],
+            'Objetivo inválido'
         ),
+
 
     praticouModalidade: yup
         .string()

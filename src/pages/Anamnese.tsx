@@ -45,6 +45,7 @@ import { MdFemale, MdMale } from "react-icons/md";
 import { GiStopwatch } from "react-icons/gi";
 import { GiGymBag } from "react-icons/gi";
 import { RadioGroup } from "@/components/RadioGroup";
+import SuccessMessage from "@/components/SucessComponent";
 
 const FormLandingPage = ({ onStartForm }: { onStartForm: () => void }) => {
 
@@ -674,7 +675,7 @@ export default function Anamnese() {
             name={mealKey}
             value={formData[mealKey] as string}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
             rows={2}
           />
         </div>
@@ -728,22 +729,9 @@ export default function Anamnese() {
 
   if (isSuccess) {
     return (
-      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md text-center">
-        <div className="mb-6">
-          <svg className="w-16 h-16 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-        </div>
-        <h2 className="text-2xl font-bold mb-4">Formulário enviado com sucesso!</h2>
-        <p className="mb-6">Obrigado por preencher o formulário. Entraremos em contato em breve.</p>
-        <button
-          onClick={resetForm}
-          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-        >
-          Preencher outro formulário
-        </button>
-      </div>
+      <SuccessMessage resetForm={resetForm} />
     );
+    
   }
 
   if (!hasStarted) {
@@ -1533,15 +1521,18 @@ export default function Anamnese() {
               {/* Step 6: Review */}
               {currentStep === 5 && (
                 <div className="p-6 max-w-4xl mx-auto">
-                  <h2 className="text-2xl font-bold mb-6 flex items-center text-blue-700 border-b pb-3">
-                    <Clipboard className="mr-3 text-blue-600" />
+                  <h2 className="text-2xl font-bold mb-6 flex items-center text-zinc-900 border-b pb-3">
+                    <Clipboard className="mr-3 text-zinc-900" />
                     Revisão Final
                   </h2>
 
                   <div className="bg-blue-50 rounded-lg p-4 mb-8 border border-blue-200 shadow-sm">
                     <div className="flex items-center">
-                      <CheckCircle className="text-blue-600 mr-3 flex-shrink-0" size={24} />
-                      <p className="text-blue-800 font-medium">Por favor, verifica todas as informações antes de submeter o formulário</p>
+                      <CheckCircle className="text-green-600 mr-3 flex-shrink-0" size={24} />
+                      <p className="text-zinc-900 font-medium">
+                        Antes de submeter o formulário, por favor, revê cuidadosamente todas as informações preenchidas para garantir que estão corretas e completas.
+                      </p>
+
                     </div>
                   </div>
 
@@ -1563,7 +1554,7 @@ export default function Anamnese() {
                         <ReviewField label="Localidade" value={formData.localidade} />
                         <ReviewField label="Profissão" value={formData.profissao} />
                         <ReviewField label="Telemóvel" value={formData.telemovel ? `${formData.countryCode} ${formData.telemovel}` : null} />
-                        <ReviewField label="Peso em Jejum" value={formData.pesoJejum} />
+                        <ReviewField label="Peso em jejum (em Kg)" value={formData.pesoJejum} />
                       </div>
                     </div>
 
@@ -1576,8 +1567,8 @@ export default function Anamnese() {
                         </h3>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-6">
+                        <ReviewField label="Pretende ser acompanhado à distância?" value={formData.acompanhamentoDistancia} />
                         <ReviewField label="Motivo do Acompanhamento" value={formData.motivoAcompanhamento} />
-                        <ReviewField label="Acompanhamento à Distância" value={formData.acompanhamentoDistancia} />
                       </div>
                     </div>
 
@@ -1590,29 +1581,30 @@ export default function Anamnese() {
                         </h3>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-6">
-                        <ReviewField label="Objetivo" value={formData.objetivoExercicio} />
+                        <ReviewField label="Qual o objetivo do plano?" value={formData.objetivoExercicio} />
                         <ReviewField label="Pratica exercício?" value={formData.praticaExercicio === "sim" ? "Sim" : "Não"} />
 
                         {formData.praticaExercicio === "sim" && (
                           <>
-                            <ReviewField label="Vezes por semana" value={formData.vezesPorSemana} />
-                            <ReviewField label="Modalidade Desportiva" value={formData.modalidadeDesportiva} />
-                            <ReviewField label="Já praticou esta modalidade?" value={formData.praticouModalidade} />
+                            <ReviewField label="Quantas vezes por semana?" value={formData.vezesPorSemana} />
+                            <ReviewField label="Já praticou alguma modalidade desportiva?" value={formData.praticouModalidade} />
+                            <ReviewField label="Que modalidade(s) desportiva(s) praticou?" value={formData.modalidadeDesportiva} />
+
                           </>
                         )}
 
-                        <ReviewField label="Impedimento para exercício" value={formData.impedimentoExercicio === "sim" ? "Sim" : "Não"} />
+                        <ReviewField label="Possui algum impedimento para praticar exercício?" value={formData.impedimentoExercicio === "sim" ? "Sim" : "Não"} />
 
                         {formData.impedimentoExercicio === "sim" && (
-                          <ReviewField label="Tipo de Impedimento" value={formData.tipoImpedimento} />
+                          <ReviewField label="Qual é o impedimento?" value={formData.tipoImpedimento} />
                         )}
 
-                        <ReviewField label="Preferência de Local de Treino" value={formData.preferenciaLocalTreino} />
-                        <ReviewField label="Material Disponível" value={formData.materialDisponivel} />
-                        <ReviewField label="Nível de Conforto a Treinar Sozinho" value={formData.nivelConfortoSozinho} />
-                        <ReviewField label="Tempo por Sessão" value={formData.tempoPorSessao} />
-                        <ReviewField label="Experiência com Treino à Distância" value={formData.experienciaDistancia} />
-                        <ReviewField label="Problemas com Treino à Distância" value={formData.experienciaProblemas} />
+                        <ReviewField label="Qual a preferência de local de treino?" value={formData.preferenciaLocalTreino} />
+                        <ReviewField label="Qual o material disponível para praticar em casa?" value={formData.materialDisponivel} />
+                        <ReviewField label="Qual o nível de conforto a treinar sozinho(a)?" value={formData.nivelConfortoSozinho} />
+                        <ReviewField label="Qual o tempo disponível por sessão para treinar?" value={formData.tempoPorSessao} />
+                        <ReviewField label="Tem experiência com acompanhamento à distância?" value={formData.experienciaDistancia} />
+                        <ReviewField label="O que falhou no acompanhamento à distência? " value={formData.experienciaProblemas} />
                       </div>
                     </div>
 
@@ -1625,35 +1617,34 @@ export default function Anamnese() {
                         </h3>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-6">
-                        <ReviewField label="Dores na coluna" value={formData.temDoresColuna === "sim" ? "Sim" : "Não"} />
+                        <ReviewField label="Tem dores na coluna?" value={formData.temDoresColuna === "sim" ? "Sim" : "Não"} />
 
                         {formData.temDoresColuna === "sim" && (
-                          <ReviewField label="Zona da coluna" value={formData.zonaColuna} />
+                          <ReviewField label="Em que zona da coluna?" value={formData.zonaColuna} />
                         )}
 
-                        <ReviewField label="Lesão" value={formData.temLesao === "sim" ? "Sim" : "Não"} />
+                        <ReviewField label="Tem alguma lesão?" value={formData.temLesao === "sim" ? "Sim" : "Não"} />
 
                         {formData.temLesao === "sim" && (
-                          <ReviewField label="Local da lesão" value={formData.localLesao} />
+                          <ReviewField label="Em que local é a lesão?" value={formData.localLesao} />
                         )}
 
-                        <ReviewField label="Cirurgia recente" value={formData.cirurgiaRecente === "sim" ? "Sim" : "Não"} />
+                        <ReviewField label="Já fez alguma cirurgia?" value={formData.cirurgiaRecente === "sim" ? "Sim" : "Não"} />
 
                         {formData.cirurgiaRecente === "sim" && (
-                          <ReviewField label="Local da cirurgia" value={formData.localcirurgia} />
+                          <ReviewField label="Em que local foi a cirurgia?" value={formData.localcirurgia} />
                         )}
 
-                        <ReviewField label="Usa medicamento" value={formData.usaMedicamento === "sim" ? "Sim" : "Não"} />
+                        <ReviewField label="Usa algum medicamento?" value={formData.usaMedicamento === "sim" ? "Sim" : "Não"} />
 
                         {formData.usaMedicamento === "sim" && (
-                          <ReviewField label="Medicamentos" value={formData.tiposmedicamentos} />
+                          <ReviewField label="Quais medicamentos?" value={formData.tiposmedicamentos} />
                         )}
 
-                        <ReviewField label="Problema Cardíaco" value={formData.problemaCardiaco} />
-                        <ReviewField label="Dor no Peito" value={formData.dorNoPeito} />
+                        <ReviewField label="Possui problemas cardíacos?" value={formData.problemaCardiaco} />
+                        <ReviewField label="Tem dor(es) no peito?" value={formData.dorNoPeito} />
                         <ReviewField label="Já perdeu consciência?" value={formData.perdeuConsiencia} />
-                        <ReviewField label="Problema Ósseo/Articular" value={formData.problemaOssos} />
-                        <ReviewField label="Medicamento para Pressão" value={formData.medicamentoPressao} />
+                        <ReviewField label="Tem algum problema ósseo e/ou articular?" value={formData.problemaOssos} />
                       </div>
                     </div>
 
@@ -1666,16 +1657,19 @@ export default function Anamnese() {
                         </h3>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-6">
-                        <ReviewField label="Refeições por dia" value={formData.refeicoesPorDia} />
-                        <ReviewField label="Água consumida (litros)" value={formData.aguaConsumida} />
-                        <ReviewField label="Alimentos preferidos" value={formData.alimentosGosta} />
-                        <ReviewField label="Alimentos que não gosta" value={formData.alimentosNaoGosta} />
-                        <ReviewField label="Restrições alimentares" value={formData.restricaoAlimentar} specialDefault="Nenhuma" />
-                        <ReviewField label="Dificuldades com Planos Alimentares" value={formData.dificuldadesPlanoAlimentar} />
-                        <ReviewField label="Usa suplemento" value={formData.usaSuplemento === "sim" ? "Sim" : "Não"} />
+                        <ReviewField label="Quantas refeições faz por dia?" value={formData.refeicoesPorDia} />
+                        <ReviewField label="Quantidade de água consumida por dia? (litros)" value={formData.aguaConsumida} />
+                        <ReviewField label="Quais os alimentos preferidos?" value={formData.alimentosGosta} />
+                        <ReviewField label="Que alimentos não gosta?" value={formData.alimentosNaoGosta} />
+                        <ReviewField label="Possui restrições alimentares?" value={formData.restricaoAlimentar} specialDefault="Nenhuma" />
+                        {formData.restricaoAlimentar === "sim" && (
+                          <ReviewField label="Quais restrições?" value={Array.isArray(formData.restricoesAlimentares) ? formData.restricoesAlimentares.join(', ') : formData.restricoesAlimentares} specialDefault="Nenhuma" />
+                        )}
+                        <ReviewField label="Que dificuldades tem com planos alimentares?" value={formData.dificuldadesPlanoAlimentar} />
+                        <ReviewField label="Usa algum suplemento?" value={formData.usaSuplemento === "sim" ? "Sim" : "Não"} />
 
                         {formData.usaSuplemento === "sim" && (
-                          <ReviewField label="Suplementos" value={formData.qualSuplemento} />
+                          <ReviewField label="Que suplementos utiliza?" value={formData.qualSuplemento} />
                         )}
                       </div>
                     </div>
