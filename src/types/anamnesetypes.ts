@@ -16,7 +16,7 @@ export type AnamneseFormData = {
   tempoPorSessao: string;
   preferenciaLocalTreino: string;
   experienciaProblemas: string;
-  materialDisponivel: string;
+  materialDisponivel: string[];
   nivelConfortoSozinho: string;
   objetivoExercicio: string;
   praticaExercicio: string;

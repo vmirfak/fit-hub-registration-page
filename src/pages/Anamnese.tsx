@@ -24,7 +24,7 @@ import {
   Weight,
   AlertCircle,
   Apple,
-  ChartArea
+  ChartArea,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import * as yup from 'yup';
@@ -308,7 +308,7 @@ export default function Anamnese() {
     experienciaProblemas: "",
     tempoPorSessao: "",
     preferenciaLocalTreino: "",
-    materialDisponivel: "",
+    materialDisponivel: [],
     nivelConfortoSozinho: "",
     temDoresColuna: "",
     zonaColuna: "",
@@ -574,7 +574,7 @@ export default function Anamnese() {
       tempoPorSessao: "",
       modalidadeDesportiva: "",
       preferenciaLocalTreino: "",
-      materialDisponivel: "",
+      materialDisponivel: [],
       nivelConfortoSozinho: "",
       experienciaProblemas: "",
       alimentosPrimeiraRefeicao: "",
@@ -731,7 +731,7 @@ export default function Anamnese() {
     return (
       <SuccessMessage resetForm={resetForm} />
     );
-    
+
   }
 
   if (!hasStarted) {
@@ -994,18 +994,116 @@ export default function Anamnese() {
                       required
                     />
                   </div>
+                  {formData.preferenciaLocalTreino === "casa" && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      className="mt-6 overflow-hidden mb-5"
+                    >
+                      <motion.fieldset
+                        initial={{ y: -10 }}
+                        animate={{ y: 0 }}
+                        transition={{ delay: 0.1 }}
+                      >
+                        <legend className="block mb-3 text-lg font-semibold text-gray-800">
+                          Material recomendado para treinar em casa
+                        </legend>
 
-                  <ConditionalField
-                    isVisible={formData.preferenciaLocalTreino === "casa"}
-                    label="Que material tens disponível?"
-                    name="materialDisponivel"
-                    value={formData.materialDisponivel}
-                    onChange={handleChange}
-                    placeholder="Menciona o manterial que tens dísponível em casa..."
-                    rows={2}
-                    fieldType="textarea"
-                    error={errors.materialDisponivel}
-                  />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                          {[
+                            "Colchão de ginástica",
+                            "Tapete de yoga",
+                            "Halteres",
+                            "Elásticos de resistência",
+                            "Corda de saltar",
+                            "Bola de ginástica",
+                            "Rolo de massagem"
+                          ].map((material, index) => (
+                            <motion.div
+                              key={material}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.1 + index * 0.05 }}
+                              className="relative"
+                            >
+                              <label className="flex items-center p-3 space-x-3 bg-white border border-gray-200 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 ease-in-out">
+                                <input
+                                  type="checkbox"
+                                  id={`material-${material}`}
+                                  name="materiaisCasa"
+                                  value={material}
+                                  checked={formData.materialDisponivel.includes(material)}
+                                  onChange={(e) => {
+                                    const isChecked = e.target.checked;
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      materialDisponivel: isChecked
+                                        ? [...prev.materialDisponivel, material]
+                                        : prev.materialDisponivel.filter((m: string) => m !== material)
+                                    }));
+                                  }}
+                                  className="hidden"
+                                />
+                                <div className={`flex items-center justify-center w-5 h-5 border-2 rounded ${formData.materialDisponivel.includes(material) ? 'border-blue-500 bg-blue-500' : 'border-gray-300'} transition-colors`}>
+                                  {formData.materialDisponivel.includes(material) && (
+                                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  )}
+                                </div>
+                                <span className={`font-medium ${formData.materialDisponivel.includes(material) ? 'text-blue-600' : 'text-gray-700'}`}>
+                                  {material}
+                                </span>
+                              </label>
+                            </motion.div>
+                          ))}
+                        </div>
+
+                        {formData.materialDisponivel.length > 0 && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.3 }}
+                            className="mt-4 flex flex-wrap gap-2"
+                          >
+                            {formData.materialDisponivel.map((material: string) => (
+                              <motion.span
+                                key={material}
+                                layout
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                onClick={() => {
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      materialDisponivel: prev.materialDisponivel.filter((m: string) => m !== material)
+                                    }));
+                                  }}
+                                exit={{ scale: 0.8, opacity: 0 }}
+                                className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 cursor-pointer hover:bg-green-200 animate-all duration-200"
+                              >
+                                {material}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      materialDisponivel: prev.materialDisponivel.filter((m: string) => m !== material)
+                                    }));
+                                  }}
+                                  className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-green-200 transition-colors cursor-pointer"
+                                >
+                                  <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                  </svg>
+                                </button>
+                              </motion.span>
+                            ))}
+                          </motion.div>
+                        )}
+                      </motion.fieldset>
+                    </motion.div>
+                  )}
 
                   {/* De 0 a 10 quão à vontade te sentes em treinar sozinho */}
                   <div className="mb-6">
@@ -1330,11 +1428,23 @@ export default function Anamnese() {
                       required
                     />
                     {formData.restricaoAlimentar === "sim" && (
-                      <div className="mt-6 space-y-4">
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                        className="mt-6 space-y-4 overflow-hidden"
+                      >
                         <fieldset>
-                          <label className="block mb-2 font-medium text-gray-700">
+                          <motion.legend
+                            initial={{ x: -10 }}
+                            animate={{ x: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="block mb-4 text-lg font-semibold text-gray-800"
+                          >
                             Quais restrições alimentares?
-                          </label>
+                            <span className="ml-2 text-sm font-normal text-gray-500">(Selecione todas que se aplicam)</span>
+                          </motion.legend>
+
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {[
                               "Vegetariano",
@@ -1343,10 +1453,17 @@ export default function Anamnese() {
                               "Sem lactose",
                               "Diabético",
                               "Halal",
-                              "Kosher"
-                            ].map((restricao) => (
-                              <div key={restricao} className="relative flex items-start">
-                                <div className="flex items-center h-5">
+                              "Kosher",
+                              "Outros"
+                            ].map((restricao, index) => (
+                              <motion.div
+                                key={restricao}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.1 + index * 0.05 }}
+                                className="relative"
+                              >
+                                <label className="flex items-center p-3 space-x-3 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 ease-in-out hover:shadow-md">
                                   <input
                                     type="checkbox"
                                     id={`restricao-${restricao}`}
@@ -1362,26 +1479,75 @@ export default function Anamnese() {
                                           : (prev.restricoesAlimentares || []).filter(r => r !== restricao)
                                       }));
                                     }}
-                                    className="focus:ring-blue-500 cursor-pointer h-4 w-4 text-blue-600 border-gray-300 rounded transition"
-                                    aria-describedby={`restricao-${restricao}-description`}
+                                    className="hidden"
                                   />
-                                </div>
-                                <div className="ml-3 text-sm">
-                                  <label htmlFor={`restricao-${restricao}`} className="font-medium text-gray-700 hover:text-gray-900 cursor-pointer">
+                                  <div className={`flex items-center justify-center w-5 h-5 border-2 rounded ${formData.restricoesAlimentares?.includes(restricao) ? 'border-blue-500 bg-blue-500' : 'border-gray-300'} transition-colors`}>
+                                    {formData.restricoesAlimentares?.includes(restricao) && (
+                                      <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                      </svg>
+                                    )}
+                                  </div>
+                                  <span className={`font-medium ${formData.restricoesAlimentares?.includes(restricao) ? 'text-blue-600' : 'text-gray-700'}`}>
                                     {restricao}
-                                  </label>
-                                  {restricao === "Outros" && (
-                                    <p id={`restricao-${restricao}-description`} className="text-gray-500 mt-1">
-                                      Especifique abaixo
-                                    </p>
+                                  </span>
+                                  {restricao === "Outros" && formData.restricoesAlimentares?.includes("Outros") && (
+                                    <motion.div
+                                      initial={{ opacity: 0, height: 0 }}
+                                      animate={{ opacity: 1, height: 'auto' }}
+                                      className="mt-2 w-full"
+                                    >
+                                      <input
+                                        type="text"
+                                        placeholder="Por favor, especifique"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                      />
+                                    </motion.div>
                                   )}
-                                </div>
-                              </div>
+                                </label>
+                              </motion.div>
                             ))}
                           </div>
+
+                          {formData.restricoesAlimentares?.length > 0 && (
+                            <motion.div
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.3 }}
+                              className="mt-4 flex flex-wrap gap-2"
+                            >
+                              {formData.restricoesAlimentares.map(restricao => (
+                                <motion.span
+                                  key={restricao}
+                                  layout
+                                  initial={{ scale: 0.8, opacity: 0 }}
+                                  animate={{ scale: 1, opacity: 1 }}
+                                  exit={{ scale: 0.8, opacity: 0 }}
+                                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                                >
+                                  {restricao}
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setFormData(prev => ({
+                                        ...prev,
+                                        restricoesAlimentares: (prev.restricoesAlimentares || []).filter(r => r !== restricao)
+                                      }));
+                                    }}
+                                    className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-blue-200 transition-colors"
+                                  >
+                                    <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                    </svg>
+                                  </button>
+                                </motion.span>
+                              ))}
+                            </motion.div>
+                          )}
+
                           <InputError message={errors.restricoesAlimentares} />
                         </fieldset>
-                      </div>
+                      </motion.div>
                     )}
                     <InputField
                       type="text"
@@ -1600,7 +1766,7 @@ export default function Anamnese() {
                         )}
 
                         <ReviewField label="Qual a preferência de local de treino?" value={formData.preferenciaLocalTreino} />
-                        <ReviewField label="Qual o material disponível para praticar em casa?" value={formData.materialDisponivel} />
+                        <ReviewField label="Qual o material disponível para praticar em casa?" value={Array.isArray(formData.materialDisponivel) ? formData.materialDisponivel.join(', ') : formData.materialDisponivel} />
                         <ReviewField label="Qual o nível de conforto a treinar sozinho(a)?" value={formData.nivelConfortoSozinho} />
                         <ReviewField label="Qual o tempo disponível por sessão para treinar?" value={formData.tempoPorSessao} />
                         <ReviewField label="Tem experiência com acompanhamento à distância?" value={formData.experienciaDistancia} />
