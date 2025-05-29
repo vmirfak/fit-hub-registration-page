@@ -999,18 +999,19 @@ export default function Anamnese() {
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       transition={{ duration: 0.3, ease: "easeOut" }}
-                      className="mt-6 overflow-hidden mb-5"
+                      className="mt-6 space-y-4 overflow-hidden mb-5"
                     >
-                      <motion.fieldset
-                        initial={{ y: -10 }}
-                        animate={{ y: 0 }}
-                        transition={{ delay: 0.1 }}
-                      >
-                        <legend className="block mb-3 text-lg font-semibold text-gray-800">
+                      <fieldset>
+                        <motion.legend
+                          initial={{ x: -10 }}
+                          animate={{ x: 0 }}
+                          transition={{ delay: 0.1 }}
+                          className="block mb-4 text-lg font-semibold text-gray-800"
+                        >
                           Material recomendado para treinar em casa
-                        </legend>
+                        </motion.legend>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           {[
                             "Colchão de ginástica",
                             "Tapete de yoga",
@@ -1027,11 +1028,11 @@ export default function Anamnese() {
                               transition={{ delay: 0.1 + index * 0.05 }}
                               className="relative"
                             >
-                              <label className="flex items-center p-3 space-x-3 bg-white border border-gray-200 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 ease-in-out">
+                              <label className="flex items-center p-3 space-x-3 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 ease-in-out hover:shadow-md">
                                 <input
                                   type="checkbox"
                                   id={`material-${material}`}
-                                  name="materiaisCasa"
+                                  name="materialDisponivel"
                                   value={material}
                                   checked={formData.materialDisponivel.includes(material)}
                                   onChange={(e) => {
@@ -1073,35 +1074,46 @@ export default function Anamnese() {
                                 layout
                                 initial={{ scale: 0.8, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
-                                onClick={() => {
-                                    setFormData(prev => ({
-                                      ...prev,
-                                      materialDisponivel: prev.materialDisponivel.filter((m: string) => m !== material)
-                                    }));
-                                  }}
                                 exit={{ scale: 0.8, opacity: 0 }}
-                                className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 cursor-pointer hover:bg-green-200 animate-all duration-200"
+                                onClick={() => {
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    materialDisponivel: prev.materialDisponivel.filter((m: string) => m !== material)
+                                  }));
+                                }}
+                                className="group inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-900 cursor-pointer transition-all duration-300"
                               >
                                 {material}
                                 <button
                                   type="button"
-                                  onClick={() => {
+                                  className="ml-1 inline-flex text-red-600 items-center justify-center w-4 h-4 rounded-full transition-opacity duration-200 opacity-0 group-hover:opacity-100"
+                                  onClick={e => {
+                                    e.stopPropagation();
                                     setFormData(prev => ({
                                       ...prev,
                                       materialDisponivel: prev.materialDisponivel.filter((m: string) => m !== material)
                                     }));
                                   }}
-                                  className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-green-200 transition-colors cursor-pointer"
                                 >
-                                  <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                      clipRule="evenodd"
+                                    />
                                   </svg>
                                 </button>
                               </motion.span>
                             ))}
                           </motion.div>
                         )}
-                      </motion.fieldset>
+                        {errors.materialDisponivel && (
+                          <div className="flex items-center mt-4 text-sm text-red-500 space-x-1">
+                            <AlertCircle className="w-4 h-4 flex-shrink-0 mr-2" />
+                            <span>{errors.materialDisponivel}</span>
+                          </div>
+                        )}
+                      </fieldset>
                     </motion.div>
                   )}
 
@@ -1432,7 +1444,7 @@ export default function Anamnese() {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         transition={{ duration: 0.3, ease: "easeOut" }}
-                        className="mt-6 space-y-4 overflow-hidden"
+                        className="mt-6 space-y-4 overflow-hidden mb-5"
                       >
                         <fieldset>
                           <motion.legend
@@ -1442,7 +1454,6 @@ export default function Anamnese() {
                             className="block mb-4 text-lg font-semibold text-gray-800"
                           >
                             Quais restrições alimentares?
-                            <span className="ml-2 text-sm font-normal text-gray-500">(Selecione todas que se aplicam)</span>
                           </motion.legend>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1491,19 +1502,6 @@ export default function Anamnese() {
                                   <span className={`font-medium ${formData.restricoesAlimentares?.includes(restricao) ? 'text-blue-600' : 'text-gray-700'}`}>
                                     {restricao}
                                   </span>
-                                  {restricao === "Outros" && formData.restricoesAlimentares?.includes("Outros") && (
-                                    <motion.div
-                                      initial={{ opacity: 0, height: 0 }}
-                                      animate={{ opacity: 1, height: 'auto' }}
-                                      className="mt-2 w-full"
-                                    >
-                                      <input
-                                        type="text"
-                                        placeholder="Por favor, especifique"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                      />
-                                    </motion.div>
-                                  )}
                                 </label>
                               </motion.div>
                             ))}
@@ -1516,39 +1514,56 @@ export default function Anamnese() {
                               transition={{ delay: 0.3 }}
                               className="mt-4 flex flex-wrap gap-2"
                             >
-                              {formData.restricoesAlimentares.map(restricao => (
+                              {formData.restricoesAlimentares.map((restricao) => (
                                 <motion.span
                                   key={restricao}
                                   layout
                                   initial={{ scale: 0.8, opacity: 0 }}
                                   animate={{ scale: 1, opacity: 1 }}
                                   exit={{ scale: 0.8, opacity: 0 }}
-                                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                                  onClick={() => {
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      restricoesAlimentares: (prev.restricoesAlimentares || []).filter(r => r !== restricao)
+                                    }));
+                                  }}
+                                  className="group inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-900 cursor-pointer transition-all duration-300"
                                 >
                                   {restricao}
                                   <button
                                     type="button"
-                                    onClick={() => {
+                                    className="ml-1 inline-flex text-red-600 items-center justify-center w-4 h-4 rounded-full transition-opacity duration-200 opacity-0 group-hover:opacity-100"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
                                       setFormData(prev => ({
                                         ...prev,
                                         restricoesAlimentares: (prev.restricoesAlimentares || []).filter(r => r !== restricao)
                                       }));
                                     }}
-                                    className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-blue-200 transition-colors"
                                   >
-                                    <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 20 20">
-                                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clipRule="evenodd"
+                                      />
                                     </svg>
                                   </button>
                                 </motion.span>
                               ))}
                             </motion.div>
                           )}
-
-                          <InputError message={errors.restricoesAlimentares} />
+                          {errors.restricoesAlimentares && (
+                            <div className="flex items-center mt-4 text-sm text-red-500 space-x-1">
+                              <AlertCircle className="w-4 h-4 flex-shrink-0 mr-2" />
+                              <span>{errors.restricoesAlimentares}</span>
+                            </div>
+                          )}
                         </fieldset>
                       </motion.div>
                     )}
+
+
                     <InputField
                       type="text"
                       name="dificuldadesPlanoAlimentar"

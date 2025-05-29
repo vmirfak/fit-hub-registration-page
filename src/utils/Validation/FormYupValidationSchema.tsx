@@ -17,7 +17,10 @@ const TRAINING_LOCATIONS = ['casa', 'ginásio', 'ambos'] as const;
 // Helper functions
 const normalizeSpaces = (value: string) => value.replace(/\s+/g, ' ').trim();
 const parseDecimal = (value: string) => parseFloat(value.replace(',', '.'));
-const normalizeText = (value: string) => value.trim().replace(/\s+/g, ' ');
+const normalizeText = (value: unknown) => {
+    if (!value || typeof value !== 'string') return '';
+    return value.trim().replace(/\s+/g, ' ');
+};
 const validateWordCount = (minWords: number) => (value: string) =>
     value ? value.trim().split(/\s+/).length >= minWords : false;
 const validateFile = (value: unknown) => {
@@ -513,17 +516,23 @@ export const FormYupValidationSchema = yup.object().shape({
         .required('Por favor, informa teu local preferido para treinar'),
 
     materialDisponivel: yup
-        .string()
-        .transform(normalizeText)
+        .array()
+        .of(
+            yup
+                .string()
+                .transform(normalizeText)
+                .matches(NO_SPECIAL_CHARS, 'Não pode conter caracteres especiais como < ou >')
+        )
         .when('preferenciaLocalTreino', {
             is: (val: string) => val === 'casa' || val === 'ambos',
-            then: schema => schema
-                .min(5, 'Por favor, enumera o teu material (ex: halteres, colchão, elásticos)')
-                .max(1000, 'Máximo de 1000 caracteres')
-                .required('Por favor, indica que material tens disponível em casa')
-                .matches(NO_SPECIAL_CHARS, 'Não pode conter caracteres especiais como < ou >'),
+            then: schema =>
+                schema
+                    .min(1, 'Por favor, adiciona pelo menos um material (ex: halteres, colchão, elásticos)')
+                    .max(50, 'Máximo de 50 materiais')
+                    .required('Por favor, indica que material tens disponível em casa'),
             otherwise: schema => schema.notRequired()
         }),
+
 
     aguaConsumida: yup
         .string()
